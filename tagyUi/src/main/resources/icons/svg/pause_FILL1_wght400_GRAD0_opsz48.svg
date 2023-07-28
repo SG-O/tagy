@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
+    <defs id="colors">
+        <linearGradient id="menuIconEnabled" fallback="Label.foreground">
+            <stop offset="0" stop-color="#43494A"/>
+            <stop offset="1" stop-color="#43494A"/>
+        </linearGradient>
+    </defs><path d="M555-200v-560h175v560H555Zm-325 0v-560h175v560H230Z" fill="url(#menuIconEnabled)"/>
+</svg>
