@@ -22,6 +22,7 @@ import com.github.weisj.darklaf.extensions.rsyntaxarea.DarklafRSyntaxTheme;
 import com.github.weisj.darklaf.theme.event.ThemeInstalledListener;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import de.sg_o.app.customComponents.FontImport;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -43,6 +44,7 @@ public class MetaViewerUI extends JFrame {
         meta.setMarkOccurrences(true);
         meta.setText(data);
         meta.setEditable(false);
+        meta.setFont(FontImport.robotoMono.deriveFont(16f));
         DarklafRSyntaxTheme syntaxTheme = new DarklafRSyntaxTheme();
         syntaxTheme.apply(meta);
         LafManager.addThemeChangeListener((ThemeInstalledListener) e -> syntaxTheme.apply(meta));

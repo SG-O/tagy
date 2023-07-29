@@ -23,6 +23,7 @@ import com.github.weisj.darklaf.theme.event.ThemeInstalledListener;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import de.sg_o.app.customComponents.FontImport;
 import de.sg_o.lib.tagy.Project;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -33,11 +34,6 @@ import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Locale;
 
 public class EditorUI extends JFrame {
@@ -57,18 +53,7 @@ public class EditorUI extends JFrame {
 
         projectName.setText(project.getProjectName());
 
-        URL robotoMono = this.getClass().getResource("/fonts/RobotoMono-VariableFont_wght.ttf");
-        if (robotoMono != null) {
-            try {
-                File robotoMonoFile = new File(robotoMono.toURI());
-                try (FileInputStream in = new FileInputStream(robotoMonoFile)) {
-                    Font dynamicFont = Font.createFont(Font.TRUETYPE_FONT, in).deriveFont(16f);
-                    editor.setFont(dynamicFont);
-                }
-            } catch (URISyntaxException | FontFormatException | IOException ignore) {
-            }
-        }
-
+        editor.setFont(FontImport.robotoMono.deriveFont(16f));
         editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON_WITH_COMMENTS);
         editor.setCodeFoldingEnabled(true);
         editor.setMarkOccurrences(true);

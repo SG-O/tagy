@@ -152,7 +152,6 @@
             <artifactId>imageio-xwd</artifactId>
             <version>${twelvemonkeys.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.jetbrains.intellij.java</groupId>
             <artifactId>java-gui-forms-rt</artifactId>

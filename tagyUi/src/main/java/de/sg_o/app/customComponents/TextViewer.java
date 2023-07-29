@@ -25,10 +25,9 @@ import de.sg_o.lib.tagy.tag.Input;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import java.awt.*;
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 
 public class TextViewer extends RTextScrollPane {
@@ -39,18 +38,7 @@ public class TextViewer extends RTextScrollPane {
         textArea = new RSyntaxTextArea();
         textArea.setEditable(false);
         textArea.setLineWrap(true);
-
-        URL robotoMono = this.getClass().getResource("/fonts/RobotoMono-VariableFont_wght.ttf");
-        if (robotoMono != null) {
-            try {
-                File robotoMonoFile = new File(robotoMono.toURI());
-                try (FileInputStream in = new FileInputStream(robotoMonoFile)) {
-                    Font dynamicFont = Font.createFont(Font.TRUETYPE_FONT, in).deriveFont(16f);
-                    textArea.setFont(dynamicFont);
-                }
-            } catch (URISyntaxException | FontFormatException | IOException ignore) {
-            }
-        }
+        textArea.setFont(FontImport.robotoMono.deriveFont(16f));
         DarklafRSyntaxTheme syntaxTheme = new DarklafRSyntaxTheme();
         syntaxTheme.apply(textArea);
         LafManager.addThemeChangeListener((ThemeInstalledListener) e -> syntaxTheme.apply(textArea));
