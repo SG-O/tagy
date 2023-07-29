@@ -1,6 +1,6 @@
 # This workflow will build and test a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 
-name: Java CI with Maven
+name: Java CI with Corretto 8
 
 on:
   push:
