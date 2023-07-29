@@ -20,9 +20,13 @@ package de.sg_o.app.customComponents;
 import de.sg_o.lib.tagy.data.FileInfo;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Iterator;
 
 public class ImageViewer  extends JComponent {
 
@@ -75,9 +79,23 @@ public class ImageViewer  extends JComponent {
     }
 
     public void display(FileInfo fileInfo) {
-        try {
-            image = ImageIO.read(fileInfo.getFile());
-        } catch (IOException ignore) {
+        try (ImageInputStream input = ImageIO.createImageInputStream(fileInfo.getFile())) {
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+
+            if (!readers.hasNext()) {
+                throw new IllegalArgumentException("No reader for: " + fileInfo.getFile());
+            }
+
+            ImageReader reader = readers.next();
+
+            try {
+                reader.setInput(input);
+                BufferedImage tempImage = reader.read(0);
+                if (tempImage != null) image = tempImage;
+            } finally {
+                reader.dispose();
+            }
+        } catch (IOException | IllegalStateException ignore) {
         }
         revalidate();
         repaint();

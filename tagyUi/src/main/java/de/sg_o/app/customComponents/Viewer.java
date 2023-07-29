@@ -55,23 +55,26 @@ public class Viewer extends JPanel {
         textViewer.stop();
         player.stop();
         imageViewer.stop();
-
-        switch (fileInfo.getFileType()) {
-            case TEXT:
-                textViewer.display(fileInfo);
-                layout.show(this, TEXT_VIEWER);
-                break;
-            case IMAGE:
-                imageViewer.display(fileInfo);
-                layout.show(this, IMAGE);
-                break;
-            case MEDIA:
-                player.display(fileInfo);
-                layout.show(this, PLAYER);
-                break;
-            default:
-                layout.show(this, UNKNOWN);
-                break;
+        try {
+            switch (fileInfo.getFileType()) {
+                case TEXT:
+                    textViewer.display(fileInfo);
+                    layout.show(this, TEXT_VIEWER);
+                    break;
+                case IMAGE:
+                    imageViewer.display(fileInfo);
+                    layout.show(this, IMAGE);
+                    break;
+                case MEDIA:
+                    player.display(fileInfo);
+                    layout.show(this, PLAYER);
+                    break;
+                default:
+                    layout.show(this, UNKNOWN);
+                    break;
+            }
+        } catch (Exception ignored) {
+            layout.show(this, UNKNOWN);
         }
         revalidate();
         repaint();
