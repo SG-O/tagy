@@ -1,0 +1,42 @@
+# This workflow will build and test a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  pull-requests: write
+  contents: write
+  checks: write
+  issues: write
+  repository-projects: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'corretto'
+          cache: maven
+      - name: Run texts
+        run: mvn -B test
+      - name: Publish test coverage results
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: 'tagyCore/target/site/jacoco/jacoco.xml'
+          coverage_report_title: 'Test coverage results'
+          coverage_report_name: 'Test coverage results'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 80
+          fail_below_threshold: false
+          publish_only_summary: true
