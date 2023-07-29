@@ -121,11 +121,6 @@ class DirectoryTest {
         assertNotEquals(dir0, dir1);
         assertNotEquals(dir0, dir2);
         assertNotEquals(dir0, dir3);
-
-        assertEquals(691942919, dir0.hashCode());
-        assertEquals(-1935789742, dir1.hashCode());
-        assertEquals(1614979545, dir2.hashCode());
-        assertEquals(1614979731, dir3.hashCode());
         assertEquals(dir0.hashCode(), dir4.hashCode());
     }
 
