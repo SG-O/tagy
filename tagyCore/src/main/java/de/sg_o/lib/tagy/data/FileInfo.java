@@ -24,7 +24,9 @@ import de.sg_o.lib.tagy.db.DbConstants;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.util.Objects;
 
 public class FileInfo implements Serializable {
@@ -69,6 +71,34 @@ public class FileInfo implements Serializable {
 
     public boolean isAnnotated() {
         return annotated;
+    }
+
+    public FileType getFileType() {
+        FileType fileType = FileType.UNKNOWN;
+        String fileTypeString = "";
+        try {
+            fileTypeString = Files.probeContentType(this.file.toPath());
+        } catch (IOException ignored) {
+        }
+
+        if (fileTypeString == null) return fileType;
+        String[] split = fileTypeString.split("/");
+        if (split.length < 1) return fileType;
+        fileTypeString = split[0];
+
+        switch (fileTypeString) {
+            case "image":
+                fileType = FileType.IMAGE;
+                break;
+            case "audio":
+            case "video":
+                fileType = FileType.MEDIA;
+                break;
+            case "text":
+                fileType = FileType.TEXT;
+                break;
+        }
+        return fileType;
     }
 
     public MutableDocument getEncoded() {

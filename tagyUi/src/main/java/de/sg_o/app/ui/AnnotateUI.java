@@ -20,24 +20,22 @@ package de.sg_o.app.ui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import de.sg_o.app.customComponents.PlayerControls;
+import de.sg_o.app.customComponents.Viewer;
 import de.sg_o.app.customComponents.WrapLayout;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.data.MetaData;
-import de.sg_o.lib.tagy.def.Parameter;
 import de.sg_o.lib.tagy.exceptions.InputException;
 import de.sg_o.lib.tagy.tag.Input;
 import de.sg_o.lib.tagy.tag.Tag;
 import org.jetbrains.annotations.NotNull;
-import uk.co.caprica.vlcj.player.base.MediaPlayer;
-import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
-import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -49,17 +47,14 @@ public class AnnotateUI extends JFrame {
     private JLabel errorMessage;
     private JScrollPane valueScrollPane;
     private JLabel fileName;
-    private JPanel viewer;
+    private JPanel viewerHolder;
     private JPanel contentPane;
     private final Project project;
     private ArrayList<Input> inputs;
 
-    private EmbeddedMediaPlayerComponent mediaPlayerComponent;
-
     private final DataManager dataManager;
     private MetaData metaData;
-    private PlayerControls controls;
-
+    private Viewer viewer;
 
     public AnnotateUI(@NotNull Project project, MetaData toView) throws HeadlessException {
         super();
@@ -112,17 +107,23 @@ public class AnnotateUI extends JFrame {
                 for (Input input : inputs) {
                     variables.add(input.getModule());
                 }
-                createViewer();
+                viewer = new Viewer(inputs);
+                viewerHolder.add(viewer, BorderLayout.CENTER);
                 showNext(toView);
             }
 
             @Override
             public void windowClosed(WindowEvent e) {
                 super.windowClosed(e);
-                if (controls != null) {
-                    controls.close();
-                }
-                mediaPlayerComponent.mediaPlayer().release();
+                viewer.close();
+            }
+        });
+
+        contentPane.addComponentListener(new ComponentAdapter()
+        {
+            public void componentResized(ComponentEvent evt) {
+                contentPane.revalidate();
+                contentPane.repaint();
             }
         });
 
@@ -148,7 +149,7 @@ public class AnnotateUI extends JFrame {
             metaData = new MetaData(fileInfo, project);
         }
         fileName.setText(metaData.getReference().getId());
-        mediaPlayerComponent.mediaPlayer().media().play(metaData.getReference().getId());
+        viewer.display(metaData.getReference());
 
         HashMap<String, Tag> tags = metaData.getTags();
 
@@ -167,40 +168,6 @@ public class AnnotateUI extends JFrame {
     private void createUIComponents() {
         variables = new JPanel();
         variables.setLayout(new WrapLayout(WrapLayout.LEFT, 5, 5));
-    }
-
-    private void createViewer() {
-        mediaPlayerComponent = new EmbeddedMediaPlayerComponent("-vv");
-        viewer.add(mediaPlayerComponent, BorderLayout.CENTER);
-        Input in = null;
-        Input out = null;
-        Input length = null;
-
-        for (Input input : inputs) {
-            if (input.getTagDefinition().getParameter() == Parameter.IN) {
-                in = input;
-            } else if (input.getTagDefinition().getParameter() == Parameter.OUT) {
-                out = input;
-            } else if (input.getTagDefinition().getParameter() == Parameter.LENGTH) {
-                length = input;
-            }
-        }
-
-        Input finalLength = length;
-        mediaPlayerComponent.mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-            @Override
-            public void playing(MediaPlayer mediaPlayer) {
-                if (finalLength != null) {
-                    finalLength.setValue(mediaPlayer.status().length());
-                }
-            }
-        });
-
-        controls = new PlayerControls(mediaPlayerComponent.mediaPlayer(), in, out);
-
-        viewer.add(controls.getControlsPane(), BorderLayout.SOUTH);
-        viewer.revalidate();
-        viewer.repaint();
     }
 
     /**
@@ -230,9 +197,9 @@ public class AnnotateUI extends JFrame {
         fileName = new JLabel();
         fileName.setText("FileName");
         contentPane.add(fileName, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        viewer = new JPanel();
-        viewer.setLayout(new BorderLayout(0, 0));
-        contentPane.add(viewer, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(100, 100), new Dimension(640, 480), null, 0, false));
+        viewerHolder = new JPanel();
+        viewerHolder.setLayout(new BorderLayout(0, 0));
+        contentPane.add(viewerHolder, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(100, 100), new Dimension(640, 480), null, 0, false));
     }
 
     /**
