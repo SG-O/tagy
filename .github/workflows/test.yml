@@ -38,7 +38,7 @@ jobs:
       - name: Publish test coverage results
         uses: PavanMudigonda/jacoco-reporter@v4.8
         with:
-          coverage_results_path: 'target/site/jacoco/jacoco.xml'
+          coverage_results_path: 'tagyCore/target/site/jacoco/jacoco.xml'
           coverage_report_title: 'Test coverage results'
           coverage_report_name: 'Test coverage results'
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -49,14 +49,14 @@ jobs:
         if: ${{ github.event_name == 'pull_request'}}
         uses: madrapps/jacoco-report@v1.3
         with:
-          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          paths: ${{ github.workspace }}tagyCore//target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 40
           min-coverage-changed-files: 80
       - name: Generate JaCoCo Badge
         uses: cicirello/jacoco-badge-generator@v2.7.0
         with:
-          jacoco-csv-file: target/site/jacoco/jacoco.csv
+          jacoco-csv-file: tagyCore/target/site/jacoco/jacoco.csv
           badges-directory: badges
           generate-coverage-badge: true
           coverage-badge-filename: jacoco.svg
