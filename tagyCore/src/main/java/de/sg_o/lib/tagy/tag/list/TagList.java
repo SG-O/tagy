@@ -78,7 +78,7 @@ public class TagList extends Tag {
         return values.remove(value);
     }
 
-    @JsonProperty(value = "value", index = 0)
+    @JsonProperty(value = "values", index = 0)
     public ArrayList<Tag> getValues() {
         return new ArrayList<>(values);
     }
@@ -108,7 +108,7 @@ public class TagList extends Tag {
         if (o == null || getClass() != o.getClass()) return false;
         TagList tagList = (TagList) o;
         if (!super.definitionEquals(((Tag) o).getDefinition())) return false;
-
+        if (values.size() != tagList.values.size()) return false;
         for (int i = 0; i < values.size(); i++) {
             if (!Objects.equals(values.get(i).getValueAsString(), tagList.values.get(i).getValueAsString())) return false;
         }

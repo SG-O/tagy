@@ -22,6 +22,7 @@ import com.github.weisj.darklaf.settings.SettingsConfiguration;
 import com.github.weisj.darklaf.settings.ThemeSettings;
 import de.sg_o.app.ui.ProjectsUI;
 import de.sg_o.lib.tagy.db.DB;
+import io.objectbox.exception.DbSchemaException;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
@@ -58,7 +59,11 @@ public class Init {
         String lastUsed = prefs.get("lastOpenedDb", null);
         if (lastUsed != null) {
             File lastUsedFile = new File(lastUsed);
-            DB.initDb(lastUsedFile, false);
+            try {
+                DB.initDb(lastUsedFile, false);
+            } catch (DbSchemaException e) {
+                System.out.println(e.getMessage());
+            }
         }
 
         ProjectsUI projectsUI = new ProjectsUI();

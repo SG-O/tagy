@@ -17,8 +17,6 @@
 
 package de.sg_o.test.tagy.tag;
 
-import com.couchbase.lite.MutableArray;
-import com.couchbase.lite.MutableDictionary;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;

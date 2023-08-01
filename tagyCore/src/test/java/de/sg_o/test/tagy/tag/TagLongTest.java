@@ -17,8 +17,6 @@
 
 package de.sg_o.test.tagy.tag;
 
-import com.couchbase.lite.MutableArray;
-import com.couchbase.lite.MutableDictionary;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
@@ -27,7 +25,8 @@ import de.sg_o.lib.tagy.tag.integer.TagLong;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class TagLongTest {
     TagLong tag0;
