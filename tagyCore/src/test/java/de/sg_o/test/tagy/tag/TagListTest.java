@@ -17,14 +17,12 @@
 
 package de.sg_o.test.tagy.tag;
 
-import com.couchbase.lite.MutableArray;
-import com.couchbase.lite.MutableDictionary;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagHolder;
-import de.sg_o.lib.tagy.tag.list.TagList;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
+import de.sg_o.lib.tagy.tag.list.TagList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
