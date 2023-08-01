@@ -17,11 +17,12 @@
 
 package de.sg_o.lib.tagy.def;
 
-import com.couchbase.lite.Array;
-import com.couchbase.lite.Dictionary;
-import com.couchbase.lite.MutableArray;
-import com.couchbase.lite.MutableDictionary;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.util.Util;
+import io.objectbox.BoxStore;
+import io.objectbox.annotation.*;
+import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,21 +31,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Entity
 public class TagDefinition implements Serializable {
+    @Id
+    private Long id;
     @NotNull
     private final String key;
-    private String name = null;
-    private String description = null;
-    @NotNull
+    private String name;
+    private String description;
+    @Convert(converter = Type.TypeConverter.class, dbType = Integer.class)
     private final Type type;
     private double min = Double.NEGATIVE_INFINITY;
-    private double max = Double.POSITIVE_INFINITY;
+    private double max= Double.POSITIVE_INFINITY;;
     private boolean required = false;
-    @NotNull
-    private final ArrayList<String> enumerators;
-    private TagDefinition internal = null;
-    @NotNull
+    private final List<String> enumerators;
+    @Convert(converter = Parameter.ParameterConverter.class, dbType = Integer.class)
     private Parameter parameter = Parameter.NONE;
+    private final ToOne<TagDefinition> internal = new ToOne<>(this, TagDefinition_.internal);
+
+    @Transient
+    transient BoxStore __boxStore = null;
+
+    public TagDefinition(Long id, @NotNull String key, String name, String description, Type type, double min, double max, boolean required, List<String> enumerators, Parameter parameter, long internalId) {
+        this.id = id;
+        this.key = key;
+        this.name = name;
+        this.description = description;
+        this.type = type;
+        this.min = min;
+        this.max = max;
+        this.required = required;
+        this.enumerators = enumerators;
+        this.internal.setTargetId(internalId);
+        this.parameter = parameter;
+    }
 
     public TagDefinition(@Nullable String key, @NotNull Type type) {
         if (key == null) key = "";
@@ -54,14 +74,22 @@ public class TagDefinition implements Serializable {
         enumerators = new ArrayList<>();
     }
 
-    public TagDefinition(@NotNull Dictionary encoded) {
-        String key = encoded.getString(StructureConstants.KEY_KEY);
-        key = Util.sanitize(key, new char[]{'_', '-'}, false, true, 64);
-        if (key == null || (!encoded.contains(StructureConstants.TYPE_KEY))) {
+    public TagDefinition(@NotNull JsonNode encoded) {
+
+        JsonNode keyNode = encoded.get(StructureConstants.KEY_KEY);
+        if (keyNode == null) {
             throw new IllegalArgumentException("Invalid encoded TagDefinition");
         }
-        Type type = Type.getType(encoded.getInt(StructureConstants.TYPE_KEY));
-        String typeString = encoded.getString(StructureConstants.TYPE_KEY);
+        String key = Util.sanitize(keyNode.textValue(), new char[]{'_', '-'}, false, true, 64);
+        if (key == null) {
+            throw new IllegalArgumentException("Invalid encoded TagDefinition");
+        }
+        JsonNode typeNode = encoded.get(StructureConstants.TYPE_KEY);
+        if (typeNode == null) {
+            throw new IllegalArgumentException("Invalid encoded TagDefinition");
+        }
+        Type type = Type.getType(typeNode.intValue());
+        String typeString = typeNode.textValue();
         if (typeString != null) {
             type = Type.valueOf(typeString);
         }
@@ -72,38 +100,45 @@ public class TagDefinition implements Serializable {
         this.key = key;
         this.type = type;
         this.enumerators = new ArrayList<>();
-        if (encoded.contains(StructureConstants.NAME_KEY)) {
-            this.name = encoded.getString(StructureConstants.NAME_KEY);
+        JsonNode nameNode = encoded.get(StructureConstants.NAME_KEY);
+        if (nameNode != null) {
+            this.name = nameNode.textValue();
         }
-        if (encoded.contains(StructureConstants.DESCRIPTION_KEY)) {
-            this.description = encoded.getString(StructureConstants.DESCRIPTION_KEY);
+        JsonNode descriptionNode = encoded.get(StructureConstants.DESCRIPTION_KEY);
+        if (descriptionNode != null) {
+            this.description = descriptionNode.textValue();
+        }
+        JsonNode minNode = encoded.get(StructureConstants.MIN_KEY);
+        if (minNode != null) {
+            this.min = minNode.doubleValue();
+        }
+        JsonNode maxNode = encoded.get(StructureConstants.MAX_KEY);
+        if (maxNode != null) {
+            this.max = maxNode.doubleValue();
         }
 
-        if (encoded.contains(StructureConstants.MIN_KEY)) {
-            this.min = encoded.getDouble(StructureConstants.MIN_KEY);
-        }
-        if (encoded.contains(StructureConstants.MAX_KEY)) {
-            this.max = encoded.getDouble(StructureConstants.MAX_KEY);
+        JsonNode requiredNode = encoded.get(StructureConstants.REQUIRED_KEY);
+        if (requiredNode != null) {
+            this.required = requiredNode.booleanValue();
         }
 
-        if (encoded.contains(StructureConstants.REQUIRED_KEY)) {
-            this.required = encoded.getBoolean(StructureConstants.REQUIRED_KEY);
-        }
-
-        if (encoded.contains(StructureConstants.ENUMERATORS_KEY)) {
-            Array enumerators = encoded.getArray(StructureConstants.ENUMERATORS_KEY);
-            if (enumerators != null) {
-                for (int i = 0; i < enumerators.count(); i++) {
-                    String enumerator = enumerators.getString(i);
-                    if (enumerator != null) {
+        JsonNode enumeratorsNode = encoded.get(StructureConstants.ENUMERATORS_KEY);
+        if (enumeratorsNode != null) {
+            if (enumeratorsNode.isArray()) {
+                for (int i = 0; i < enumeratorsNode.size(); i++) {
+                    JsonNode enumeratorNode = enumeratorsNode.get(i);
+                    if (enumeratorNode != null) {
+                        String enumerator = enumeratorNode.textValue();
                         this.enumerators.add(enumerator);
                     }
                 }
             }
         }
-        if (encoded.contains(StructureConstants.PARAMETER_KEY)) {
-            Parameter parameter = Parameter.getParameter(encoded.getInt(StructureConstants.PARAMETER_KEY));
-            String parameterString = encoded.getString(StructureConstants.PARAMETER_KEY);
+
+        JsonNode parameterNode = encoded.get(StructureConstants.PARAMETER_KEY);
+        if (parameterNode != null) {
+            Parameter parameter = Parameter.getParameter(parameterNode.intValue());
+            String parameterString = parameterNode.textValue();
             if (parameterString != null) {
                 parameter = Parameter.valueOf(parameterString);
             }
@@ -112,23 +147,37 @@ public class TagDefinition implements Serializable {
         }
 
         if (this.type == Type.LIST) {
-            Dictionary internal = encoded.getDictionary(StructureConstants.INTERNAL_KEY);
-            if (internal != null) {
-                this.internal = new TagDefinition(internal);
+            JsonNode internalNode = encoded.get(StructureConstants.INTERNAL_KEY);
+            if (internalNode != null) {
+                this.internal.setTarget(new TagDefinition(internalNode));
             } else {
                 throw new IllegalArgumentException("Invalid encoded TagDefinition");
             }
         }
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @JsonProperty(index = 0)
     public @NotNull String getKey() {
         return key;
     }
 
-    public @NotNull String getName() {
+    public @NotNull String resolveName() {
         if (name == null || name.isEmpty()) {
             return key;
         }
+        return name;
+    }
+
+    @JsonProperty(index = 1)
+    public @Nullable String getName() {
         return name;
     }
 
@@ -136,6 +185,7 @@ public class TagDefinition implements Serializable {
         this.name = name;
     }
 
+    @JsonProperty(index = 2)
     public String getDescription() {
         return description;
     }
@@ -144,10 +194,12 @@ public class TagDefinition implements Serializable {
         this.description = description;
     }
 
+    @JsonProperty(index = 3)
     public @NotNull Type getType() {
         return type;
     }
 
+    @JsonProperty(index = 4)
     public double getMin() {
         return min;
     }
@@ -156,6 +208,7 @@ public class TagDefinition implements Serializable {
         this.min = min;
     }
 
+    @JsonProperty(index = 5)
     public double getMax() {
         return max;
     }
@@ -164,6 +217,7 @@ public class TagDefinition implements Serializable {
         this.max = max;
     }
 
+    @JsonProperty(index = 6)
     public boolean isRequired() {
         return required;
     }
@@ -201,21 +255,31 @@ public class TagDefinition implements Serializable {
         return true;
     }
 
+    @JsonProperty(index = 7)
     public ArrayList<String> getEnumerators() {
         if (type != Type.ENUM) return null;
         return new ArrayList<>(enumerators);
     }
 
-    public TagDefinition getInternal() {
+    @JsonProperty(index = 8)
+    public TagDefinition resolveInternal() {
         if (type != Type.LIST) return null;
+        return internal.getTarget();
+    }
+
+    public ToOne<TagDefinition> getInternal() {
+        if (type != Type.LIST) {
+            internal.setTarget(null);
+        }
         return internal;
     }
 
     public void setInternal(TagDefinition internal) {
         if (type != Type.LIST) return;
-        this.internal = internal;
+        this.internal.setTarget(internal);
     }
 
+    @JsonProperty(index = 9)
     public @NotNull Parameter getParameter() {
         return parameter;
     }
@@ -224,41 +288,6 @@ public class TagDefinition implements Serializable {
         if (parameter == null) parameter = Parameter.NONE;
         this.parameter = parameter;
     }
-
-    public MutableDictionary getEncoded() {
-        MutableDictionary encoded = new MutableDictionary();
-        encoded.setString(StructureConstants.KEY_KEY, key);
-        encoded.setInt(StructureConstants.TYPE_KEY, type.getId());
-        if (name != null) {
-            encoded.setString(StructureConstants.NAME_KEY, name);
-        }
-        if (description != null) {
-            encoded.setString(StructureConstants.DESCRIPTION_KEY, description);
-        }
-        if (min != Double.NEGATIVE_INFINITY && min != Double.POSITIVE_INFINITY) {
-            encoded.setDouble(StructureConstants.MIN_KEY, min);
-        }
-        if (min != Double.NEGATIVE_INFINITY && min != Double.POSITIVE_INFINITY) {
-            encoded.setDouble(StructureConstants.MAX_KEY, max);
-        }
-        encoded.setBoolean(StructureConstants.REQUIRED_KEY, required);
-        if (type == Type.ENUM) {
-            MutableArray enumerators = new MutableArray();
-            for (String enumerator : this.enumerators) {
-                enumerators.addString(enumerator);
-            }
-            encoded.setArray(StructureConstants.ENUMERATORS_KEY, enumerators);
-        }
-        if (type == Type.LIST) {
-            if (internal == null) return null;
-            encoded.setDictionary(StructureConstants.INTERNAL_KEY, internal.getEncoded());
-        }
-        if (parameter != Parameter.NONE) {
-            encoded.setInt(StructureConstants.PARAMETER_KEY, parameter.getId());
-        }
-        return encoded;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -267,16 +296,16 @@ public class TagDefinition implements Serializable {
         return Double.compare(that.getMin(),
                 getMin()) == 0 && Double.compare(that.getMax(),
                 getMax()) == 0 && isRequired() == that.isRequired() && Objects.equals(getKey(),
-                that.getKey()) && Objects.equals(getName(),
-                that.getName()) && Objects.equals(getDescription(),
+                that.getKey()) && Objects.equals(resolveName(),
+                that.resolveName()) && Objects.equals(getDescription(),
                 that.getDescription()) && getType().getId() == that.getType().getId() && Objects.equals(getEnumerators(),
-                that.getEnumerators()) && Objects.equals(getInternal(),
-                that.getInternal()) && getParameter().getId() == that.getParameter().getId();
+                that.getEnumerators()) && Objects.equals(resolveInternal(),
+                that.resolveInternal()) && getParameter().getId() == that.getParameter().getId();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getKey(), getName(), getDescription(), getType().getId(), getMin(), getMax(), isRequired(), getEnumerators(), getInternal(), getParameter().getId());
+        return Objects.hash(getKey(), resolveName(), getDescription(), getType().getId(), getMin(), getMax(), isRequired(), getEnumerators(), resolveInternal(), getParameter().getId());
     }
 
     private static String generateEntity(String key, Object value, boolean encapsulate, int indent) {
@@ -316,8 +345,8 @@ public class TagDefinition implements Serializable {
         builder.append(",\n").append(generateEntity(StructureConstants.REQUIRED_KEY, required, false, indent));
         StringBuilder enumeratorsString = enumeratorToString(indent);
         builder.append(",\n").append(generateEntity(StructureConstants.ENUMERATORS_KEY, enumeratorsString, false, indent));
-        if (internal != null) {
-            builder.append(",\n").append(generateEntity(StructureConstants.INTERNAL_KEY, "\n" + internal.toString(indent + 1), false, indent));
+        if (internal.getTarget() != null) {
+            builder.append(",\n").append(generateEntity(StructureConstants.INTERNAL_KEY, "\n" + internal.getTarget().toString(indent + 1), false, indent));
         }
         if (parameter != Parameter.NONE) {
             builder.append(",\n").append(generateEntity(StructureConstants.PARAMETER_KEY, parameter, true, indent));
@@ -333,6 +362,9 @@ public class TagDefinition implements Serializable {
     @NotNull
     private StringBuilder enumeratorToString(int indent) {
         StringBuilder enumeratorsString = new StringBuilder();
+        if (enumerators == null) {
+            return enumeratorsString.append("[]");
+        }
         if (!enumerators.isEmpty()) {
             enumeratorsString.append("\n");
             for (int i = -2; i < indent; i++) {

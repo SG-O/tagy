@@ -27,7 +27,9 @@ import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.ProjectManager;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.db.DB;
+import de.sg_o.lib.tagy.db.NewDB;
 import de.sg_o.lib.tagy.values.User;
+import io.objectbox.BoxStore;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -83,7 +85,7 @@ public class ProjectsUI extends JFrame {
         edit.addActionListener(e -> edit());
         ingestDataButton.addActionListener(e -> ingestData());
         create.addActionListener(e -> {
-            Database db = DB.getDb();
+            BoxStore db = NewDB.getDb();
             if (db == null) return;
             CreateProjectUI createProjectUI = new CreateProjectUI(projectManager);
             createProjectUI.setVisible(true);
@@ -106,7 +108,7 @@ public class ProjectsUI extends JFrame {
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setFileFilter(new FileFilter() {
             public String getDescription() {
-                return "Tagy Database (*_tagy.cblite2)";
+                return "Tagy Database (*.tagy)";
             }
 
             public boolean accept(File f) {
@@ -119,14 +121,14 @@ public class ProjectsUI extends JFrame {
             if (selectedFile == null) {
                 return;
             }
-            if (!selectedFile.getName().endsWith("_tagy.cblite2")) {
-                selectedFile = new File(selectedFile.getAbsolutePath() + "_tagy.cblite2");
+            if (!selectedFile.getName().endsWith(".tagy")) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + ".tagy");
             }
             //noinspection ResultOfMethodCallIgnored
             selectedFile.getParentFile().mkdirs();
             prefs.put("lastOpenedDb", selectedFile.getAbsolutePath());
-            DB.closeDb();
-            DB.initDb(selectedFile, true);
+            NewDB.closeDb();
+            NewDB.initDb(selectedFile, true);
         }
         updateProjectList();
     }
@@ -143,22 +145,23 @@ public class ProjectsUI extends JFrame {
                 return;
             }
             prefs.put("lastOpenedDb", selectedFile.getAbsolutePath());
-            DB.closeDb();
-            DB.initDb(selectedFile, false);
+            NewDB.closeDb();
+            NewDB.initDb(selectedFile, false);
         }
         updateProjectList();
     }
 
     private void updateProjectList() {
-        Database db = DB.getDb();
+        BoxStore db = NewDB.getDb();
         if (db != null) {
-            setTitle("Projects - " + db.getName() + ".cblite2");
+            setTitle("Projects - " + NewDB.getName());
             annotate.setEnabled(true);
             edit.setEnabled(true);
             ingestDataButton.setEnabled(true);
             inspectButton.setEnabled(true);
             create.setEnabled(true);
         } else {
+            setTitle("Projects");
             annotate.setEnabled(false);
             edit.setEnabled(false);
             ingestDataButton.setEnabled(false);
@@ -178,7 +181,7 @@ public class ProjectsUI extends JFrame {
             return;
         }
 
-        Project project = new Project(selectedProject, User.getLocalUser());
+        Project project = Project.openOrCreate(selectedProject, User.getLocalUser());
         FileInfoUI fileInfoUI = new FileInfoUI(new DataManager(project).getFileInfoList(20), project);
         fileInfoUI.setVisible(true);
     }
@@ -189,8 +192,8 @@ public class ProjectsUI extends JFrame {
             return;
         }
 
-        Project project = new Project(selectedProject, User.getLocalUser());
-        IngestUI ingest = new IngestUI(new DataManager(project));
+        Project project = Project.openOrCreate(selectedProject, User.getLocalUser());
+        IngestUI ingest = new IngestUI(project.resolveDataManager());
         ingest.setVisible(true);
     }
 
@@ -200,7 +203,7 @@ public class ProjectsUI extends JFrame {
             return;
         }
 
-        Project project = new Project(selectedProject, User.getLocalUser());
+        Project project = Project.openOrCreate(selectedProject, User.getLocalUser());
 
         EditorUI editorUI = new EditorUI(project);
         editorUI.setVisible(true);
@@ -212,7 +215,7 @@ public class ProjectsUI extends JFrame {
             return;
         }
 
-        Project project = new Project(selectedProject, User.getLocalUser());
+        Project project = Project.openOrCreate(selectedProject, User.getLocalUser());
 
         AnnotateUI annotateUI = new AnnotateUI(project, null);
         annotateUI.setVisible(true);

@@ -17,46 +17,61 @@
 
 package de.sg_o.lib.tagy.data;
 
-import com.couchbase.lite.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.DbConstants;
-import de.sg_o.lib.tagy.db.QuerySpec;
+import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.util.FileInfoIterator;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Transient;
+import io.objectbox.relation.ToMany;
+import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.table.AbstractTableModel;
-import java.io.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonIgnoreProperties({ "listenerList"})
+@Entity
+@JsonIgnoreProperties({ "listenerList", "project"})
 public class DataManager extends AbstractTableModel {
-    @NotNull
-    private final ArrayList<Directory> sourceDirectories;
-    @NotNull
-    private transient final Project project;
+    @Id
+    Long id;
+    private final ToMany<Directory> sourceDirectories = new ToMany<>(this, DataManager_.sourceDirectories);
 
-    public DataManager(@NotNull Project project) {
-        this.sourceDirectories = new ArrayList<>();
-        this.project = project;
-        loadConfig();
+    private final ToOne<Project> project = new ToOne<>(this, DataManager_.project);
+
+    @Transient
+    BoxStore __boxStore = null;
+
+    public DataManager(Long id, long projectId) {
+        this.id = id;
+        this.project.setTargetId(projectId);
     }
 
-    public boolean loadConfig() {
-        Document document = project.getData(DbConstants.CONFIG_COLLECTION_NAME, DbConstants.DIRECTORY_CONFIG_DOCUMENT_NAME);
-        if (document == null) return false;
-        Array directories = document.getArray("directories");
-        if (directories == null) return false;
-        for (int i = 0; i < directories.count(); i++) {
-            Dictionary directory = directories.getDictionary(i);
-            if (directory == null) {
-                continue;
-            }
-            this.sourceDirectories.add(new Directory(directory));
-        }
-        return true;
+    public DataManager(@NotNull Project project) {
+        this.project.setTarget(project);
+    }
+
+    public static List<DataManager> query(QueryBoxSpec<DataManager> queryBoxSpec, int length, int offset) {
+        return NewDB.query(DataManager.class, queryBoxSpec, length, offset);
+    }
+
+    public static DataManager queryFirst(QueryBoxSpec<DataManager> queryBoxSpec) {
+        return NewDB.queryFirst(DataManager.class, queryBoxSpec);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void addDirectory(@NotNull File directory) {
@@ -76,26 +91,33 @@ public class DataManager extends AbstractTableModel {
         this.sourceDirectories.addAll(sourceDirectories);
     }
 
-    public @NotNull ArrayList<Directory> getSourceDirectories() {
-        return new ArrayList<>(sourceDirectories);
+    public @NotNull List<Directory> getSourceDirectories() {
+        return this.sourceDirectories;
+    }
+
+    public Project resolveProject() {
+        return project.getTarget();
+    }
+
+    public ToOne<Project> getProject() {
+        return project;
     }
 
     public boolean ingest() {
-        ArrayList<MutableDocument> documents = new ArrayList<>();
         for (Directory directory : sourceDirectories) {
             ArrayList<File> files = directory.getFiles();
             for (File file : files) {
-                FileInfo fileInfo = new FileInfo(file);
-                Document document = project.getData(DbConstants.META_COLLECTION_NAME, fileInfo.getId());
-                fileInfo.setAnnotated(document != null);
-                fileInfo.save(project);
+                FileInfo fileInfo = FileInfo.queryOrCreate(file, resolveProject());
+                MetaData metaData = MetaData.queryFirst(fileInfo);
+                fileInfo.setAnnotated(metaData != null);
+                fileInfo.save();
             }
         }
-        return project.saveData(DbConstants.DATA_COLLECTION_NAME, documents);
+        return true;
     }
 
     public boolean clear() {
-        return project.clearCollection(DbConstants.DATA_COLLECTION_NAME);
+        return FileInfo.deleteAll(resolveProject(), false);
     }
 
     public FileInfoList getFileInfoList(int pageSize) {
@@ -105,45 +127,24 @@ public class DataManager extends AbstractTableModel {
     @SuppressWarnings("unused")
     @JsonProperty("data")
     public FileInfoIterator getFileInfoIterator() {
-        return new FileInfoIterator(project);
+        return new FileInfoIterator(resolveProject());
     }
 
-    public @NotNull ArrayList<FileInfo> getFiles(boolean nonAnnotatedOnly, int count, int offset) {
-        if (count < 1) count = 1;
-        if (offset < 0) offset = 0;
-        int finalCount = count;
-        int finalOffset = offset;
-        QuerySpec query = (from) -> {
-            if (nonAnnotatedOnly) {
-                return from.where(Expression.property("annotated").equalTo(Expression.booleanValue(false)))
-                        .limit(Expression.intValue(finalCount), Expression.intValue(finalOffset));
-            } else {
-                return from.limit(Expression.intValue(finalCount), Expression.intValue(finalOffset));
-            }
-        };
-        ArrayList<String> ids = project.queryData(DbConstants.DATA_COLLECTION_NAME, query, count);
-        ArrayList<FileInfo> files = new ArrayList<>();
-        if (ids == null) return files;
-        for (String id : ids) {
-            files.add(new FileInfo(id, project));
-        }
-        return files;
+    public @NotNull List<FileInfo> getFiles(boolean nonAnnotatedOnly, int length, int offset) {
+        return FileInfo.query(resolveProject(), nonAnnotatedOnly, length, offset);
     }
 
     public FileInfo getNextFile() {
-        ArrayList<FileInfo> files = getFiles(true, 1, 0);
-        if (files.isEmpty()) return null;
-        return files.get(0);
+        return FileInfo.queryFirst(project.getTarget(), true);
     }
 
-    public boolean saveConfig() {
-        MutableDocument document = new MutableDocument(DbConstants.DIRECTORY_CONFIG_DOCUMENT_NAME);
-        MutableArray array = new MutableArray();
-        for (Directory directory : sourceDirectories) {
-            array.addDictionary(directory.getEncoded());
-        }
-        document.setArray("directories", array);
-        return project.saveData(DbConstants.CONFIG_COLLECTION_NAME, document);
+    public boolean save() {
+        BoxStore db = NewDB.getDb();
+        if (db == null) return false;
+        Box<DataManager> box = db.boxFor(DataManager.class);
+        if (box == null) return false;
+        this.id = box.put(this);
+        return true;
     }
 
     @Override
@@ -206,7 +207,7 @@ public class DataManager extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return sourceDirectories.get(rowIndex).getRootDirectory().getName();
+                return sourceDirectories.get(rowIndex).resolveRootDirectory().getName();
             case 1:
                 return sourceDirectories.get(rowIndex).isRecursive();
             case 2:

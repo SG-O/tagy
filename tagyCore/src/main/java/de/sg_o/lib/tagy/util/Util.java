@@ -17,6 +17,8 @@
 
 package de.sg_o.lib.tagy.util;
 
+import de.sg_o.lib.tagy.tag.Tag;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -101,6 +103,22 @@ public class Util {
     }
 
     @SuppressWarnings("unused")
+    public static boolean betterTagListEquals(List<Tag> arrayList0, List<Tag> arrayList1) {
+        if (arrayList0 == arrayList1) return true;
+        if ((arrayList0 == null) || (arrayList1 == null)) {
+            if (arrayList0 == null) {
+                return arrayList1.isEmpty();
+            } else {
+                return arrayList0.isEmpty();
+            }
+        }
+        if (arrayList0.size() != arrayList1.size()) return false;
+        for (int i = 0; i < arrayList0.size(); i++) {
+            if (!Objects.equals(arrayList0.get(i).getValueAsString(), arrayList1.get(i).getValueAsString())) return false;
+        }
+        return true;
+    }
+
     public static boolean betterListEquals(List<?> arrayList0, List<?> arrayList1) {
         if (arrayList0 == arrayList1) return true;
         if ((arrayList0 == null) || (arrayList1 == null)) {
@@ -116,6 +134,7 @@ public class Util {
         }
         return true;
     }
+
     @SuppressWarnings("unused")
     public static int betterListHash(List<?> arrayList0) {
         int hash = 0;

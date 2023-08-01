@@ -69,7 +69,7 @@ public class Player extends JPanel {
     }
 
     public void display(FileInfo fileInfo) {
-        mediaPlayerComponent.mediaPlayer().media().play(fileInfo.getId());
+        mediaPlayerComponent.mediaPlayer().media().play(fileInfo.getAbsolutePath());
     }
 
     public void stop() {

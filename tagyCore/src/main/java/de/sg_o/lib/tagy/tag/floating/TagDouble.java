@@ -17,7 +17,8 @@
 
 package de.sg_o.lib.tagy.tag.floating;
 
-import com.couchbase.lite.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Input;
@@ -34,13 +35,15 @@ public class TagDouble extends Tag {
         this.value = value;
     }
 
-    public TagDouble(@NotNull TagDefinition definition, @NotNull Dictionary document) {
+    public TagDouble(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
         if (definition.getType() != Type.DOUBLE) throw new IllegalArgumentException("Definition is not of type double");
-        if (!document.contains(super.getKey())) throw new IllegalArgumentException("Document does not contain key");
-        this.value = document.getDouble(super.getKey());
+        JsonNode value = document.get("value");
+        if (value == null) throw new IllegalArgumentException("Document does not contain key");
+        this.value = value.doubleValue();
     }
 
+    @JsonProperty(value = "value", index = 0)
     public double getValue() {
         double value = this.value;
         if (value < super.getDefinition().getMin()) value = super.getDefinition().getMin();
@@ -51,16 +54,6 @@ public class TagDouble extends Tag {
     @Override
     public String getValueAsString() {
         return String.valueOf(getValue());
-    }
-
-    @Override
-    public void addToDictionary(@NotNull MutableDictionary dictionary) {
-        dictionary.setDouble(super.getKey(), value);
-    }
-
-    @Override
-    public void addToArray(@NotNull MutableArray array) {
-        array.addDouble(value);
     }
 
     @SuppressWarnings("unused")

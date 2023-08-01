@@ -17,7 +17,8 @@
 
 package de.sg_o.lib.tagy.tag.list;
 
-import com.couchbase.lite.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Input;
@@ -42,18 +43,19 @@ public class TagList extends Tag {
         values = new ArrayList<>(initialCapacity);
     }
 
-    public TagList(@NotNull TagDefinition definition, @NotNull Dictionary document) {
-        this(definition, document.getArray(definition.getKey()));
-    }
-
-    public TagList(@NotNull TagDefinition definition, Array array) {
+    public TagList(@NotNull TagDefinition definition, JsonNode array) {
         super(definition);
+        if (array == null) {
+            this.values = new ArrayList<>();
+            return;
+        }
+        if (array.isObject()) array = array.get("values");
         if (definition.getType() != Type.LIST) throw new IllegalArgumentException("Definition is not of type list");
         if (definition.getInternal() == null) throw new IllegalArgumentException("Internal definition is null");
         if (array != null) {
-            this.values = new ArrayList<>(array.count());
-            for (int i = 0; i < array.count(); i++) {
-                values.add(Tag.create(definition.getInternal(), array, i));
+            this.values = new ArrayList<>(array.size());
+            for (int i = 0; i < array.size(); i++) {
+                values.add(Tag.create(definition.resolveInternal(), array.get(i)));
             }
         } else {
             this.values = new ArrayList<>();
@@ -63,7 +65,7 @@ public class TagList extends Tag {
 
     public boolean addValue(Tag value) {
         if (value == null) return false;
-        if (value.getDefinition().getType() != super.getDefinition().getInternal().getType()) return false;
+        if (value.getDefinition().getType() != super.getDefinition().resolveInternal().getType()) return false;
         return values.add(value);
     }
 
@@ -76,6 +78,7 @@ public class TagList extends Tag {
         return values.remove(value);
     }
 
+    @JsonProperty(value = "value", index = 0)
     public ArrayList<Tag> getValues() {
         return new ArrayList<>(values);
     }
@@ -91,24 +94,6 @@ public class TagList extends Tag {
         }
         builder.append("]");
         return builder.toString();
-    }
-
-    @Override
-    public void addToDictionary(@NotNull MutableDictionary dictionary) {
-        MutableArray internal = new MutableArray();
-        for (Tag value : values) {
-            value.addToArray(internal);
-        }
-        dictionary.setArray(super.getKey(), internal);
-    }
-
-    @Override
-    public void addToArray(@NotNull MutableArray array) {
-        MutableArray internal = new MutableArray();
-        for (Tag value : values) {
-            value.addToArray(internal);
-        }
-        array.addArray(internal);
     }
 
     @SuppressWarnings("unused")

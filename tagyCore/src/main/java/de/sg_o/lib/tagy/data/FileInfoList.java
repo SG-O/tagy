@@ -21,12 +21,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FileInfoList extends AbstractTableModel {
     @NotNull
     private final DataManager dataManager;
     @NotNull
-    private ArrayList<FileInfo> files;
+    private List<FileInfo> files;
     private final int pageSize;
 
     private int currentPage = 0;
@@ -78,7 +79,7 @@ public class FileInfoList extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return files.get(rowIndex).getId();
+                return files.get(rowIndex).getAbsolutePath();
             case 1:
                 return files.get(rowIndex).isAnnotated();
             default:

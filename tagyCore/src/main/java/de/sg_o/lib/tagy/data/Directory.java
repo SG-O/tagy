@@ -17,10 +17,8 @@
 
 package de.sg_o.lib.tagy.data;
 
-import com.couchbase.lite.Array;
-import com.couchbase.lite.Dictionary;
-import com.couchbase.lite.MutableArray;
-import com.couchbase.lite.MutableDictionary;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -34,12 +32,22 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Entity
 public class Directory {
+    @Id
+    Long id;
     @NotNull
-    private final File rootDirectory;
+    private final String rootDirectory;
     private boolean recursive;
     @NotNull
-    private final ArrayList<String> fileExtensions;
+    private final List<String> fileExtensions;
+
+    public Directory(Long id, @NotNull String rootDirectory, boolean recursive, @NotNull List<String> fileExtensions) {
+        this.id = id;
+        this.rootDirectory = rootDirectory;
+        this.recursive = recursive;
+        this.fileExtensions = fileExtensions;
+    }
 
     /**
      * @param rootDirectory The directory containing the files of interest
@@ -49,31 +57,16 @@ public class Directory {
         if (!rootDirectory.isDirectory()) throw new RuntimeException("Root directory is not a directory");
         if (!rootDirectory.exists()) throw new RuntimeException("Root directory does not exist");
 
-        this.rootDirectory = rootDirectory;
+        this.rootDirectory = rootDirectory.getAbsolutePath();
         this.recursive = recursive;
         this.fileExtensions = new ArrayList<>();
     }
 
-    public Directory(@NotNull Dictionary dictionary) {
-        String rootDirectory = dictionary.getString("rootDirectory");
-        if (rootDirectory == null) throw new RuntimeException("rootDirectory is null");
-        this.rootDirectory = new File(rootDirectory);
-        this.recursive = dictionary.getBoolean("recursive");
-        fileExtensions = new ArrayList<>();
-        Array fileExtensions = dictionary.getArray("fileExtensions");
-        if (fileExtensions != null) {
-            for (int i = 0; i < fileExtensions.count(); i++) {
-                String fileExtension = fileExtensions.getString(i);
-                if (fileExtension == null) continue;
-                if (fileExtension.startsWith(".")) fileExtension = fileExtension.substring(1);
-                if (fileExtension.contains(".")) continue;
-                if (fileExtension.isEmpty()) continue;
-                this.fileExtensions.add(fileExtension);
-            }
-        }
+    public @NotNull File resolveRootDirectory() {
+        return new File(rootDirectory);
     }
 
-    public @NotNull File getRootDirectory() {
+    public @NotNull String getRootDirectory() {
         return rootDirectory;
     }
 
@@ -135,7 +128,7 @@ public class Directory {
         int maxDepth = recursive ? 999 : 1;
 
         try (Stream<Path> files = Files.find(
-                Paths.get(rootDirectory.getAbsolutePath()), maxDepth,
+                Paths.get(rootDirectory), maxDepth,
                 (p, bfa) -> bfa.isRegularFile()
                         && p.getFileName().toString().matches(regex.toString())))
         {
@@ -145,35 +138,23 @@ public class Directory {
         }
     }
 
-    public @NotNull MutableDictionary getEncoded() {
-        MutableDictionary document = new MutableDictionary();
-        document.setString("rootDirectory", rootDirectory.getAbsolutePath());
-        document.setBoolean("recursive", recursive);
-        MutableArray fileExtensions = new MutableArray();
-        for (String fileExtension : this.fileExtensions) {
-            fileExtensions.addString(fileExtension);
-        }
-        document.setArray("fileExtensions", fileExtensions);
-        return document;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Directory directory = (Directory) o;
-        return isRecursive() == directory.isRecursive() && Objects.equals(getRootDirectory(), directory.getRootDirectory()) && Objects.equals(getFileExtensions(), directory.getFileExtensions());
+        return isRecursive() == directory.isRecursive() && Objects.equals(resolveRootDirectory(), directory.resolveRootDirectory()) && Objects.equals(getFileExtensions(), directory.getFileExtensions());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getRootDirectory(), isRecursive(), getFileExtensions());
+        return Objects.hash(resolveRootDirectory(), isRecursive(), getFileExtensions());
     }
 
     @Override
     public String toString() {
         return "{"
-                + "\"rootDirectory\": \"" + rootDirectory.getName() + "\""
+                + "\"rootDirectory\": \"" + resolveRootDirectory().getName() + "\""
                 + ", \"recursive\": " + recursive
                 + ", \"fileExtensions\":" + fileExtensions
                 + "}";

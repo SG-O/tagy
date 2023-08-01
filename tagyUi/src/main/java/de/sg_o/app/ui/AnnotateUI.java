@@ -146,12 +146,12 @@ public class AnnotateUI extends JFrame {
                 metaData = null;
                 return;
             }
-            metaData = new MetaData(fileInfo, project);
+            metaData = MetaData.queryOrCreate(fileInfo, project);
         }
-        fileName.setText(metaData.getReference().getId());
-        viewer.display(metaData.getReference());
+        fileName.setText(metaData.resolveReference().getAbsolutePath());
+        viewer.display(metaData.resolveReference());
 
-        HashMap<String, Tag> tags = metaData.getTags();
+        HashMap<String, Tag> tags = metaData.getTagsAsMap();
 
         for (Input input : inputs) {
             Tag tag = null;

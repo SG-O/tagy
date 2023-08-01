@@ -17,9 +17,8 @@
 
 package de.sg_o.test.tagy.testDb;
 
-import com.couchbase.lite.CouchbaseLiteException;
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.DB;
+import de.sg_o.lib.tagy.db.NewDB;
 import de.sg_o.lib.tagy.values.User;
 
 import java.io.File;
@@ -47,19 +46,16 @@ public class TestDb {
     File tempDir;
     File db;
 
-    public TestDb() throws CouchbaseLiteException {
+    public TestDb() {
         tempDir = tempDirWithPrefix.toFile();
         //noinspection ResultOfMethodCallIgnored
         tempDir.mkdirs();
         assertTrue(tempDir.exists());
         assertTrue(tempDir.isDirectory());
-        db = new File(tempDir.getAbsolutePath() + File.separator + "test.cblite2");
-        DB.initDb(db, true);
-        Project p1 = new Project("Test_Project_1", User.getLocalUser());
-        Project p2 = new Project("Test_Project_2", User.getLocalUser());
-
-        p1.save();
-        p2.save();
+        db = new File(tempDir.getAbsolutePath() + File.separator + "test");
+        NewDB.initDb(db, true);
+        Project.openOrCreate("Demo_Project_0", User.getLocalUser()).save();
+        Project.openOrCreate("Demo_Project_1", User.getLocalUser()).save();
     }
 
     @SuppressWarnings("unused")
@@ -74,6 +70,7 @@ public class TestDb {
 
     public static void cleanup() {
         try {
+            NewDB.closeDb();
             Files.walkFileTree(tempDirWithPrefix,
                     new SimpleFileVisitor<Path>() {
                         @Override

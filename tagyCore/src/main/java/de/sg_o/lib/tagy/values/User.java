@@ -17,46 +17,66 @@
 
 package de.sg_o.lib.tagy.values;
 
-import com.couchbase.lite.Dictionary;
-import com.couchbase.lite.MutableDictionary;
-import de.sg_o.lib.tagy.db.DbConstants;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import io.objectbox.annotation.Convert;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
+@Entity
 public class User implements Serializable {
-    private final long id;
+    @Id
+    Long id;
+    @Convert(converter = UserType.UserTypeConverter.class, dbType = Integer.class)
+    private final UserType userType;
     @NotNull
     private final String name;
 
     public static User getLocalUser() {
-        return new User(0, "Local");
+        User localUser = NewDB.queryFirst(User.class, new QueryBoxSpec<User>() {
+            @Override
+            public QueryBuilder<User> buildQuery(QueryBuilder<User> qb) {
+                return qb.equal(User_.userType, UserType.LOCAL.getId());
+            }
+        });
+        if (localUser != null) return localUser;
+        return new User("Local", UserType.LOCAL);
     }
 
-    public User(long id, @NotNull String name) {
+    public User(Long id, UserType userType, @NotNull String name) {
         this.id = id;
+        this.userType = userType;
         this.name = name;
     }
 
-    public User(@NotNull Dictionary dictionary) {
-        if (!dictionary.contains(DbConstants.USER_ID_KEY)) {
-            throw new IllegalArgumentException("Dictionary must contain id");
-        }
-        this.id = dictionary.getLong(DbConstants.USER_ID_KEY);
-        String name = dictionary.getString(DbConstants.USER_NAME_KEY);
-        if (name == null) {
-            throw new IllegalArgumentException("Dictionary must contain name");
-        }
+    public User(@NotNull String name, UserType userType) {
+        this.userType = userType;
         this.name = name;
     }
 
-    public MutableDictionary getEncoded() {
-        MutableDictionary dictionary = new MutableDictionary();
-        dictionary.setLong(DbConstants.USER_ID_KEY, id);
-        dictionary.setString(DbConstants.USER_NAME_KEY, name);
-        return dictionary;
+    public void setId(Long id) {
+        this.id = id;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    @JsonProperty(value = "user", index = 0)
+    public UserType getUserType() {
+        return userType;
+    }
+
+    @JsonProperty(value = "name", index = 1)
+    public @NotNull String getName() {
+        return name;
+    }
 
     @Override
     public String toString() {

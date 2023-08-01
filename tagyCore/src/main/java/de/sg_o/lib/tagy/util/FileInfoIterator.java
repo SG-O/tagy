@@ -17,11 +17,8 @@
 
 package de.sg_o.lib.tagy.util;
 
-import com.couchbase.lite.Expression;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.FileInfo;
-import de.sg_o.lib.tagy.db.DbConstants;
-import de.sg_o.lib.tagy.db.QuerySpec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -81,21 +78,10 @@ public class FileInfoIterator implements Iterator<FileInfo> {
         buffer.addAll(batch);
     }
 
-    public @NotNull ArrayList<FileInfo> getFileInfoBatch(int count, int batch) {
-        if (count < 1) count = 1;
+    public @NotNull List<FileInfo> getFileInfoBatch(int length, int batch) {
+        if (length < 1) length = 1;
         if (batch < 0) batch = 0;
-        int finalCount = count;
-        int finalOffset = batch * count;
-        QuerySpec query = (from) -> from.limit(Expression.intValue(finalCount), Expression.intValue(finalOffset));
-        ArrayList<String> ids = project.queryData(DbConstants.DATA_COLLECTION_NAME, query, count);
-        ArrayList<FileInfo> metaDataList = new ArrayList<>();
-        if (ids == null) return metaDataList;
-        for (String id : ids) {
-            try {
-                metaDataList.add(new FileInfo(id, project));
-            } catch (Exception ignored) {
-            }
-        }
-        return metaDataList;
+        int finalOffset = batch * length;
+        return FileInfo.query(project, false, length, finalOffset);
     }
 }

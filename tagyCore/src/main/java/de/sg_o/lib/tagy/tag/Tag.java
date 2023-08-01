@@ -17,7 +17,7 @@
 
 package de.sg_o.lib.tagy.tag;
 
-import com.couchbase.lite.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.date.TagDate;
 import de.sg_o.lib.tagy.tag.enumerator.TagEnum;
@@ -28,7 +28,6 @@ import de.sg_o.lib.tagy.tag.string.TagString;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public abstract class Tag implements Serializable {
     private final transient TagDefinition definition;
@@ -37,7 +36,7 @@ public abstract class Tag implements Serializable {
         this.definition = definition;
     }
 
-    public static Tag create(@NotNull TagDefinition definition, @NotNull Dictionary dictionary) {
+    public static Tag create(@NotNull TagDefinition definition, @NotNull JsonNode dictionary) {
         switch (definition.getType()) {
             case LIST:
                 return new TagList(definition, dictionary);
@@ -56,29 +55,6 @@ public abstract class Tag implements Serializable {
         }
     }
 
-    public static Tag create(@NotNull TagDefinition definition, @NotNull Array array, int index) {
-        switch (definition.getType()) {
-            case LIST:
-                return new TagList(definition, array.getArray(index));
-            case LONG:
-                return new TagLong(definition, array.getLong(index));
-            case DOUBLE:
-                return new TagDouble(definition, array.getDouble(index));
-            case ENUM:
-                return new TagEnum(definition, array.getInt(index));
-            case STRING:
-                String value4 = array.getString(index);
-                if (value4 == null) return null;
-                return new TagString(definition, value4);
-            case DATE:
-                Date value5 = array.getDate(index);
-                if (value5 == null) return null;
-                return new TagDate(definition, value5);
-            default:
-                return null;
-        }
-    }
-
     public TagDefinition getDefinition() {
         return definition;
     }
@@ -88,9 +64,6 @@ public abstract class Tag implements Serializable {
     }
 
     public abstract String getValueAsString();
-
-    public abstract void addToDictionary(@NotNull MutableDictionary dictionary);
-    public abstract void addToArray(@NotNull MutableArray array);
 
     @SuppressWarnings("unused")
     public abstract Input getInputElement();

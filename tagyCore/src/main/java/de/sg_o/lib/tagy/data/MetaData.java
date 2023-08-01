@@ -17,77 +17,109 @@
 
 package de.sg_o.lib.tagy.data;
 
-import com.couchbase.lite.Dictionary;
-import com.couchbase.lite.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.DbConstants;
+import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.TagHolder;
 import de.sg_o.lib.tagy.values.User;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Transient;
+import io.objectbox.relation.ToMany;
+import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
+@Entity
 public class MetaData implements Serializable {
-    @NotNull
-    private final HashMap<String, Tag> tags = new HashMap<>();
-    @NotNull
-    private transient final Project project;
-    @NotNull
-    private transient final FileInfo reference;
-    @NotNull
-    private final LinkedList<User> editHistory = new LinkedList<>();
+    @Id
+    Long id;
+    private final Map<String, String> tags;
 
+    private final ToOne<Project> project = new ToOne<>(this, MetaData_.project);
+
+    private final ToOne<FileInfo> reference = new ToOne<>(this, MetaData_.reference);
+    private final ToOne<StructureDefinition> structureDefinition = new ToOne<>(this, MetaData_.structureDefinition);
+    @NotNull
+    private final ToMany<User> editHistory = new ToMany<>(this, MetaData_.editHistory);
+
+    @Transient
+    transient BoxStore __boxStore = null;
+    @Transient
+    private HashMap<String, Tag> internalTags;
+    @Transient
     private transient boolean updated = false;
 
-    public MetaData(@NotNull FileInfo reference, @NotNull Project project) {
-        this.reference = reference;
-        this.project = project;
-        if (!load()) {
-            this.tags.clear();
-            this.editHistory.clear();
-            this.editHistory.add(project.getUser());
-            this.updated = true;
-        }
+    public MetaData(Long id, Map<String, String> tags, long projectId, long referenceId, long structureDefinitionId) {
+        this.id = id;
+        this.tags = tags;
+        this.project.setTargetId(projectId);
+        this.reference.setTargetId(referenceId);
+        this.structureDefinition.setTargetId(structureDefinitionId);
+        internalTags = null;
     }
 
-    public boolean load () {
-        this.tags.clear();
-        this.editHistory.clear();
-        Document document = project.getData(DbConstants.META_COLLECTION_NAME, reference.getId());
-        if (document == null) return false;
-        Dictionary tags = document.getDictionary(DbConstants.TAGS_KEY);
-        if (tags == null) return false;
-        for (TagDefinition tagDefinition : project.getStructureDefinition().getTags()) {
-            try {
-                Tag tag = Tag.create(tagDefinition, tags);
-                if (tag != null) {
-                    this.tags.put(tag.getKey(), tag);
-                }
-            } catch (Exception e) {
-                if (tagDefinition.isRequired()) return false;
-            }
+    public MetaData(@NotNull FileInfo reference, @NotNull Project project) {
+        this.reference.setTarget(reference);
+        this.project.setTarget(project);
+        this.structureDefinition.setTarget(project.resolveStructureDefinition());
+        internalTags = new HashMap<>();
+        this.tags = null;
+    }
+
+    public static List<MetaData> query(QueryBoxSpec<MetaData> queryBoxSpec, int length, int offset) {
+        return NewDB.query(MetaData.class, queryBoxSpec, length, offset);
+    }
+
+    public static List<MetaData> queryAll(Project project, int length, int offset) {
+        QueryBoxSpec<MetaData> qbs = qb -> {
+            qb = qb.equal(MetaData_.projectId, project.getId());
+            return qb;
+        };
+        return query(qbs, length, offset);
+    }
+
+    public static MetaData queryFirst(QueryBoxSpec<MetaData> queryBoxSpec) {
+        return NewDB.queryFirst(MetaData.class, queryBoxSpec);
+    }
+
+    public static MetaData queryFirst(FileInfo reference) {
+        if (reference == null) return null;
+        if (reference.getId() == null) return null;
+        QueryBoxSpec<MetaData> qbs = qb -> {
+            qb = qb.equal(MetaData_.referenceId, reference.getId());
+            return qb;
+        };
+        return queryFirst(qbs);
+    }
+
+    public static MetaData queryOrCreate(FileInfo reference, Project project) {
+        QueryBoxSpec<MetaData> qbs = qb -> {
+            qb = qb.equal(MetaData_.referenceId, reference.getId())
+                    .equal(MetaData_.projectId, project.getId());
+            return qb;
+        };
+        MetaData found = queryFirst(qbs);
+        if (found == null) {
+            found = new MetaData(reference, project);
         }
-        Array editHistory = document.getArray(DbConstants.EDIT_HISTORY_KEY);
-        if (editHistory == null) return false;
-        for (int i = 0; i < editHistory.count(); i++) {
-            Dictionary user = editHistory.getDictionary(i);
-            if (user == null) continue;
-            this.editHistory.add(new User(user));
-        }
-        return true;
+        return found;
     }
 
     public void addTag(@NotNull Tag tag) {
-        tags.put(tag.getKey(), tag);
+        parseTags();
+        internalTags.put(tag.getKey(), tag);
         if (!this.updated) {
-            editHistory.add(project.getUser());
+            editHistory.add(resolveProject().resolveUser());
             this.updated = true;
         }
     }
@@ -95,47 +127,84 @@ public class MetaData implements Serializable {
     @SuppressWarnings("unused")
     @JsonProperty(value = "id", index = 0)
     public String getID() {
-        return reference.getId();
+        return resolveReference().getAbsolutePath();
     }
 
     @SuppressWarnings("unused")
     public void setTags(@Nullable List<Tag> tags) {
-        this.tags.clear();
+        if (internalTags == null) internalTags = new HashMap<>();
+        this.internalTags.clear();
         if (tags == null) return;
         for (Tag tag : tags) {
             addTag(tag);
         }
     }
 
-    public HashMap<String, Tag> getTags() {
-        return new HashMap<>(this.tags);
+    public Map<String, String> getTags() {
+        parseTags();
+        Map<String, String> tags = new HashMap<>();
+        for (Map.Entry<String, Tag> entry : this.internalTags.entrySet()) {
+            TagHolder holder = new TagHolder(entry.getValue());
+            tags.put(entry.getKey(), holder.getEncoded());
+        }
+        return tags;
     }
 
-    public @NotNull FileInfo getReference() {
+    private void parseTags() {
+        if (internalTags != null) return;
+        internalTags = new HashMap<>();
+        if (tags == null) return;
+        for (TagDefinition definition : structureDefinition.getTarget().getDecodedTagDefinitions()) {
+            String encoded = this.tags.get(definition.getKey());
+            if (encoded == null) continue;
+            TagHolder tagHolder = new TagHolder(definition, encoded);
+            Tag tag = tagHolder.getTag();
+            if (tag == null) continue;
+            internalTags.put(definition.getKey(), tag);
+        }
+    }
+
+    @JsonProperty(index = 1)
+    public HashMap<String, Tag> getTagsAsMap() {
+        parseTags();
+        return internalTags;
+    }
+
+    public Project resolveProject() {
+        return project.getTarget();
+    }
+
+    public ToOne<Project> getProject() {
+        return project;
+    }
+
+    public @NotNull FileInfo resolveReference() {
+        return reference.getTarget();
+    }
+
+    public ToOne<FileInfo> getReference() {
         return reference;
     }
 
-    @SuppressWarnings("unused")
-    public ArrayList<TagDefinition> getTagDefinitions() {
-        return this.project.getStructureDefinition().getTags();
+    public ToOne<StructureDefinition> getStructureDefinition() {
+        return structureDefinition;
+    }
+
+    public List<User> getEditHistory() {
+        return editHistory;
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean save() {
-        MutableDocument document = new MutableDocument(reference.getId());
-        MutableDictionary tags = new MutableDictionary();
-        for (Tag tag : this.tags.values()) {
-            tag.addToDictionary(tags);
-        }
-        document.setDictionary(DbConstants.TAGS_KEY, tags);
-        MutableArray editHistory = new MutableArray();
-        for (User user : this.editHistory) {
-            editHistory.addDictionary(user.getEncoded());
-        }
-        document.setArray(DbConstants.EDIT_HISTORY_KEY, editHistory);
-        reference.setAnnotated(true);
-        if (!reference.save(project)) return false;
-        return project.saveData(DbConstants.META_COLLECTION_NAME, document);
+        BoxStore db = NewDB.getDb();
+        if (db == null) return false;
+        Box<MetaData> box = db.boxFor(MetaData.class);
+        if (box == null) return false;
+        this.id = box.put(this);
+        FileInfo ref = this.resolveReference();
+        ref.setAnnotated(true);
+        ref.save();
+        return true;
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
@@ -154,16 +223,16 @@ public class MetaData implements Serializable {
 
         MetaData metaData = (MetaData) o;
 
-        if (getTags() != null ? !getTags().equals(metaData.getTags()) : metaData.getTags() != null) return false;
-        if (!Objects.equals(project, metaData.project)) return false;
-        return getReference().equals(metaData.getReference());
+        if (getTagsAsMap() != null ? !getTagsAsMap().equals(metaData.getTagsAsMap()) : metaData.getTagsAsMap() != null) return false;
+        if (getProject().getTargetId() != metaData.getProject().getTargetId()) return false;
+        return getReference().getTargetId() == (metaData.getReference().getTargetId());
     }
 
     @Override
     public int hashCode() {
         int result = getTags() != null ? getTags().hashCode() : 0;
-        result = 31 * result + project.hashCode();
-        result = 31 * result + getReference().hashCode();
+        result = 31 * result + resolveProject().hashCode();
+        result = 31 * result + resolveReference().hashCode();
         return result;
     }
 
@@ -172,8 +241,9 @@ public class MetaData implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
         builder.append("\t\"_id\": \n");
-        builder.append(reference.toString(2));
+        builder.append(resolveReference().toString(2));
         builder.append(",\n");
+        Map<String, Tag> tags = getTagsAsMap();
         for (Tag tag : tags.values()) {
             builder.append("\t");
             builder.append(tag.toString());

@@ -17,7 +17,8 @@
 
 package de.sg_o.lib.tagy.tag.integer;
 
-import com.couchbase.lite.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Input;
@@ -34,13 +35,15 @@ public class TagLong extends Tag {
         this.value = value;
     }
 
-    public TagLong(@NotNull TagDefinition definition, @NotNull Dictionary document) {
+    public TagLong(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
         if (definition.getType() != Type.LONG) throw new IllegalArgumentException("Definition is not of type long");
-        if (!document.contains(super.getKey())) throw new IllegalArgumentException("Document does not contain key");
-        this.value = document.getLong(super.getKey());
+        JsonNode value = document.get("value");
+        if (value == null) throw new IllegalArgumentException("Document does not contain key");
+        this.value = value.longValue();
     }
 
+    @JsonProperty(value = "value", index = 0)
     public long getValue() {
         long value = this.value;
         if (value < super.getDefinition().getMin()) value = Math.round(super.getDefinition().getMin());
@@ -51,16 +54,6 @@ public class TagLong extends Tag {
     @Override
     public String getValueAsString() {
         return String.valueOf(value);
-    }
-
-    @Override
-    public void addToDictionary(@NotNull MutableDictionary dictionary) {
-        dictionary.setLong(super.getKey(), value);
-    }
-
-    @Override
-    public void addToArray(@NotNull MutableArray array) {
-        array.addLong(value);
     }
 
     @SuppressWarnings("unused")

@@ -23,6 +23,7 @@ import com.github.weisj.darklaf.settings.SettingsConfiguration;
 import com.github.weisj.darklaf.settings.ThemeSettings;
 import de.sg_o.app.ui.ProjectsUI;
 import de.sg_o.lib.tagy.db.DB;
+import de.sg_o.lib.tagy.db.NewDB;
 
 import javax.swing.SwingUtilities;
 import java.io.ByteArrayInputStream;
@@ -59,11 +60,7 @@ public class Init {
         String lastUsed = prefs.get("lastOpenedDb", null);
         if (lastUsed != null) {
             File lastUsedFile = new File(lastUsed);
-            try {
-                DB.initDb(lastUsedFile, false);
-            } catch (CouchbaseLiteException e) {
-                System.out.println("Failed to open db: " + e.getMessage());
-            }
+            NewDB.initDb(lastUsedFile, false);
         }
 
         ProjectsUI projectsUI = new ProjectsUI();

@@ -17,9 +17,15 @@
 
 package de.sg_o.test.tagy.def;
 
+import de.sg_o.lib.tagy.db.NewDB;
 import de.sg_o.lib.tagy.def.Parameter;
 import de.sg_o.lib.tagy.def.TagDefinition;
+import de.sg_o.lib.tagy.def.TagDefinition_;
 import de.sg_o.lib.tagy.def.Type;
+import de.sg_o.test.tagy.testDb.TestDb;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.query.QueryBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +41,9 @@ class TagDefinitionTest {
 
     @BeforeEach
     void setUp() {
+        NewDB.closeDb();
+        new TestDb();
+
         td0 = new TagDefinition("test0", Type.LIST);
         td1 = new TagDefinition("test1", Type.LONG);
         td2 = new TagDefinition("test2", Type.DOUBLE);
@@ -164,12 +173,12 @@ class TagDefinitionTest {
 
     @Test
     void getInternal() {
-        assertNull(td0.getInternal());
-        assertNull(td1.getInternal());
-        assertNull(td2.getInternal());
-        assertNull(td3.getInternal());
-        assertNull(td4.getInternal());
-        assertNull(td5.getInternal());
+        assertNull(td0.resolveInternal());
+        assertNull(td1.resolveInternal());
+        assertNull(td2.resolveInternal());
+        assertNull(td3.resolveInternal());
+        assertNull(td4.resolveInternal());
+        assertNull(td5.resolveInternal());
 
         td0.setInternal(new TagDefinition("Key", Type.LONG));
 
@@ -179,80 +188,10 @@ class TagDefinitionTest {
                         "\t\"required\": false,\n" +
                         "\t\"enumerators\": []\n" +
                         "}",
-                td0.getInternal().toString());
+                td0.resolveInternal().toString());
     }
 
-    @Test
-    void getEncoded() {
-        assertNull(td0.getEncoded());
-        assertEquals("{type=1, key=test1, required=false}", td1.getEncoded().toMap().toString());
-        assertEquals("{type=2, key=test2, required=false}", td2.getEncoded().toMap().toString());
-        assertEquals("{enumerators=[], type=3, key=test3, required=false}", td3.getEncoded().toMap().toString());
-        assertEquals("{type=4, key=test4, required=false}", td4.getEncoded().toMap().toString());
-        assertEquals("{type=5, key=test5, required=false}", td5.getEncoded().toMap().toString());
-
-        td0.setName("Name 0");
-        td1.setName("Name 1");
-        td2.setName("Name 2");
-        td3.setName("Name 3");
-        td4.setName("Name 4");
-        td5.setName("Name 5");
-
-        td0.setDescription("Description 0");
-        td1.setDescription("Description 1");
-        td2.setDescription("Description 2");
-        td3.setDescription("Description 3");
-        td4.setDescription("Description 4");
-        td5.setDescription("Description 5");
-
-        td0.setMin(1);
-        td1.setMin(2);
-        td2.setMin(3);
-        td3.setMin(4);
-        td4.setMin(5);
-        td5.setMin(6);
-
-        td0.setMax(10);
-        td1.setMax(20);
-        td2.setMax(30);
-        td3.setMax(40);
-        td4.setMax(50);
-        td5.setMax(60);
-
-        td0.setRequired(true);
-        td1.setRequired(true);
-        td2.setRequired(true);
-        td3.setRequired(true);
-        td4.setRequired(true);
-        td5.setRequired(true);
-
-        td0.setParameter(Parameter.IN);
-        td1.setParameter(Parameter.OUT);
-        td2.setParameter(Parameter.LENGTH);
-        td3.setParameter(Parameter.LENGTH);
-        td4.setParameter(Parameter.OUT);
-        td5.setParameter(Parameter.IN);
-
-        assertTrue(td3.addEnumerator("TEST"));
-        assertTrue(td3.addEnumerator("TEST1"));
-
-        td0.setInternal(new TagDefinition("Key", Type.LONG));
-
-        assertEquals("{internal={type=1, key=Key, required=false}, min=1.0, max=10.0, parameter=1, name=Name 0, description=Description 0, type=0, key=test0, required=true}",
-                td0.getEncoded().toMap().toString());
-        assertEquals("{min=2.0, max=20.0, parameter=2, name=Name 1, description=Description 1, type=1, key=test1, required=true}",
-                td1.getEncoded().toMap().toString());
-        assertEquals("{min=3.0, max=30.0, parameter=3, name=Name 2, description=Description 2, type=2, key=test2, required=true}",
-                td2.getEncoded().toMap().toString());
-        assertEquals("{min=4.0, enumerators=[TEST, TEST1], max=40.0, parameter=3, name=Name 3, description=Description 3, type=3, key=test3, required=true}",
-                td3.getEncoded().toMap().toString());
-        assertEquals("{min=5.0, max=50.0, parameter=2, name=Name 4, description=Description 4, type=4, key=test4, required=true}",
-                td4.getEncoded().toMap().toString());
-        assertEquals("{min=6.0, max=60.0, parameter=1, name=Name 5, description=Description 5, type=5, key=test5, required=true}",
-                td5.getEncoded().toMap().toString());
-    }
-
-    @SuppressWarnings("EqualsWithItself")
+    @SuppressWarnings({"EqualsWithItself", "resource"})
     @Test
     void testEquals() {
         TagDefinition td6 = new TagDefinition("test0", Type.LIST);
@@ -309,12 +248,24 @@ class TagDefinitionTest {
         assertNotEquals(td0, td5);
         assertNotEquals(td0, td6);
 
-        TagDefinition td7 = new TagDefinition(td0.getEncoded());
-        TagDefinition td8 = new TagDefinition(td1.getEncoded());
-        TagDefinition td9 = new TagDefinition(td2.getEncoded());
-        TagDefinition td10 = new TagDefinition(td3.getEncoded());
-        TagDefinition td11 = new TagDefinition(td4.getEncoded());
-        TagDefinition td12 = new TagDefinition(td5.getEncoded());
+        BoxStore db = NewDB.getDb();
+        assertNotNull(db);
+        Box<TagDefinition> box = db.boxFor(TagDefinition.class);
+        assertNotNull(box);
+
+        box.put(td0);
+        box.put(td1);
+        box.put(td2);
+        box.put(td3);
+        box.put(td4);
+        box.put(td5);
+
+        TagDefinition td7 = box.query().equal(TagDefinition_.key, td0.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        TagDefinition td8 = box.query().equal(TagDefinition_.key, td1.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        TagDefinition td9 = box.query().equal(TagDefinition_.key, td2.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        TagDefinition td10 = box.query().equal(TagDefinition_.key, td3.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        TagDefinition td11 = box.query().equal(TagDefinition_.key, td4.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        TagDefinition td12 = box.query().equal(TagDefinition_.key, td5.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
 
         assertEquals(td0, td7);
         assertEquals(td1, td8);
@@ -344,12 +295,19 @@ class TagDefinitionTest {
         td4.setParameter(Parameter.OUT);
         td5.setParameter(Parameter.IN);
 
-        td7 = new TagDefinition(td0.getEncoded());
-        td8 = new TagDefinition(td1.getEncoded());
-        td9 = new TagDefinition(td2.getEncoded());
-        td10 = new TagDefinition(td3.getEncoded());
-        td11 = new TagDefinition(td4.getEncoded());
-        td12 = new TagDefinition(td5.getEncoded());
+        box.put(td0);
+        box.put(td1);
+        box.put(td2);
+        box.put(td3);
+        box.put(td4);
+        box.put(td5);
+
+        td7 = box.query().equal(TagDefinition_.key, td0.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        td8 = box.query().equal(TagDefinition_.key, td1.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        td9 = box.query().equal(TagDefinition_.key, td2.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        td10 = box.query().equal(TagDefinition_.key, td3.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        td11 = box.query().equal(TagDefinition_.key, td4.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
+        td12 = box.query().equal(TagDefinition_.key, td5.getKey(), QueryBuilder.StringOrder.CASE_SENSITIVE).build().findFirst();
 
         assertEquals(td0, td7);
         assertEquals(td1, td8);
@@ -538,12 +496,12 @@ class TagDefinitionTest {
 
     @Test
     void getName() {
-        assertEquals("test0", td0.getName());
-        assertEquals("test1", td1.getName());
-        assertEquals("test2", td2.getName());
-        assertEquals("test3", td3.getName());
-        assertEquals("test4", td4.getName());
-        assertEquals("test5", td5.getName());
+        assertEquals("test0", td0.resolveName());
+        assertEquals("test1", td1.resolveName());
+        assertEquals("test2", td2.resolveName());
+        assertEquals("test3", td3.resolveName());
+        assertEquals("test4", td4.resolveName());
+        assertEquals("test5", td5.resolveName());
 
         td0.setName("Name 0");
         td1.setName("Name 1");
@@ -552,12 +510,12 @@ class TagDefinitionTest {
         td4.setName("Name 4");
         td5.setName("Name 5");
 
-        assertEquals("Name 0", td0.getName());
-        assertEquals("Name 1", td1.getName());
-        assertEquals("Name 2", td2.getName());
-        assertEquals("Name 3", td3.getName());
-        assertEquals("Name 4", td4.getName());
-        assertEquals("Name 5", td5.getName());
+        assertEquals("Name 0", td0.resolveName());
+        assertEquals("Name 1", td1.resolveName());
+        assertEquals("Name 2", td2.resolveName());
+        assertEquals("Name 3", td3.resolveName());
+        assertEquals("Name 4", td4.resolveName());
+        assertEquals("Name 5", td5.resolveName());
 
         assertEquals("test0", td0.getKey());
         assertEquals("test1", td1.getKey());

@@ -22,6 +22,7 @@ import com.couchbase.lite.MutableDictionary;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.TagHolder;
 import de.sg_o.lib.tagy.tag.date.TagDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,38 +71,41 @@ class TagDateTest {
 
     @Test
     void addToDocument() {
-        MutableDictionary doc = new MutableDictionary();
-        tag0.addToDictionary(doc);
-        assertEquals("{key0=2023-01-01T00:00:00.000Z}", doc.toMap().toString());
-        assertEquals(tag0, new TagDate(tag0.getDefinition(), doc));
-        tag1.addToDictionary(doc);
-        assertEquals("{key1=2023-01-01T00:00:00.000Z, key0=2023-01-01T00:00:00.000Z}", doc.toMap().toString());
-        assertEquals(tag1, new TagDate(tag1.getDefinition(), doc));
-        tag2.addToDictionary(doc);
-        assertEquals("{key1=2023-01-01T00:00:00.000Z, key0=2023-01-02T00:00:00.000Z}", doc.toMap().toString());
-        assertEquals(tag2, new TagDate(tag2.getDefinition(), doc));
-        tag3.addToDictionary(doc);
-        assertEquals("{key1=2023-01-02T00:00:00.000Z, key0=2023-01-02T00:00:00.000Z}", doc.toMap().toString());
-        assertEquals(tag3, new TagDate(tag3.getDefinition(), doc));
-        tag4.addToDictionary(doc);
-        assertEquals("{key1=2023-01-02T00:00:00.000Z, key0=2023-01-01T00:00:00.000Z}", doc.toMap().toString());
-        assertEquals(tag4, new TagDate(tag4.getDefinition(), doc));
-        assertEquals(tag4, Tag.create(tag4.getDefinition(), doc));
-    }
+        TagHolder holder0 = new TagHolder(tag0);
+        TagHolder holder1 = new TagHolder(tag1);
+        TagHolder holder2 = new TagHolder(tag2);
+        TagHolder holder3 = new TagHolder(tag3);
+        TagHolder holder4 = new TagHolder(tag4);
 
-    @Test
-    void addToArray() {
-        MutableArray array = new MutableArray();
-        tag0.addToArray(array);
-        assertEquals("[2023-01-01T00:00:00.000Z]", array.toList().toString());
-        tag1.addToArray(array);
-        assertEquals("[2023-01-01T00:00:00.000Z, 2023-01-01T00:00:00.000Z]", array.toList().toString());
-        tag2.addToArray(array);
-        assertEquals("[2023-01-01T00:00:00.000Z, 2023-01-01T00:00:00.000Z, 2023-01-02T00:00:00.000Z]", array.toList().toString());
-        tag3.addToArray(array);
-        assertEquals("[2023-01-01T00:00:00.000Z, 2023-01-01T00:00:00.000Z, 2023-01-02T00:00:00.000Z, 2023-01-02T00:00:00.000Z]", array.toList().toString());
-        tag4.addToArray(array);
-        assertEquals("[2023-01-01T00:00:00.000Z, 2023-01-01T00:00:00.000Z, 2023-01-02T00:00:00.000Z, 2023-01-02T00:00:00.000Z, 2023-01-01T00:00:00.000Z]", array.toList().toString());
+        String json0 = holder0.getEncoded();
+        String json1 = holder1.getEncoded();
+        String json2 = holder2.getEncoded();
+        String json3 = holder3.getEncoded();
+        String json4 = holder4.getEncoded();
+
+        assertEquals("{\"value\":1672531200000}", json0);
+        assertEquals("{\"value\":1672531200000}", json1);
+        assertEquals("{\"value\":1672617600000}", json2);
+        assertEquals("{\"value\":1672617600000}", json3);
+        assertEquals("{\"value\":1672531200000}", json4);
+
+        TagHolder holder5 = new TagHolder(tag0.getDefinition(), json0);
+        TagHolder holder6 = new TagHolder(tag1.getDefinition(), json1);
+        TagHolder holder7 = new TagHolder(tag2.getDefinition(), json2);
+        TagHolder holder8 = new TagHolder(tag3.getDefinition(), json3);
+        TagHolder holder9 = new TagHolder(tag4.getDefinition(), json4);
+
+        Tag decoded0 = holder5.getTag();
+        Tag decoded1 = holder6.getTag();
+        Tag decoded2 = holder7.getTag();
+        Tag decoded3 = holder8.getTag();
+        Tag decoded4 = holder9.getTag();
+
+        assertEquals(tag0, decoded0);
+        assertEquals(tag1, decoded1);
+        assertEquals(tag2, decoded2);
+        assertEquals(tag3, decoded3);
+        assertEquals(tag4, decoded4);
     }
 
     @SuppressWarnings("EqualsWithItself")

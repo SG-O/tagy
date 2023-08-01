@@ -17,11 +17,10 @@
 
 package de.sg_o.test.tagy.data;
 
-import com.couchbase.lite.CouchbaseLiteException;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.data.Directory;
-import de.sg_o.lib.tagy.db.DbConstants;
+import de.sg_o.lib.tagy.db.NewDB;
 import de.sg_o.lib.tagy.values.User;
 import de.sg_o.test.tagy.testDb.TestDb;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,8 +41,11 @@ class DataManagerTest {
     final List<Directory> directories0 = new ArrayList<>();
     final List<Directory> directories1 = new ArrayList<>();
 
+    Project project0;
+    Project project1;
+
     @BeforeEach
-    void setUp() throws CouchbaseLiteException, URISyntaxException {
+    void setUp() throws URISyntaxException {
         URL sampleMediaFolder = this.getClass().getResource("/sampleFiles/media");
         assertNotNull(sampleMediaFolder);
         File sampleMediaFile = new File(sampleMediaFolder.toURI());
@@ -57,11 +59,14 @@ class DataManagerTest {
         directories0.add(dir);
         directories1.add(new Directory(sampleMixedFile, false));
 
+        NewDB.closeDb();
         new TestDb();
-        Project project0 = new Project("Test_Project_1", User.getLocalUser());
-        project0.clearCollection(DbConstants.CONFIG_COLLECTION_NAME);
-        Project project1 = new Project("Test_Project_2", User.getLocalUser());
-        project1.clearCollection(DbConstants.CONFIG_COLLECTION_NAME);
+
+        project0 = Project.openOrCreate("Test_Project_1", User.getLocalUser());
+        project1 = Project.openOrCreate("Test_Project_2", User.getLocalUser());
+
+        assertTrue(project0.save());
+        assertTrue(project1.save());
 
         manager0 = new DataManager(project0);
         manager1 = new DataManager(project1);
@@ -131,11 +136,11 @@ class DataManagerTest {
         manager0.setSourceDirectories(directories0);
         manager1.setSourceDirectories(directories1);
 
-        assertTrue(manager0.saveConfig());
-        assertTrue(manager1.saveConfig());
+        assertTrue(manager0.save());
+        assertTrue(manager1.save());
 
-        DataManager manager2 = new DataManager(new Project("Test_Project_1", User.getLocalUser()));
-        DataManager manager3 = new DataManager(new Project("Test_Project_2", User.getLocalUser()));
+        DataManager manager2 = project0.resolveDataManager();
+        DataManager manager3 = project1.resolveDataManager();
 
         assertTrue(manager2.ingest());
         assertTrue(manager3.ingest());
@@ -148,18 +153,6 @@ class DataManagerTest {
 
         assertEquals(0, manager0.getFiles(false, 100, 0).size());
         assertEquals(0, manager1.getFiles(false, 100, 0).size());
-
-        manager0.setSourceDirectories(new ArrayList<>());
-        manager1.setSourceDirectories(new ArrayList<>());
-
-        assertEquals(0, manager0.getSourceDirectories().size());
-        assertEquals(0, manager1.getSourceDirectories().size());
-
-        assertTrue(manager0.loadConfig());
-        assertTrue(manager1.loadConfig());
-
-        assertEquals(1, manager0.getSourceDirectories().size());
-        assertEquals(1, manager1.getSourceDirectories().size());
 
         assertTrue(manager0.ingest());
         assertTrue(manager1.ingest());

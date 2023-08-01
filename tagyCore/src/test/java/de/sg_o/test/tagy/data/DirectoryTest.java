@@ -70,11 +70,11 @@ class DirectoryTest {
 
     @Test
     void getRootDirectory() {
-        assertTrue(dir0.getRootDirectory().getPath().endsWith("sampleFiles/media"));
-        assertTrue(dir1.getRootDirectory().getPath().endsWith("sampleFiles/mixed"));
-        assertTrue(dir2.getRootDirectory().getPath().endsWith("sampleFiles/text"));
-        assertTrue(dir3.getRootDirectory().getPath().endsWith("sampleFiles/text"));
-        assertTrue(dir4.getRootDirectory().getPath().endsWith("sampleFiles/media"));
+        assertTrue(dir0.resolveRootDirectory().getPath().endsWith("sampleFiles/media"));
+        assertTrue(dir1.resolveRootDirectory().getPath().endsWith("sampleFiles/mixed"));
+        assertTrue(dir2.resolveRootDirectory().getPath().endsWith("sampleFiles/text"));
+        assertTrue(dir3.resolveRootDirectory().getPath().endsWith("sampleFiles/text"));
+        assertTrue(dir4.resolveRootDirectory().getPath().endsWith("sampleFiles/media"));
     }
 
     @Test

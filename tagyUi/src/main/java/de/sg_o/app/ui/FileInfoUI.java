@@ -91,7 +91,7 @@ public class FileInfoUI extends JFrame {
             if (selected < 0 || selected >= fileInfoList.getFiles().size()) return;
             FileInfo fileInfo = fileInfoList.getFiles().get(selected);
             if (fileInfo == null) return;
-            MetaData metaData = fileInfo.getMetaData(project);
+            MetaData metaData = MetaData.queryOrCreate(fileInfo, project);
             MetaViewerUI metaView = new MetaViewerUI(metaData.toString());
             metaView.setVisible(true);
         });
@@ -103,7 +103,7 @@ public class FileInfoUI extends JFrame {
             if (selected < 0 || selected >= fileInfoList.getFiles().size()) return;
             FileInfo fileInfo = fileInfoList.getFiles().get(selected);
             if (fileInfo == null) return;
-            MetaData metaData = fileInfo.getMetaData(project);
+            MetaData metaData = MetaData.queryOrCreate(fileInfo, project);
             AnnotateUI metaView = new AnnotateUI(project, metaData);
             metaView.setVisible(true);
         });

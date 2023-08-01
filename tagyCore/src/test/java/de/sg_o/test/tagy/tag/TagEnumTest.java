@@ -22,6 +22,7 @@ import com.couchbase.lite.MutableDictionary;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.TagHolder;
 import de.sg_o.lib.tagy.tag.enumerator.TagEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,43 +110,41 @@ class TagEnumTest {
 
     @Test
     void addToDocument() {
-        MutableDictionary doc = new MutableDictionary();
-        tag0.addToDictionary(doc);
-        assertEquals("{key0=0}", doc.toMap().toString());
-        assertEquals(tag0, new TagEnum(tag0.getDefinition(), doc));
-        tag1.addToDictionary(doc);
-        assertEquals("{key1=0, key0=0}", doc.toMap().toString());
-        assertEquals(tag1, new TagEnum(tag1.getDefinition(), doc));
-        tag2.addToDictionary(doc);
-        assertEquals("{key1=0, key0=0}", doc.toMap().toString());
-        assertEquals(tag2, new TagEnum(tag2.getDefinition(), doc));
-        tag3.addToDictionary(doc);
-        assertEquals("{key1=1, key0=0}", doc.toMap().toString());
-        assertEquals(tag3, new TagEnum(tag3.getDefinition(), doc));
-        tag4.addToDictionary(doc);
-        assertEquals("{key1=1, key0=4}", doc.toMap().toString());
-        assertEquals(tag4, new TagEnum(tag4.getDefinition(), doc));
-        tag5.addToDictionary(doc);
-        assertEquals("{key1=1, key0=0}", doc.toMap().toString());
-        assertEquals(tag5, new TagEnum(tag5.getDefinition(), doc));
-        assertEquals(tag5, Tag.create(tag5.getDefinition(), doc));
-    }
+        TagHolder holder0 = new TagHolder(tag0);
+        TagHolder holder1 = new TagHolder(tag1);
+        TagHolder holder2 = new TagHolder(tag2);
+        TagHolder holder3 = new TagHolder(tag3);
+        TagHolder holder4 = new TagHolder(tag4);
 
-    @Test
-    void addToArray() {
-        MutableArray array = new MutableArray();
-        tag0.addToArray(array);
-        assertEquals("[0]", array.toList().toString());
-        tag1.addToArray(array);
-        assertEquals("[0, 0]", array.toList().toString());
-        tag2.addToArray(array);
-        assertEquals("[0, 0, 0]", array.toList().toString());
-        tag3.addToArray(array);
-        assertEquals("[0, 0, 0, 1]", array.toList().toString());
-        tag4.addToArray(array);
-        assertEquals("[0, 0, 0, 1, 4]", array.toList().toString());
-        tag5.addToArray(array);
-        assertEquals("[0, 0, 0, 1, 4, 0]", array.toList().toString());
+        String json0 = holder0.getEncoded();
+        String json1 = holder1.getEncoded();
+        String json2 = holder2.getEncoded();
+        String json3 = holder3.getEncoded();
+        String json4 = holder4.getEncoded();
+
+        assertEquals("{\"value\":0}", json0);
+        assertEquals("{\"value\":0}", json1);
+        assertEquals("{\"value\":0}", json2);
+        assertEquals("{\"value\":1}", json3);
+        assertEquals("{\"value\":4}", json4);
+
+        TagHolder holder5 = new TagHolder(tag0.getDefinition(), json0);
+        TagHolder holder6 = new TagHolder(tag1.getDefinition(), json1);
+        TagHolder holder7 = new TagHolder(tag2.getDefinition(), json2);
+        TagHolder holder8 = new TagHolder(tag3.getDefinition(), json3);
+        TagHolder holder9 = new TagHolder(tag4.getDefinition(), json4);
+
+        Tag decoded0 = holder5.getTag();
+        Tag decoded1 = holder6.getTag();
+        Tag decoded2 = holder7.getTag();
+        Tag decoded3 = holder8.getTag();
+        Tag decoded4 = holder9.getTag();
+
+        assertEquals(tag0, decoded0);
+        assertEquals(tag1, decoded1);
+        assertEquals(tag2, decoded2);
+        assertEquals(tag3, decoded3);
+        assertEquals(tag4, decoded4);
     }
 
     @SuppressWarnings("EqualsWithItself")

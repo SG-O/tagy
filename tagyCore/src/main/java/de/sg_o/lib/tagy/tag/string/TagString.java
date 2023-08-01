@@ -17,7 +17,8 @@
 
 package de.sg_o.lib.tagy.tag.string;
 
-import com.couchbase.lite.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Input;
@@ -36,15 +37,17 @@ public class TagString extends Tag {
         this.value = value;
     }
 
-    public TagString(@NotNull TagDefinition definition, @NotNull Dictionary document) {
+    public TagString(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
         if (definition.getType() != Type.STRING) throw new IllegalArgumentException("Definition is not of type string");
-        if (!document.contains(super.getKey())) throw new IllegalArgumentException("Document does not contain key");
-        String value = document.getString(super.getKey());
-        if (value == null) throw new IllegalArgumentException("Value is null");
-        this.value = value;
+        JsonNode value = document.get("value");
+        if (value == null) throw new IllegalArgumentException("Document does not contain key");
+        String value1 = value.textValue();
+        if (value1 == null) throw new IllegalArgumentException("Value is null");
+        this.value = value1;
     }
 
+    @JsonProperty(value = "value", index = 0)
     public @NotNull String getValue() {
         return value;
     }
@@ -52,16 +55,6 @@ public class TagString extends Tag {
     @Override
     public String getValueAsString() {
         return value;
-    }
-
-    @Override
-    public void addToDictionary(@NotNull MutableDictionary dictionary) {
-        dictionary.setString(super.getKey(), value);
-    }
-
-    @Override
-    public void addToArray(@NotNull MutableArray array) {
-        array.addString(value);
     }
 
     @SuppressWarnings("unused")

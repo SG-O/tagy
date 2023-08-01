@@ -25,6 +25,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import de.sg_o.app.customComponents.FontImport;
 import de.sg_o.lib.tagy.Project;
+import de.sg_o.lib.tagy.def.StructureDefinition;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -45,19 +46,22 @@ public class EditorUI extends JFrame {
     private JButton okButton;
     private JPanel contentPane;
 
+    private final StructureDefinition structureDefinition;
+
     public EditorUI(@NotNull Project project) throws HeadlessException {
         super();
         setContentPane(contentPane);
         setTitle("Project Editor");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        this.structureDefinition = project.resolveStructureDefinition();
         projectName.setText(project.getProjectName());
 
         editor.setFont(FontImport.robotoMono.deriveFont(16f));
         editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON_WITH_COMMENTS);
         editor.setCodeFoldingEnabled(true);
         editor.setMarkOccurrences(true);
-        editor.setText(project.getStructureDefinition().toString());
+        editor.setText(this.structureDefinition.toString());
         DarklafRSyntaxTheme syntaxTheme = new DarklafRSyntaxTheme();
         syntaxTheme.apply(editor);
         LafManager.addThemeChangeListener((ThemeInstalledListener) e -> syntaxTheme.apply(editor));
@@ -67,18 +71,18 @@ public class EditorUI extends JFrame {
         pack();
         setLocationRelativeTo(null);
 
-        saveButton.addActionListener(e -> save(project));
+        saveButton.addActionListener(e -> save());
         okButton.addActionListener(e -> {
-            save(project);
+            save();
             dispose();
         });
         cancelButton.addActionListener(e -> dispose());
     }
 
-    private void save(@NotNull Project project) {
+    private void save() {
         String definition = editor.getText();
-        project.getStructureDefinition().setTags(definition);
-        project.save();
+        this.structureDefinition.setTagDefinitions(definition);
+        this.structureDefinition.save();
     }
 
     {

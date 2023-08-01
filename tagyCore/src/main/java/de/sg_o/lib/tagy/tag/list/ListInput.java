@@ -55,7 +55,7 @@ public class ListInput extends Input {
     }
 
     private void addChild(Tag tag) {
-        TagDefinition childTagDefinition = super.getTagDefinition().getInternal();
+        TagDefinition childTagDefinition = super.getTagDefinition().resolveInternal();
         if (childTagDefinition == null) return;
         Input child;
         if (tag != null && tag.getDefinition().getType() == childTagDefinition.getType()) {

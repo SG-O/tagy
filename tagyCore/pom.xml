@@ -35,6 +35,26 @@
             <version>3.1.1</version>
         </dependency>
         <dependency>
+            <groupId>io.objectbox</groupId>
+            <artifactId>objectbox-java</artifactId>
+            <version>${objectboxVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.objectbox</groupId>
+            <artifactId>objectbox-linux</artifactId>
+            <version>${objectboxVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.objectbox</groupId>
+            <artifactId>objectbox-macos</artifactId>
+            <version>${objectboxVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.objectbox</groupId>
+            <artifactId>objectbox-windows</artifactId>
+            <version>${objectboxVersion}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.lgooddatepicker</groupId>
             <artifactId>LGoodDatePicker</artifactId>
             <version>11.2.1</version>
@@ -52,6 +72,45 @@
     </dependencies>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin-version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.objectbox</groupId>
+                            <artifactId>objectbox-processor</artifactId>
+                            <version>${objectboxVersion}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <annotationProcessors>
+                        <annotationProcessor>io.objectbox.processor.ObjectBoxProcessorShim</annotationProcessor>
+                    </annotationProcessors>
+                    <compilerArgs>
+                        <arg>-Aobjectbox.modelPath=${project.basedir}/objectbox-models/default.json</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
 
+            <plugin>
+                <groupId>io.objectbox</groupId>
+                <artifactId>objectbox-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <debug>true</debug>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

@@ -16,14 +16,14 @@
  */
 
 package de.sg_o.lib.tagy;
-
-import com.couchbase.lite.Scope;
-import de.sg_o.lib.tagy.db.DB;
+import de.sg_o.lib.tagy.db.NewDB;
 import de.sg_o.lib.tagy.values.User;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Arrays;
 
 public class ProjectManager extends AbstractListModel<String>  {
     private final ArrayList<String> projects;
@@ -41,12 +41,14 @@ public class ProjectManager extends AbstractListModel<String>  {
 
     public ArrayList<String> listProjects() {
         ArrayList<String> projects = new ArrayList<>();
-        Set<Scope> scopes = DB.listScopes();
-        for (Scope scope : scopes) {
-            String scopeName = scope.getName();
-            if (scopeName.equals(Scope.DEFAULT_NAME)) continue;
-            projects.add(scope.getName());
-        }
+        BoxStore db = NewDB.getDb();
+        if (db == null) return projects;
+        Box<Project> box = db.boxFor(Project.class);
+        if (box == null) return projects;
+        String[] projectsRaw = box.query().build()
+                .property(Project_.projectName)
+                .findStrings();
+        projects.addAll(Arrays.asList(projectsRaw));
         return projects;
     }
 

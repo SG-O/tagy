@@ -17,102 +17,158 @@
 
 package de.sg_o.lib.tagy.def;
 
-import com.couchbase.lite.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.DbConstants;
+import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import de.sg_o.lib.tagy.util.Util;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Transient;
+import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+@Entity
 public class StructureDefinition implements Serializable {
-    @NotNull
-    private final ArrayList<TagDefinition> tags = new ArrayList<>();
-    private transient final Project project;
+    @Id
+    private Long id;
+
+    private final String tagDefinitions = "";
+
+    private final ToOne<Project> project = new ToOne<>(this, StructureDefinition_.project);
+
+    @Transient
+    BoxStore __boxStore = null;
+
+    @Transient
+    private ArrayList<TagDefinition> decodedTagDefinitions = new ArrayList<>();
+
+    public StructureDefinition(Long id, String tagDefinitions, long projectId) {
+        this.id = id;
+        setTagDefinitions(tagDefinitions);
+        this.project.setTargetId(projectId);
+    }
 
     public StructureDefinition(@NotNull Project project) {
-        this.project = project;
-        loadConfig();
+        this.project.setTarget(project);
     }
 
-    public StructureDefinition() {
-        this.project = null;
+    public static List<StructureDefinition> query(QueryBoxSpec<StructureDefinition> queryBoxSpec, int length, int offset) {
+        return NewDB.query(StructureDefinition.class, queryBoxSpec, length, offset);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    public boolean loadConfig() {
-        if (project == null) return false;
-        Document document = project.getData(DbConstants.CONFIG_COLLECTION_NAME, DbConstants.STRUCTURE_DEFINITION_DOCUMENT_NAME);
-        if (document == null) return false;
-        Array tags = document.getArray(DbConstants.TAGS_KEY);
-        if (tags == null) return false;
-        this.tags.clear();
-        parseTagArray(tags);
-        return true;
+    public static StructureDefinition queryFirst(QueryBoxSpec<StructureDefinition> queryBoxSpec) {
+        return NewDB.queryFirst(StructureDefinition.class, queryBoxSpec);
     }
 
-    private void parseTagArray(@NotNull Array tags) {
-        for (int i = 0; i < tags.count(); i++) {
-            Dictionary tag = tags.getDictionary(i);
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    private void parseTagArray(@NotNull JsonNode tags) {
+        for (int i = 0; i < tags.size(); i++) {
+            JsonNode tag = tags.get(i);
             if (tag == null) {
                 continue;
             }
             try {
-                this.tags.add(new TagDefinition(tag));
+                this.decodedTagDefinitions.add(new TagDefinition(tag));
             } catch (Exception ignore) {
             }
         }
     }
 
-    public void setTags(List<TagDefinition> tags) {
-        this.tags.clear();
-        this.tags.addAll(tags);
+    public void setTagDefinitions(List<TagDefinition> tagDefinitions) {
+        clearTagDefinitions();
+        this.decodedTagDefinitions.addAll(tagDefinitions);
     }
 
-    public void setTags(Array tags) {
-        this.tags.clear();
+    public void setTagDefinitions(JsonNode tags) {
+        clearTagDefinitions();
         parseTagArray(tags);
     }
 
-    public boolean setTags(String json) {
+    public boolean setTagDefinitions(String json) {
+        ObjectMapper mapper = new JsonMapper();
         try {
-            MutableArray tags = new MutableArray(json);
-            setTags(tags);
+            JsonNode jsonNode = mapper.readTree(json);
+            if (jsonNode == null) return false;
+            if (jsonNode.isArray()) setTagDefinitions(jsonNode);
         } catch (Exception e) {
             return false;
         }
         return true;
     }
 
-    public ArrayList<TagDefinition> getTags() {
-        return new ArrayList<>(tags);
+    public void clearTagDefinitions() {
+        decodedTagDefinitions.clear();
     }
 
-    public @NotNull MutableArray getEncoded() {
-        MutableArray tags = new MutableArray();
-        for (TagDefinition tag : this.tags) {
-            tags.addDictionary(tag.getEncoded());
-        }
-        return tags;
+    public String getTagDefinitions() {
+        return toString();
     }
 
-    public boolean saveConfig() {
-        if (project == null) return false;
-        MutableDocument document = new MutableDocument(DbConstants.STRUCTURE_DEFINITION_DOCUMENT_NAME);
-        document.setArray(DbConstants.TAGS_KEY, getEncoded());
-        return project.saveData(DbConstants.CONFIG_COLLECTION_NAME, document);
+    @JsonProperty(index = 0)
+    public List<TagDefinition> getDecodedTagDefinitions() {
+        return decodedTagDefinitions;
+    }
+
+    public Project resolveProject() {
+        return project.getTarget();
+    }
+
+    public ToOne<Project> getProject() {
+        return project;
+    }
+
+    public boolean save() {
+        BoxStore db = NewDB.getDb();
+        if (db == null) return false;
+        Box<StructureDefinition> box = db.boxFor(StructureDefinition.class);
+        if (box == null) return false;
+        this.id = box.put(this);
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StructureDefinition that = (StructureDefinition) o;
+        return Util.betterListEquals(getDecodedTagDefinitions(), that.getDecodedTagDefinitions());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getDecodedTagDefinitions());
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
+        List<TagDefinition> tagDefinitions = new ArrayList<>(getDecodedTagDefinitions());
         builder.append("[");
-        for (int i = 0; i < tags.size(); i++) {
-            TagDefinition tag = tags.get(i);
+        for (int i = 0; i < tagDefinitions.size(); i++) {
+            TagDefinition tag = tagDefinitions.get(i);
             builder.append("\n");
             builder.append(tag.toString(1));
-            if (i < tags.size() - 1) {
+            if (i < tagDefinitions.size() - 1) {
                 builder.append(",");
             }
         }

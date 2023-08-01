@@ -80,7 +80,7 @@ public class Export {
         mapper.setVisibility(
                 mapper.getSerializationConfig()
                         .getDefaultVisibilityChecker()
-                        .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                        .withFieldVisibility(JsonAutoDetect.Visibility.NONE)
                         .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
         );
 

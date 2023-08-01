@@ -17,52 +17,120 @@
 
 package de.sg_o.lib.tagy.data;
 
-import com.couchbase.lite.Document;
-import com.couchbase.lite.MutableDocument;
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.DbConstants;
+import de.sg_o.lib.tagy.Project_;
+import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Index;
+import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Objects;
 
+@Entity
 public class FileInfo implements Serializable {
+    @Id
+    private Long id;
+    @Index
     @NotNull
-    private final File file;
+    private final String absolutePath;
     private boolean annotated;
+    private final ToOne<Project> project = new ToOne<>(this, FileInfo_.project);
 
-    public FileInfo(@NotNull File file) {
-        this.file = file;
-        if (file.isDirectory()) throw new RuntimeException("File is a directory");
-        if (!file.exists()) throw new RuntimeException("File does not exist");
-        if (!file.canRead()) throw new RuntimeException("File is not readable");
+    public FileInfo(Long id, @NotNull String absolutePath, boolean annotated, long projectId) {
+        this.id = id;
+        this.absolutePath = absolutePath;
+        this.annotated = annotated;
+        this.project.setTargetId(projectId);
+    }
+
+    public FileInfo(@NotNull File file, @NotNull Project project) {
+        this.absolutePath = file.getAbsolutePath();
+        this.project.setTarget(project);
+        validateFile();
         annotated = false;
     }
 
-    public FileInfo(@NotNull String fileId, @NotNull Project project) {
-        Document document = project.getData(DbConstants.DATA_COLLECTION_NAME, fileId);
-        if (document == null) throw new RuntimeException("File does not exist");
-        String fileName = document.getString("file");
-        if (fileName == null) throw new RuntimeException("Missing file name");
-        this.file = new File(fileName);
-        this.annotated = document.getBoolean("annotated");
-        validateLoadedData();
-    }
-
-    private void validateLoadedData() {
+    private void validateFile() {
+        File file = getFile();
         if (file.isDirectory()) throw new RuntimeException("File is a directory");
         if (!file.exists()) throw new RuntimeException("File does not exist");
         if (!file.canRead()) throw new RuntimeException("File is not readable");
     }
 
-    public @NotNull File getFile() {
-        return file;
+    public static FileInfo queryOrCreate(File file, Project project) {
+        String absolutePathSearch = file.getAbsolutePath();
+        QueryBoxSpec<FileInfo> qbs = qb -> {
+            qb = qb.equal(FileInfo_.absolutePath, absolutePathSearch, io.objectbox.query.QueryBuilder.StringOrder.CASE_SENSITIVE)
+                    .equal(FileInfo_.projectId, project.getId());
+            return qb;
+        };
+        FileInfo found = queryFirst(qbs);
+        if (found == null) {
+            found = new FileInfo(file, project);
+        }
+        return found;
     }
-    public @NotNull String getId() {
-        return file.getAbsolutePath();
+
+    public static List<FileInfo> query(Project project, boolean nonAnnotatedOnly, int length, int offset) {
+        QueryBoxSpec<FileInfo> qbs = qb -> {
+            if (nonAnnotatedOnly) {
+                qb = qb.equal(FileInfo_.annotated, false);
+            }
+            qb = qb.equal(FileInfo_.projectId, project.getId());
+            return qb;
+        };
+        return NewDB.query(FileInfo.class, qbs, length, offset);
+    }
+
+    public static FileInfo queryFirst(QueryBoxSpec<FileInfo> queryBoxSpec) {
+        return NewDB.queryFirst(FileInfo.class, queryBoxSpec);
+    }
+
+    public static FileInfo queryFirst(Project project, boolean nonAnnotatedOnly) {
+        QueryBoxSpec<FileInfo> qbs = qb -> {
+            if (nonAnnotatedOnly) {
+                qb = qb.equal(FileInfo_.annotated, false);
+            }
+            qb = qb.equal(FileInfo_.projectId, project.getId());
+            return qb;
+        };
+        return NewDB.queryFirst(FileInfo.class, qbs);
+    }
+
+    public static boolean deleteAll(Project project, boolean nonAnnotatedOnly) {
+        QueryBoxSpec<FileInfo> qbs = qb -> {
+            if (nonAnnotatedOnly) {
+                qb = qb.equal(FileInfo_.annotated, false);
+            }
+            qb = qb.equal(FileInfo_.projectId, project.getId());
+            return qb;
+        };
+        return NewDB.delete(FileInfo.class, qbs);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public @NotNull File getFile() {
+        return new File(absolutePath);
+    }
+    public @NotNull String getAbsolutePath() {
+        return absolutePath;
     }
 
     public void setAnnotated(boolean annotated) {
@@ -73,11 +141,15 @@ public class FileInfo implements Serializable {
         return annotated;
     }
 
+    public ToOne<Project> getProject() {
+        return project;
+    }
+
     public FileType getFileType() {
         FileType fileType = FileType.UNKNOWN;
         String fileTypeString = "";
         try {
-            fileTypeString = Files.probeContentType(this.file.toPath());
+            fileTypeString = Files.probeContentType(getFile().toPath());
         } catch (IOException ignored) {
         }
 
@@ -100,21 +172,13 @@ public class FileInfo implements Serializable {
         }
         return fileType;
     }
-
-    public MutableDocument getEncoded() {
-        String fullPath = file.getAbsolutePath();
-        MutableDocument document = new MutableDocument(getId());
-        document.setString("file", fullPath);
-        document.setBoolean("annotated", annotated);
-        return document;
-    }
-
-    public MetaData getMetaData(Project project) {
-        return new MetaData(this, project);
-    }
-
-    public boolean save(Project project) {
-        return project.saveData(DbConstants.DATA_COLLECTION_NAME, getEncoded());
+    public boolean save() {
+        BoxStore db = NewDB.getDb();
+        if (db == null) return false;
+        Box<FileInfo> box = db.boxFor(FileInfo.class);
+        if (box == null) return false;
+        this.id = box.put(this);
+        return true;
     }
 
     @Override
@@ -143,7 +207,7 @@ public class FileInfo implements Serializable {
                 "{\n" +
                 indent(indent + 1) +
                 "\"file\": \"" +
-                file +
+                getFile().getName() +
                 "\",\n" +
                 indent(indent + 1) +
                 "\"annotated\": " +

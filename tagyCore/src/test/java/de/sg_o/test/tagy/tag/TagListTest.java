@@ -22,6 +22,7 @@ import com.couchbase.lite.MutableDictionary;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.TagHolder;
 import de.sg_o.lib.tagy.tag.list.TagList;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
 import org.junit.jupiter.api.BeforeEach;
@@ -119,35 +120,29 @@ class TagListTest {
         assertTrue(tag0.addValue(new TagLong(tdl2, 2)));
         assertTrue(tag2.addValue(new TagLong(tdl2, 2)));
 
-        MutableDictionary doc = new MutableDictionary();
-        tag0.addToDictionary(doc);
-        assertEquals("{key0=[0, 2]}", doc.toMap().toString());
-        assertEquals(tag0, new TagList(tag0.getDefinition(), doc));
-        tag1.addToDictionary(doc);
-        assertEquals("{key1=[1], key0=[0, 2]}", doc.toMap().toString());
-        assertEquals(tag1, new TagList(tag1.getDefinition(), doc));
-        tag2.addToDictionary(doc);
-        assertEquals("{key1=[1], key0=[0, 2]}", doc.toMap().toString());
-        assertEquals(tag2, new TagList(tag2.getDefinition(), doc));
-        assertEquals(tag2, Tag.create(tag2.getDefinition(), doc));
-    }
+        TagHolder holder0 = new TagHolder(tag0);
+        TagHolder holder1 = new TagHolder(tag1);
+        TagHolder holder2 = new TagHolder(tag2);
 
-    @Test
-    void addToArray() {
-        assertTrue(tag0.addValue(new TagLong(tdl0, 0)));
-        assertTrue(tag1.addValue(new TagLong(tdl1, 1)));
-        assertTrue(tag2.addValue(new TagLong(tdl0, 0)));
+        String json0 = holder0.getEncoded();
+        String json1 = holder1.getEncoded();
+        String json2 = holder2.getEncoded();
 
-        assertTrue(tag0.addValue(new TagLong(tdl2, 2)));
-        assertTrue(tag2.addValue(new TagLong(tdl2, 2)));
+        assertEquals("{\"values\":[{\"value\":0},{\"value\":2}]}", json0);
+        assertEquals("{\"values\":[{\"value\":1}]}", json1);
+        assertEquals("{\"values\":[{\"value\":0},{\"value\":2}]}", json2);
 
-        MutableArray array = new MutableArray();
-        tag0.addToArray(array);
-        assertEquals("[[0, 2]]", array.toList().toString());
-        tag1.addToArray(array);
-        assertEquals("[[0, 2], [1]]", array.toList().toString());
-        tag2.addToArray(array);
-        assertEquals("[[0, 2], [1], [0, 2]]", array.toList().toString());
+        TagHolder holder5 = new TagHolder(tag0.getDefinition(), json0);
+        TagHolder holder6 = new TagHolder(tag1.getDefinition(), json1);
+        TagHolder holder7 = new TagHolder(tag2.getDefinition(), json2);
+
+        Tag decoded0 = holder5.getTag();
+        Tag decoded1 = holder6.getTag();
+        Tag decoded2 = holder7.getTag();
+
+        assertEquals(tag0, decoded0);
+        assertEquals(tag1, decoded1);
+        assertEquals(tag2, decoded2);
     }
 
     @SuppressWarnings("EqualsWithItself")

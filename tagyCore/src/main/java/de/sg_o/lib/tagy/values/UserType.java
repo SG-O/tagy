@@ -15,60 +15,56 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.def;
+package de.sg_o.lib.tagy.values;
 
 import io.objectbox.converter.PropertyConverter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public enum Type {
+public enum UserType {
     UNKNOWN,
-    LIST,
-    LONG,
-    DOUBLE,
-    ENUM,
-    STRING,
-    DATE;
+    LOCAL,
+    NETWORKED;
 
     private final int id;
-    private static final HashMap<Integer, Type> types = new HashMap<>();
+    private static final HashMap<Integer, UserType> userTypes = new HashMap<>();
 
     static {
-        for (Type type : Type.values()) {
-            types.put(type.getId(), type);
+        for (UserType userType : UserType.values()) {
+            userTypes.put(userType.getId(), userType);
         }
     }
 
-    Type() {
-        id = this.ordinal() - 1;
+    UserType() {
+        id = this.ordinal();
     }
 
     public int getId() {
         return id;
     }
 
-    public static Type getType(int id) {
-        return types.get(id);
+    public static UserType getUserType(int id) {
+        return userTypes.get(id);
     }
 
-    public static class TypeConverter implements PropertyConverter<Type, Integer> {
+    public static class UserTypeConverter implements PropertyConverter<UserType, Integer> {
         @Override
         @NotNull
-        public Type convertToEntityProperty(Integer databaseValue) {
+        public UserType convertToEntityProperty(Integer databaseValue) {
             if (databaseValue == null) {
-                return Type.UNKNOWN;
+                return UserType.UNKNOWN;
             }
-            for (Type role : Type.values()) {
+            for (UserType role : UserType.values()) {
                 if (role.id == databaseValue) {
                     return role;
                 }
             }
-            return Type.UNKNOWN;
+            return UserType.UNKNOWN;
         }
 
         @Override
-        public Integer convertToDatabaseValue(Type entityProperty) {
+        public Integer convertToDatabaseValue(UserType entityProperty) {
             return entityProperty == null ? null : entityProperty.id;
         }
     }

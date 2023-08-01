@@ -17,17 +17,30 @@
 
 package de.sg_o.test.tagy.def;
 
+import de.sg_o.lib.tagy.Project;
+import de.sg_o.lib.tagy.Project_;
+import de.sg_o.lib.tagy.db.NewDB;
 import de.sg_o.lib.tagy.def.StructureDefinition;
+import de.sg_o.lib.tagy.def.StructureDefinition_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
+import de.sg_o.lib.tagy.util.Util;
+import de.sg_o.lib.tagy.values.User;
+import de.sg_o.test.tagy.testDb.TestDb;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class StructureDefinitionTest {
+    Project p0;
+    Project p1;
+
     StructureDefinition def0;
     StructureDefinition def1;
     StructureDefinition def2;
@@ -47,35 +60,62 @@ class StructureDefinitionTest {
         td.addEnumerator("Option 2");
         tags1.add(td);
 
-        def0 = new StructureDefinition();
-        def0.setTags(tags0);
+        p0 = new Project("testProject0", User.getLocalUser());
+        p1 = new Project("testProject1", User.getLocalUser());
 
-        def1 = new StructureDefinition();
-        def1.setTags(tags1);
+        def0 = new StructureDefinition(p0);
+        def0.setTagDefinitions(tags0);
 
-        def2 = new StructureDefinition();
-        assertTrue(def2.setTags("[{\"key\": \"tag0\", \"type\": \"LONG\", \"required\": false, \"enumerators\": []}, {\"key\": \"tag1\", \"type\": \"DOUBLE\", \"required\": false, \"enumerators\": []}]"));
-        def3 = new StructureDefinition();
-        assertTrue(def3.setTags("[{\"key\": \"tag2\", \"type\": \"LONG\", \"required\": false, \"enumerators\": []}, {\"key\": \"tag3\", \"type\": \"ENUM\", \"required\": false, \"enumerators\": [\"Option 1\", \"Option 2\"]}]"));
+        def1 = new StructureDefinition(p1);
+        def1.setTagDefinitions(tags1);
+
+        def2 = new StructureDefinition(p0);
+        assertTrue(def2.setTagDefinitions("[{\"key\": \"tag0\", \"type\": \"LONG\", \"required\": false, \"enumerators\": []}, {\"key\": \"tag1\", \"type\": \"DOUBLE\", \"required\": false, \"enumerators\": []}]"));
+        def3 = new StructureDefinition(p1);
+        assertTrue(def3.setTagDefinitions("[{\"key\": \"tag2\", \"type\": \"LONG\", \"required\": false, \"enumerators\": []}, {\"key\": \"tag3\", \"type\": \"ENUM\", \"required\": false, \"enumerators\": [\"Option 1\", \"Option 2\"]}]"));
+
+        NewDB.closeDb();
+        new TestDb();
     }
 
     @Test
     void getTags() {
-        assertEquals(tags0, def0.getTags());
-        assertEquals(tags1, def1.getTags());
-        assertEquals(tags0, def2.getTags());
-        assertEquals(tags1, def3.getTags());
+        assertTrue(Util.betterListEquals(tags0, def0.getDecodedTagDefinitions()));
+        assertTrue(Util.betterListEquals(tags1, def1.getDecodedTagDefinitions()));
+        assertTrue(Util.betterListEquals(tags0, def2.getDecodedTagDefinitions()));
+        assertTrue(Util.betterListEquals(tags1, def3.getDecodedTagDefinitions()));
     }
 
     @Test
     void getEncoded() {
-        StructureDefinition def4 = new StructureDefinition();
-        def4.setTags(def0.getEncoded());
-        StructureDefinition def5 = new StructureDefinition();
-        def5.setTags(def1.getEncoded());
+        BoxStore db = NewDB.getDb();
+        assertNotNull(db);
+        Box<StructureDefinition> box = db.boxFor(StructureDefinition.class);
+        assertNotNull(box);
+        box.removeAll();
+        assertEquals(0L, box.count());
 
-        assertEquals(tags0, def4.getTags());
-        assertEquals(tags1, def5.getTags());
+        assertTrue(def0.save());
+        assertTrue(def1.save());
+        assertEquals(2L, box.count());
+
+        List<StructureDefinition> q = StructureDefinition.query(qb -> {
+            qb.link(StructureDefinition_.project).apply(Project_.projectName.equal("testProject0"));
+            return qb;
+        }, 0,0);
+        assertEquals(1, q.size());
+
+        StructureDefinition qr0 = StructureDefinition.queryFirst(qb -> {
+            qb.link(StructureDefinition_.project).apply(Project_.projectName.equal("testProject0"));
+            return qb;
+        });
+        StructureDefinition qr1 = StructureDefinition.queryFirst(qb -> {
+            qb.link(StructureDefinition_.project).apply(Project_.projectName.equal("testProject1"));
+            return qb;
+        });
+
+        assertEquals(def0, qr0);
+        assertEquals(def1, qr1);
     }
 
     @Test

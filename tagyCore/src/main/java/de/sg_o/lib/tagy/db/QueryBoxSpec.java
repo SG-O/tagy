@@ -17,18 +17,9 @@
 
 package de.sg_o.lib.tagy.db;
 
-import com.couchbase.lite.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import io.objectbox.query.QueryBuilder;
 
-public class DB {
-
+public interface QueryBoxSpec<T> {
+    QueryBuilder<T> buildQuery(QueryBuilder<T> qb);
 }

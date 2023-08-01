@@ -17,7 +17,8 @@
 
 package de.sg_o.lib.tagy.tag.date;
 
-import com.couchbase.lite.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Input;
@@ -36,13 +37,15 @@ public class TagDate extends Tag {
         this.value = value;
     }
 
-    public TagDate(@NotNull TagDefinition definition, @NotNull Dictionary document) {
+    public TagDate(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
         if (definition.getType() != Type.DATE) throw new IllegalArgumentException("Definition is not of type date");
-        if (!document.contains(super.getKey())) throw new IllegalArgumentException("Document does not contain key");
-        this.value = document.getDate(super.getKey());
+        JsonNode value = document.get("value");
+        if (value == null) throw new IllegalArgumentException("Document does not contain key");
+        this.value = new Date(value.longValue());
     }
 
+    @JsonProperty(value = "value", index = 0)
     public Date getValue() {
         return value;
     }
@@ -50,16 +53,6 @@ public class TagDate extends Tag {
     @Override
     public String getValueAsString() {
         return Util.formatDateToString(value);
-    }
-
-    @Override
-    public void addToDictionary(@NotNull MutableDictionary dictionary) {
-        dictionary.setDate(super.getKey(), value);
-    }
-
-    @Override
-    public void addToArray(@NotNull MutableArray array) {
-        array.addDate(value);
     }
 
     @SuppressWarnings("unused")

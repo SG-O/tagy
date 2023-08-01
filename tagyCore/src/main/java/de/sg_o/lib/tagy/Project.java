@@ -17,16 +17,22 @@
 
 package de.sg_o.lib.tagy;
 
-import com.couchbase.lite.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.data.DataManager;
-import de.sg_o.lib.tagy.db.DB;
-import de.sg_o.lib.tagy.db.DbConstants;
-import de.sg_o.lib.tagy.db.DbScope;
-import de.sg_o.lib.tagy.db.QuerySpec;
+import de.sg_o.lib.tagy.data.DataManager_;
+import de.sg_o.lib.tagy.db.*;
 import de.sg_o.lib.tagy.def.StructureDefinition;
+import de.sg_o.lib.tagy.def.StructureDefinition_;
 import de.sg_o.lib.tagy.util.MetaDataIterator;
 import de.sg_o.lib.tagy.values.User;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Transient;
+import io.objectbox.annotation.Unique;
+import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -36,156 +42,126 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@JsonIgnoreProperties({"user"})
 public class Project implements Serializable {
+    @Id
+    Long id;
     @NotNull
+    @Unique
     private final String projectName;
     @NotNull
-    private final StructureDefinition structureDefinition;
-    @NotNull
-    final DataManager dataManager;
-    private transient final Document oldDoc;
-    @NotNull
-    private transient final DbScope scope;
-    @NotNull
-    private final User user;
+    private final ToOne<User> user = new ToOne<>(this, Project_.user);
+
+    @Transient
+    transient BoxStore __boxStore = null;
+
+    public Project(Long id, @NotNull String projectName, long userId) {
+        this.id = id;
+        this.projectName = projectName;
+        this.user.setTargetId(userId);
+    }
+
 
     public Project(@NotNull String projectName, @NotNull User user) {
-        DbScope scope = DB.getScope(projectName);
-        if (scope == null) {
-            throw new NullPointerException("scope");
-        }
-        this.scope = scope;
         if (projectName.trim().isEmpty()) {
             throw new IllegalArgumentException("projectName");
         }
         this.projectName = projectName.trim();
-        this.structureDefinition = new StructureDefinition(this);
-        this.dataManager = new DataManager(this);
-        this.oldDoc = null;
-        this.user = user;
+        this.user.setTarget(user);
+    }
+
+    public static List<Project> query() {
+        List<Project> projects = new ArrayList<>();
+        BoxStore db = NewDB.getDb();
+        if (db == null) return projects;
+        Box<Project> box = db.boxFor(Project.class);
+        if (box == null) return projects;
+        return box.getAll();
+    }
+
+    public static Project queryFirst(QueryBoxSpec<Project> queryBoxSpec) {
+        return NewDB.queryFirst(Project.class, queryBoxSpec);
+    }
+
+    public static Project openOrCreate(String name, User user) {
+        QueryBoxSpec<Project> qbs = qb -> {
+            qb = qb.equal(Project_.projectName, name, io.objectbox.query.QueryBuilder.StringOrder.CASE_SENSITIVE);
+            return qb;
+        };
+        Project found = queryFirst(qbs);
+        if (found == null) {
+            found = new Project(name, user);
+        }
+        return found;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public @NotNull String getProjectName() {
         return projectName;
     }
 
-    public @NotNull StructureDefinition getStructureDefinition() {
+    @JsonProperty(value = "structureDefinition", index = 1)
+    public @NotNull StructureDefinition resolveStructureDefinition() {
+        QueryBoxSpec<StructureDefinition> qbs = qb -> {
+            qb = qb.equal(StructureDefinition_.projectId, this.getId());
+            return qb;
+        };
+        StructureDefinition structureDefinition = StructureDefinition.queryFirst(qbs);
+        if (structureDefinition == null) {
+            structureDefinition = new StructureDefinition(this);
+        }
         return structureDefinition;
     }
 
-    @SuppressWarnings("unused")
-    public @NotNull DbScope getScope() {
-        return scope;
+    public DataManager resolveDataManager() {
+        QueryBoxSpec<DataManager> qbs = qb -> {
+            qb = qb.equal(DataManager_.projectId, this.getId());
+            return qb;
+        };
+        DataManager dataManager = DataManager.queryFirst(qbs);
+        if (dataManager == null) {
+            dataManager = new DataManager(this);
+        }
+        return dataManager;
     }
 
-    public @NotNull User getUser() {
+    @JsonProperty(value = "user", index = 0)
+    public @NotNull User resolveUser() {
+        return user.getTarget();
+    }
+    public @NotNull ToOne<User> getUser() {
         return user;
-    }
-
-    @SuppressWarnings("unused")
-    public MutableDocument getEncoded() {
-        MutableDocument encoded;
-        if (oldDoc != null) {
-            encoded = oldDoc.toMutable();
-        } else {
-            encoded = new MutableDocument(projectName);
-        }
-        return encoded;
-    }
-
-    public ArrayList<String> queryData(@NotNull String collection, QuerySpec queryBuilder, int count) {
-        if (count < 32) count = 32;
-        Collection scopeCollection = scope.getCollection(collection);
-        if (scopeCollection == null) return null;
-        From from = QueryBuilder
-                .select(SelectResult.expression(Meta.id))
-                .from(DataSource.collection(scopeCollection));
-
-        Query query = from;
-        if (queryBuilder != null) {
-            query = queryBuilder.buildQuery(from);
-        }
-
-        try (ResultSet resultSet = query.execute()) {
-            ArrayList<String> ids = new ArrayList<>(count);
-            for (Result result: resultSet) {
-                String id = result.getString(DbConstants.ID_KEY);
-                if (id == null) continue;
-                ids.add(id);
-            }
-            return ids;
-        } catch (CouchbaseLiteException e) {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public int countEntries(@NotNull String collection) {
-        Collection scopeCollection = scope.getCollection(collection);
-        if (scopeCollection == null) return 0;
-        Query query = QueryBuilder
-                .select(SelectResult.expression(Function.count(Expression.string("*"))).as("count"))
-                .from(DataSource.collection(scopeCollection));
-        int count = 0;
-        try (ResultSet resultSet = query.execute()) {
-            for (Result result: resultSet) {
-                count += result.getInt("count");
-            }
-            return count;
-        } catch (CouchbaseLiteException e) {
-            return 0;
-        }
-    }
-
-    public Document getData(@NotNull String collection, @NotNull String id) {
-        Collection scopeCollection = scope.getCollection(collection);
-        if (scopeCollection == null) return null;
-        try {
-            return scopeCollection.getDocument(id);
-        } catch (CouchbaseLiteException e) {
-            return null;
-        }
-    }
-
-    public boolean saveData(@NotNull String collection, @NotNull List<MutableDocument> documents) {
-        Collection scopeCollection = scope.getCollection(collection);
-        if (scopeCollection == null) return false;
-        for (MutableDocument document : documents) {
-            try {
-                scopeCollection.save(document);
-            } catch (CouchbaseLiteException ignored) {
-            }
-        }
-        return true;
-    }
-
-    public boolean saveData(@NotNull String collection, @NotNull MutableDocument document) {
-        ArrayList<MutableDocument> documents = new ArrayList<>(1);
-        documents.add(document);
-        return saveData(collection, documents);
-    }
-
-    public boolean clearCollection(@NotNull String collection) {
-        Collection scopeCollection = scope.getCollection(collection);
-        if (scopeCollection == null) return false;
-        try {
-            Database db = DB.getDb();
-            if (db == null) return false;
-            db.deleteCollection(scopeCollection.getName(), scopeCollection.getScope().getName());
-        } catch (CouchbaseLiteException e) {
-            return false;
-        }
-        return true;
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean save() {
-        if (!structureDefinition.saveConfig()) return false;
-        return dataManager.saveConfig();
+        BoxStore db = NewDB.getDb();
+        if (db == null) return false;
+        Box<Project> box = db.boxFor(Project.class);
+        if (box == null) return false;
+        this.id = box.put(this);
+        return true;
+    }
+
+    public boolean delete() {
+        QueryBoxSpec<Project> qbs = qb -> {
+            qb = qb.equal(Project_.id, getId());
+            return qb;
+        };
+        this.id = 0L;
+        return NewDB.delete(Project.class, qbs);
     }
 
     @SuppressWarnings("unused")
-    @JsonProperty("annotated")
+    @JsonProperty(value = "annotated", index = 2)
     private MetaDataIterator getMetaDataIterator() {
         return new MetaDataIterator(this);
     }
@@ -203,7 +179,6 @@ public class Project implements Serializable {
     public String toString() {
         return "{" +
                 "\"_id\": \"" + projectName + '\"' +
-                ", \"structureDefinition\": \"" + structureDefinition + '\"' +
                 '}';
     }
 }

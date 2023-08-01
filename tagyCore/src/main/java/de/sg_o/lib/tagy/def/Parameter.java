@@ -17,6 +17,9 @@
 
 package de.sg_o.lib.tagy.def;
 
+import io.objectbox.converter.PropertyConverter;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 
 public enum Parameter {
@@ -56,5 +59,26 @@ public enum Parameter {
 
     public static Parameter getParameter(int id) {
         return parameters.get(id);
+    }
+
+    public static class ParameterConverter implements PropertyConverter<Parameter, Integer> {
+        @Override
+        @NotNull
+        public Parameter convertToEntityProperty(Integer databaseValue) {
+            if (databaseValue == null) {
+                return Parameter.NONE;
+            }
+            for (Parameter role : Parameter.values()) {
+                if (role.id == databaseValue) {
+                    return role;
+                }
+            }
+            return Parameter.NONE;
+        }
+
+        @Override
+        public Integer convertToDatabaseValue(Parameter entityProperty) {
+            return entityProperty == null ? null : entityProperty.id;
+        }
     }
 }
