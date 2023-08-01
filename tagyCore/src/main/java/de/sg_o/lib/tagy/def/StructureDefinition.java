@@ -17,14 +17,12 @@
 
 package de.sg_o.lib.tagy.def;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.util.Util;
 import io.objectbox.Box;
@@ -45,6 +43,7 @@ public class StructureDefinition implements Serializable {
     @Id
     private Long id;
 
+    @SuppressWarnings("unused")
     private final String tagDefinitions = "";
 
     private final ToOne<Project> project = new ToOne<>(this, StructureDefinition_.project);
@@ -66,11 +65,11 @@ public class StructureDefinition implements Serializable {
     }
 
     public static List<StructureDefinition> query(QueryBoxSpec<StructureDefinition> queryBoxSpec, int length, int offset) {
-        return NewDB.query(StructureDefinition.class, queryBoxSpec, length, offset);
+        return DB.query(StructureDefinition.class, queryBoxSpec, length, offset);
     }
 
     public static StructureDefinition queryFirst(QueryBoxSpec<StructureDefinition> queryBoxSpec) {
-        return NewDB.queryFirst(StructureDefinition.class, queryBoxSpec);
+        return DB.queryFirst(StructureDefinition.class, queryBoxSpec);
     }
 
     public Long getId() {
@@ -129,16 +128,12 @@ public class StructureDefinition implements Serializable {
         return decodedTagDefinitions;
     }
 
-    public Project resolveProject() {
-        return project.getTarget();
-    }
-
     public ToOne<Project> getProject() {
         return project;
     }
 
     public boolean save() {
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         if (db == null) return false;
         Box<StructureDefinition> box = db.boxFor(StructureDefinition.class);
         if (box == null) return false;

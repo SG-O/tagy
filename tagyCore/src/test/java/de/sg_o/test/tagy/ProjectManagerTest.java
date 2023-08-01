@@ -17,12 +17,9 @@
 
 package de.sg_o.test.tagy;
 
-import com.couchbase.lite.CouchbaseLiteException;
-import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.ProjectManager;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.test.tagy.testDb.TestDb;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +33,7 @@ class ProjectManagerTest {
     @BeforeEach
     void setUp() {
         pm = new ProjectManager();
-        NewDB.closeDb();
+        DB.closeDb();
         new TestDb();
     }
 

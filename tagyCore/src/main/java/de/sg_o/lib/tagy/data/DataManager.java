@@ -20,7 +20,7 @@ package de.sg_o.lib.tagy.data;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.util.FileInfoIterator;
 import io.objectbox.Box;
@@ -59,11 +59,11 @@ public class DataManager extends AbstractTableModel {
     }
 
     public static List<DataManager> query(QueryBoxSpec<DataManager> queryBoxSpec, int length, int offset) {
-        return NewDB.query(DataManager.class, queryBoxSpec, length, offset);
+        return DB.query(DataManager.class, queryBoxSpec, length, offset);
     }
 
     public static DataManager queryFirst(QueryBoxSpec<DataManager> queryBoxSpec) {
-        return NewDB.queryFirst(DataManager.class, queryBoxSpec);
+        return DB.queryFirst(DataManager.class, queryBoxSpec);
     }
 
     public Long getId() {
@@ -139,7 +139,7 @@ public class DataManager extends AbstractTableModel {
     }
 
     public boolean save() {
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         if (db == null) return false;
         Box<DataManager> box = db.boxFor(DataManager.class);
         if (box == null) return false;

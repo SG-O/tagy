@@ -20,7 +20,7 @@ package de.sg_o.test.tagy.data;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.data.Directory;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.values.User;
 import de.sg_o.test.tagy.testDb.TestDb;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +59,7 @@ class DataManagerTest {
         directories0.add(dir);
         directories1.add(new Directory(sampleMixedFile, false));
 
-        NewDB.closeDb();
+        DB.closeDb();
         new TestDb();
 
         project0 = Project.openOrCreate("Test_Project_1", User.getLocalUser());

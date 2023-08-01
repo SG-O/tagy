@@ -17,7 +17,7 @@
 
 package de.sg_o.test.tagy.def;
 
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.Parameter;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition_;
@@ -41,7 +41,7 @@ class TagDefinitionTest {
 
     @BeforeEach
     void setUp() {
-        NewDB.closeDb();
+        DB.closeDb();
         new TestDb();
 
         td0 = new TagDefinition("test0", Type.LIST);
@@ -248,7 +248,7 @@ class TagDefinitionTest {
         assertNotEquals(td0, td5);
         assertNotEquals(td0, td6);
 
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         assertNotNull(db);
         Box<TagDefinition> box = db.boxFor(TagDefinition.class);
         assertNotNull(box);

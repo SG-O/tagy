@@ -17,15 +17,13 @@
 
 package de.sg_o.app;
 
-import com.couchbase.lite.CouchbaseLiteException;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.settings.SettingsConfiguration;
 import com.github.weisj.darklaf.settings.ThemeSettings;
 import de.sg_o.app.ui.ProjectsUI;
 import de.sg_o.lib.tagy.db.DB;
-import de.sg_o.lib.tagy.db.NewDB;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +58,7 @@ public class Init {
         String lastUsed = prefs.get("lastOpenedDb", null);
         if (lastUsed != null) {
             File lastUsedFile = new File(lastUsed);
-            NewDB.initDb(lastUsedFile, false);
+            DB.initDb(lastUsedFile, false);
         }
 
         ProjectsUI projectsUI = new ProjectsUI();

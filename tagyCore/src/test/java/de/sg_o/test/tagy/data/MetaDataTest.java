@@ -20,7 +20,7 @@ package de.sg_o.test.tagy.data;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.data.MetaData;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
@@ -54,7 +54,7 @@ class MetaDataTest {
 
     @BeforeEach
     void setUp() throws URISyntaxException {
-        NewDB.closeDb();
+        DB.closeDb();
         new TestDb();
 
         project0 = Project.openOrCreate("Test_Project_Meta_1", User.getLocalUser());

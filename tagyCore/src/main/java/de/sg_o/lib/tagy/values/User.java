@@ -17,9 +17,8 @@
 
 package de.sg_o.lib.tagy.values;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import io.objectbox.annotation.Convert;
 import io.objectbox.annotation.Entity;
@@ -39,12 +38,7 @@ public class User implements Serializable {
     private final String name;
 
     public static User getLocalUser() {
-        User localUser = NewDB.queryFirst(User.class, new QueryBoxSpec<User>() {
-            @Override
-            public QueryBuilder<User> buildQuery(QueryBuilder<User> qb) {
-                return qb.equal(User_.userType, UserType.LOCAL.getId());
-            }
-        });
+        User localUser = DB.queryFirst(User.class, qb -> qb.equal(User_.userType, UserType.LOCAL.getId()));
         if (localUser != null) return localUser;
         return new User("Local", UserType.LOCAL);
     }

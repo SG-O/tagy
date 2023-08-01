@@ -42,7 +42,7 @@ public class TagDefinition implements Serializable {
     @Convert(converter = Type.TypeConverter.class, dbType = Integer.class)
     private final Type type;
     private double min = Double.NEGATIVE_INFINITY;
-    private double max= Double.POSITIVE_INFINITY;;
+    private double max= Double.POSITIVE_INFINITY;
     private boolean required = false;
     private final List<String> enumerators;
     @Convert(converter = Parameter.ParameterConverter.class, dbType = Integer.class)

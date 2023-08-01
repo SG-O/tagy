@@ -18,7 +18,7 @@
 package de.sg_o.test.tagy.testDb;
 
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.values.User;
 
 import java.io.File;
@@ -53,7 +53,7 @@ public class TestDb {
         assertTrue(tempDir.exists());
         assertTrue(tempDir.isDirectory());
         db = new File(tempDir.getAbsolutePath() + File.separator + "test");
-        NewDB.initDb(db, true);
+        DB.initDb(db, true);
         Project.openOrCreate("Demo_Project_0", User.getLocalUser()).save();
         Project.openOrCreate("Demo_Project_1", User.getLocalUser()).save();
     }
@@ -70,7 +70,7 @@ public class TestDb {
 
     public static void cleanup() {
         try {
-            NewDB.closeDb();
+            DB.closeDb();
             Files.walkFileTree(tempDirWithPrefix,
                     new SimpleFileVisitor<Path>() {
                         @Override

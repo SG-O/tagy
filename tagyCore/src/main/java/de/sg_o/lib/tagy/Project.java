@@ -73,7 +73,7 @@ public class Project implements Serializable {
 
     public static List<Project> query() {
         List<Project> projects = new ArrayList<>();
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         if (db == null) return projects;
         Box<Project> box = db.boxFor(Project.class);
         if (box == null) return projects;
@@ -81,7 +81,7 @@ public class Project implements Serializable {
     }
 
     public static Project queryFirst(QueryBoxSpec<Project> queryBoxSpec) {
-        return NewDB.queryFirst(Project.class, queryBoxSpec);
+        return DB.queryFirst(Project.class, queryBoxSpec);
     }
 
     public static Project openOrCreate(String name, User user) {
@@ -143,7 +143,7 @@ public class Project implements Serializable {
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean save() {
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         if (db == null) return false;
         Box<Project> box = db.boxFor(Project.class);
         if (box == null) return false;
@@ -151,13 +151,14 @@ public class Project implements Serializable {
         return true;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean delete() {
         QueryBoxSpec<Project> qbs = qb -> {
             qb = qb.equal(Project_.id, getId());
             return qb;
         };
         this.id = 0L;
-        return NewDB.delete(Project.class, qbs);
+        return DB.delete(Project.class, qbs);
     }
 
     @SuppressWarnings("unused")

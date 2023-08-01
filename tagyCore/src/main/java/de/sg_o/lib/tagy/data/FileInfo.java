@@ -18,8 +18,7 @@
 package de.sg_o.lib.tagy.data;
 
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.Project_;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -89,11 +88,11 @@ public class FileInfo implements Serializable {
             qb = qb.equal(FileInfo_.projectId, project.getId());
             return qb;
         };
-        return NewDB.query(FileInfo.class, qbs, length, offset);
+        return DB.query(FileInfo.class, qbs, length, offset);
     }
 
     public static FileInfo queryFirst(QueryBoxSpec<FileInfo> queryBoxSpec) {
-        return NewDB.queryFirst(FileInfo.class, queryBoxSpec);
+        return DB.queryFirst(FileInfo.class, queryBoxSpec);
     }
 
     public static FileInfo queryFirst(Project project, boolean nonAnnotatedOnly) {
@@ -104,7 +103,7 @@ public class FileInfo implements Serializable {
             qb = qb.equal(FileInfo_.projectId, project.getId());
             return qb;
         };
-        return NewDB.queryFirst(FileInfo.class, qbs);
+        return DB.queryFirst(FileInfo.class, qbs);
     }
 
     public static boolean deleteAll(Project project, boolean nonAnnotatedOnly) {
@@ -115,7 +114,7 @@ public class FileInfo implements Serializable {
             qb = qb.equal(FileInfo_.projectId, project.getId());
             return qb;
         };
-        return NewDB.delete(FileInfo.class, qbs);
+        return DB.delete(FileInfo.class, qbs);
     }
 
     public Long getId() {
@@ -173,7 +172,7 @@ public class FileInfo implements Serializable {
         return fileType;
     }
     public boolean save() {
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         if (db == null) return false;
         Box<FileInfo> box = db.boxFor(FileInfo.class);
         if (box == null) return false;

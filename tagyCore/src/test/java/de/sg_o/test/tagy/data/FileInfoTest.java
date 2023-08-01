@@ -22,7 +22,7 @@ import de.sg_o.lib.tagy.Project_;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.data.FileInfo_;
 import de.sg_o.lib.tagy.data.FileType;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.values.User;
 import de.sg_o.test.tagy.testDb.TestDb;
 import io.objectbox.Box;
@@ -66,7 +66,7 @@ class FileInfoTest {
         fi2 = new FileInfo(sampleTextFile, p0);
         fi3 = new FileInfo(sampleMediaFile, p0);
 
-        NewDB.closeDb();
+        DB.closeDb();
         new TestDb();
     }
 
@@ -118,7 +118,7 @@ class FileInfoTest {
         assertNotEquals(fi0, fi1);
         assertNotEquals(fi0, fi2);
 
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         assertNotNull(db);
         Box<FileInfo> box = db.boxFor(FileInfo.class);
         assertNotNull(box);

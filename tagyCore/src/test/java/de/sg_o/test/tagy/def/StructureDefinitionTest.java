@@ -19,7 +19,7 @@ package de.sg_o.test.tagy.def;
 
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.Project_;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.StructureDefinition_;
 import de.sg_o.lib.tagy.def.TagDefinition;
@@ -74,7 +74,7 @@ class StructureDefinitionTest {
         def3 = new StructureDefinition(p1);
         assertTrue(def3.setTagDefinitions("[{\"key\": \"tag2\", \"type\": \"LONG\", \"required\": false, \"enumerators\": []}, {\"key\": \"tag3\", \"type\": \"ENUM\", \"required\": false, \"enumerators\": [\"Option 1\", \"Option 2\"]}]"));
 
-        NewDB.closeDb();
+        DB.closeDb();
         new TestDb();
     }
 
@@ -88,7 +88,7 @@ class StructureDefinitionTest {
 
     @Test
     void getEncoded() {
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         assertNotNull(db);
         Box<StructureDefinition> box = db.boxFor(StructureDefinition.class);
         assertNotNull(box);

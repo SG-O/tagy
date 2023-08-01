@@ -19,7 +19,7 @@ package de.sg_o.lib.tagy.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
@@ -59,6 +59,7 @@ public class MetaData implements Serializable {
     @Transient
     private transient boolean updated = false;
 
+    @SuppressWarnings("unused")
     public MetaData(Long id, Map<String, String> tags, long projectId, long referenceId, long structureDefinitionId) {
         this.id = id;
         this.tags = tags;
@@ -77,7 +78,7 @@ public class MetaData implements Serializable {
     }
 
     public static List<MetaData> query(QueryBoxSpec<MetaData> queryBoxSpec, int length, int offset) {
-        return NewDB.query(MetaData.class, queryBoxSpec, length, offset);
+        return DB.query(MetaData.class, queryBoxSpec, length, offset);
     }
 
     public static List<MetaData> queryAll(Project project, int length, int offset) {
@@ -89,7 +90,7 @@ public class MetaData implements Serializable {
     }
 
     public static MetaData queryFirst(QueryBoxSpec<MetaData> queryBoxSpec) {
-        return NewDB.queryFirst(MetaData.class, queryBoxSpec);
+        return DB.queryFirst(MetaData.class, queryBoxSpec);
     }
 
     public static MetaData queryFirst(FileInfo reference) {
@@ -196,7 +197,7 @@ public class MetaData implements Serializable {
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean save() {
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         if (db == null) return false;
         Box<MetaData> box = db.boxFor(MetaData.class);
         if (box == null) return false;

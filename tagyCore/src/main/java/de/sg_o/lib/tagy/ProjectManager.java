@@ -16,10 +16,11 @@
  */
 
 package de.sg_o.lib.tagy;
-import de.sg_o.lib.tagy.db.NewDB;
+import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.values.User;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
+import io.objectbox.query.Query;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -41,14 +42,15 @@ public class ProjectManager extends AbstractListModel<String>  {
 
     public ArrayList<String> listProjects() {
         ArrayList<String> projects = new ArrayList<>();
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         if (db == null) return projects;
         Box<Project> box = db.boxFor(Project.class);
         if (box == null) return projects;
-        String[] projectsRaw = box.query().build()
-                .property(Project_.projectName)
-                .findStrings();
-        projects.addAll(Arrays.asList(projectsRaw));
+        try (Query<Project> query = box.query().build()) {
+            String[] projectsRaw = query.property(Project_.projectName)
+                    .findStrings();
+            projects.addAll(Arrays.asList(projectsRaw));
+        }
         return projects;
     }
 

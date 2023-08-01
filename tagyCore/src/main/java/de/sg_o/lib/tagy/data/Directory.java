@@ -42,6 +42,7 @@ public class Directory {
     @NotNull
     private final List<String> fileExtensions;
 
+    @SuppressWarnings("unused")
     public Directory(Long id, @NotNull String rootDirectory, boolean recursive, @NotNull List<String> fileExtensions) {
         this.id = id;
         this.rootDirectory = rootDirectory;

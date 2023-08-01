@@ -27,8 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class TagHolder {
 
-    Tag tag = null;
-    String encoded = null;
+    private Tag tag = null;
+    private final String encoded;
 
     public TagHolder(Tag tag) {
         this.tag = tag;

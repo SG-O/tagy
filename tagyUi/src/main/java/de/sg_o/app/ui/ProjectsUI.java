@@ -17,8 +17,6 @@
 
 package de.sg_o.app.ui;
 
-import com.couchbase.lite.CouchbaseLiteException;
-import com.couchbase.lite.Database;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -27,7 +25,6 @@ import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.ProjectManager;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.db.DB;
-import de.sg_o.lib.tagy.db.NewDB;
 import de.sg_o.lib.tagy.values.User;
 import io.objectbox.BoxStore;
 
@@ -70,22 +67,16 @@ public class ProjectsUI extends JFrame {
         pack();
         setLocationRelativeTo(null);
         open.addActionListener(e -> {
-            try {
-                fileOpen();
-            } catch (CouchbaseLiteException ignored) {
-            }
+            fileOpen();
         });
         newDb.addActionListener(e -> {
-            try {
-                fileCreate();
-            } catch (CouchbaseLiteException ignored) {
-            }
+            fileCreate();
         });
         annotate.addActionListener(e -> annotate());
         edit.addActionListener(e -> edit());
         ingestDataButton.addActionListener(e -> ingestData());
         create.addActionListener(e -> {
-            BoxStore db = NewDB.getDb();
+            BoxStore db = DB.getDb();
             if (db == null) return;
             CreateProjectUI createProjectUI = new CreateProjectUI(projectManager);
             createProjectUI.setVisible(true);
@@ -101,7 +92,7 @@ public class ProjectsUI extends JFrame {
         setMinimumSize(new Dimension(500, 400));
     }
 
-    private void fileCreate() throws CouchbaseLiteException {
+    private void fileCreate() {
         JFileChooser fileChooser = new JFileChooser();
         String lastUsed = prefs.get("lastOpenedDb", System.getProperty("user.home"));
         fileChooser.setCurrentDirectory(new File(lastUsed).getParentFile());
@@ -127,13 +118,13 @@ public class ProjectsUI extends JFrame {
             //noinspection ResultOfMethodCallIgnored
             selectedFile.getParentFile().mkdirs();
             prefs.put("lastOpenedDb", selectedFile.getAbsolutePath());
-            NewDB.closeDb();
-            NewDB.initDb(selectedFile, true);
+            DB.closeDb();
+            DB.initDb(selectedFile, true);
         }
         updateProjectList();
     }
 
-    private void fileOpen() throws CouchbaseLiteException {
+    private void fileOpen() {
         JFileChooser fileChooser = new JFileChooser();
         String lastUsed = prefs.get("lastOpenedDb", System.getProperty("user.home"));
         fileChooser.setCurrentDirectory(new File(lastUsed).getParentFile());
@@ -145,16 +136,16 @@ public class ProjectsUI extends JFrame {
                 return;
             }
             prefs.put("lastOpenedDb", selectedFile.getAbsolutePath());
-            NewDB.closeDb();
-            NewDB.initDb(selectedFile, false);
+            DB.closeDb();
+            DB.initDb(selectedFile, false);
         }
         updateProjectList();
     }
 
     private void updateProjectList() {
-        BoxStore db = NewDB.getDb();
+        BoxStore db = DB.getDb();
         if (db != null) {
-            setTitle("Projects - " + NewDB.getName());
+            setTitle("Projects - " + DB.getName());
             annotate.setEnabled(true);
             edit.setEnabled(true);
             ingestDataButton.setEnabled(true);

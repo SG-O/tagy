@@ -17,18 +17,91 @@
 
 package de.sg_o.lib.tagy.db;
 
-import com.couchbase.lite.*;
+import de.sg_o.lib.tagy.MyObjectBox;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.query.Query;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DB {
+    private static BoxStore database;
+    private static @NotNull String name = "";
 
+
+    public static void initDb(File file, boolean allowCreate) {
+        if (database != null) return;
+        if (file == null) return;
+        if (!allowCreate) {
+            if (!file.isDirectory()) return;
+            if (!file.exists()) return;
+        }
+        name = file.getName();
+        database = MyObjectBox.builder().directory(file).build();
+        Runtime.getRuntime().addShutdownHook(new Thread(DB::cleanup));
+    }
+
+    public static BoxStore getDb() {
+        return database;
+    }
+
+    public static <T> List<T> query(Class<T> entityClass,  QueryBoxSpec<T> queryBoxSpec, int length, int offset) {
+        List<T> results = new ArrayList<>();
+        BoxStore db = getDb();
+        if (db == null) return results;
+        Box<T> box = db.boxFor(entityClass);
+        if (box == null) return results;
+        try (Query<T> query = queryBoxSpec.buildQuery(box.query()).build()) {
+            if (length > 0 && offset > -1) {
+                results = query.find(offset, length);
+            } else {
+                results = query.findLazyCached();
+            }
+        }
+        db.closeThreadResources();
+        return results;
+    }
+
+    public static <T> T queryFirst(Class<T> entityClass,  QueryBoxSpec<T> queryBoxSpec) {
+        BoxStore db = getDb();
+        if (db == null) return null;
+        Box<T> box = db.boxFor(entityClass);
+        if (box == null) return null;
+        T data;
+        try (Query<T> query = queryBoxSpec.buildQuery(box.query()).build()) {
+            data = query.findFirst();
+        }
+        db.closeThreadResources();
+        return data;
+    }
+
+    public static @NotNull String getName() {
+        return name;
+    }
+
+    public static <T> boolean delete(Class<T> entityClass, QueryBoxSpec<T> queryBoxSpec) {
+        BoxStore db = getDb();
+        if (db == null) return false;
+        Box<T> box = db.boxFor(entityClass);
+        if (box == null) return false;
+        try (Query<T> query = queryBoxSpec.buildQuery(box.query()).build()) {
+            query.remove();
+        }
+        db.closeThreadResources();
+        return true;
+    }
+
+    public static void closeDb() {
+        if (database == null) return;
+        database.close();
+        database = null;
+    }
+
+    public static void cleanup() {
+        if (database == null) return;
+        database.close();
+    }
 }
