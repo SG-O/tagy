@@ -135,7 +135,7 @@ Here is an example with the annotation UI it generates.
             "key": "cat",
             "type": "LIST",
             "name": "Category",
-            "description": "CHose what describes the video best.",
+            "description": "Chose what describes the video best.",
             "required": false,
             "enumerators": [],
             "internal": 

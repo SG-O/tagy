@@ -10,14 +10,19 @@ When all data is entered, you can export it as XML, JSON or YAML.
 Tagy's annotator UI is customizable using a simple JSON based descriptor. 
 All details have been [documented here](https://github.com/SG-O/tagy/blob/master/doc/StructureDefinition.md).
 
-## Dependencies
+## Supported OS & Dependencies
 
 - VLC 3.0.0+
 
-Linux:
-- zlib 1.2.11+
-- libc++ 3.6.0+
-- ICU4C 5.4.1+
+Windows:
+
+- Microsoft Visual C++ Redistributable package (X64)
+
+Linux (x64, arm64, armv7):
+
+-  GLIBC 2.28+
+
+Mac OS
 
 ## License
 
