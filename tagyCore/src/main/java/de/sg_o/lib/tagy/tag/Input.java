@@ -51,7 +51,7 @@ public abstract class Input {
     public static ArrayList<Input> parseProject(Project project) {
         StructureDefinition structureDefinition = project.resolveStructureDefinition();
         ArrayList<Input> inputs = new ArrayList<>();
-        for (TagDefinition tagDefinition : structureDefinition.getDecodedTagDefinitions()) {
+        for (TagDefinition tagDefinition : structureDefinition.getTagDefinitions()) {
             Input input = create(tagDefinition);
             if (input != null) {
                 inputs.add(input);

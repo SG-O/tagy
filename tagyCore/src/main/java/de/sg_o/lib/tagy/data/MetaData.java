@@ -155,7 +155,7 @@ public class MetaData implements Serializable {
         if (internalTags != null) return;
         internalTags = new HashMap<>();
         if (tags == null) return;
-        for (TagDefinition definition : structureDefinition.getTarget().getDecodedTagDefinitions()) {
+        for (TagDefinition definition : structureDefinition.getTarget().getTagDefinitions()) {
             String encoded = this.tags.get(definition.getKey());
             if (encoded == null) continue;
             TagHolder tagHolder = new TagHolder(definition, encoded);

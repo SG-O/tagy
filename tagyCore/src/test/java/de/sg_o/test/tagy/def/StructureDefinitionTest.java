@@ -80,10 +80,10 @@ class StructureDefinitionTest {
 
     @Test
     void getTags() {
-        assertTrue(Util.betterListEquals(tags0, def0.getDecodedTagDefinitions()));
-        assertTrue(Util.betterListEquals(tags1, def1.getDecodedTagDefinitions()));
-        assertTrue(Util.betterListEquals(tags0, def2.getDecodedTagDefinitions()));
-        assertTrue(Util.betterListEquals(tags1, def3.getDecodedTagDefinitions()));
+        assertTrue(Util.betterListEquals(tags0, def0.getTagDefinitions()));
+        assertTrue(Util.betterListEquals(tags1, def1.getTagDefinitions()));
+        assertTrue(Util.betterListEquals(tags0, def2.getTagDefinitions()));
+        assertTrue(Util.betterListEquals(tags1, def3.getTagDefinitions()));
     }
 
     @Test
@@ -116,6 +116,31 @@ class StructureDefinitionTest {
 
         assertEquals(def0, qr0);
         assertEquals(def1, qr1);
+    }
+
+    @Test
+    void repeatedInsert() {
+        Project p2 = new Project("testProject2", User.getLocalUser());
+        assertTrue(p2.save());
+
+        StructureDefinition sd = p2.resolveStructureDefinition();
+        sd.clearTagDefinitions();
+        assertEquals(0, sd.getTagDefinitions().size());
+        sd.save();
+        sd = p2.resolveStructureDefinition();
+        assertEquals(0, sd.getTagDefinitions().size());
+        sd.setTagDefinitions(tags0);
+        assertEquals(2, sd.getTagDefinitions().size());
+        sd.save();
+        sd = p2.resolveStructureDefinition();
+        assertEquals(2, sd.getTagDefinitions().size());
+        sd.setTagDefinitions(tags0);
+        assertEquals(2, sd.getTagDefinitions().size());
+        sd.save();
+        sd = p2.resolveStructureDefinition();
+        assertEquals(2, sd.getTagDefinitions().size());
+        sd.setTagDefinitions(sd.toString());
+        assertEquals(2, sd.getTagDefinitions().size());
     }
 
     @Test

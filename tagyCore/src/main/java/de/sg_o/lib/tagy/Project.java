@@ -110,6 +110,7 @@ public class Project implements Serializable {
 
     @JsonProperty(value = "structureDefinition", index = 1)
     public @NotNull StructureDefinition resolveStructureDefinition() {
+        if (this.getId() == null) return new StructureDefinition(this);
         QueryBoxSpec<StructureDefinition> qbs = qb -> {
             qb = qb.equal(StructureDefinition_.projectId, this.getId());
             return qb;

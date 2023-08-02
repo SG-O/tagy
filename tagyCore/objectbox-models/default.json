@@ -184,11 +184,6 @@
           "flags": 1
         },
         {
-          "id": "2:8698158600366419708",
-          "name": "tagDefinitions",
-          "type": 9
-        },
-        {
           "id": "3:3220016157954239922",
           "name": "projectId",
           "indexId": "9:8046484053888121509",
@@ -197,7 +192,13 @@
           "relationTarget": "Project"
         }
       ],
-      "relations": []
+      "relations": [
+        {
+          "id": "3:7486696846601167633",
+          "name": "tagDefinitions",
+          "targetId": "7:2263346785548643076"
+        }
+      ]
     },
     {
       "id": "7:2263346785548643076",
@@ -293,13 +294,15 @@
   ],
   "lastEntityId": "8:4588766451774047036",
   "lastIndexId": "10:9155549785424640407",
-  "lastRelationId": "2:1095464932469421925",
+  "lastRelationId": "3:7486696846601167633",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    8698158600366419708
+  ],
   "retiredRelationUids": [],
   "version": 1
 }
