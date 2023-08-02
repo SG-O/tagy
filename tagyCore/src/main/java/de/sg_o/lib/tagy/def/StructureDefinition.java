@@ -34,8 +34,6 @@ import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,9 +42,9 @@ public class StructureDefinition implements Serializable {
     @Id
     private Long id;
 
-    private ToMany<TagDefinition> tagDefinitions = new ToMany<>(this, StructureDefinition_.tagDefinitions);
+    private final ToMany<TagDefinition> tagDefinitions = new ToMany<>(this, StructureDefinition_.tagDefinitions);
 
-    private ToOne<Project> project = new ToOne<>(this, StructureDefinition_.project);
+    private final ToOne<Project> project = new ToOne<>(this, StructureDefinition_.project);
 
     @Transient
     BoxStore __boxStore = null;
@@ -76,7 +74,17 @@ public class StructureDefinition implements Serializable {
         this.id = id;
     }
 
-    private void parseTagArray(@NotNull JsonNode tags) {
+    public void setTagDefinitions(List<TagDefinition> tagDefinitions) {
+        clearTagDefinitions();
+        for (TagDefinition tagDefinition : tagDefinitions) {
+            if (tagDefinition == null) continue;
+            tagDefinition.setId(null);
+            this.tagDefinitions.add(tagDefinition);
+        }
+    }
+
+    public void setTagDefinitions(JsonNode tags) {
+        clearTagDefinitions();
         for (int i = 0; i < tags.size(); i++) {
             JsonNode tag = tags.get(i);
             if (tag == null) {
@@ -87,16 +95,6 @@ public class StructureDefinition implements Serializable {
             } catch (Exception ignore) {
             }
         }
-    }
-
-    public void setTagDefinitions(List<TagDefinition> tagDefinitions) {
-        clearTagDefinitions();
-        this.tagDefinitions.addAll(tagDefinitions);
-    }
-
-    public void setTagDefinitions(JsonNode tags) {
-        clearTagDefinitions();
-        parseTagArray(tags);
     }
 
     public boolean setTagDefinitions(String json) {
@@ -120,31 +118,19 @@ public class StructureDefinition implements Serializable {
             this.tagDefinitions.applyChangesToDb();
             if (tagDefinition == null) continue;
             if (box == null) continue;
-            box.remove(tagDefinition);
+            if (tagDefinition.getId() == null) continue;
+            if (tagDefinition.getId() == 0L) continue;
+            box.remove(tagDefinition.getId());
         }
+        tagDefinitions.clear();
+        save();
     }
 
     public List<TagDefinition> getTagDefinitions() {
-        /*HashMap<String, TagDefinition> keys = new HashMap(tagDefinitions.size());
-        for (int i = 0; i < tagDefinitions.size(); i++) {
-            TagDefinition tagDefinition = tagDefinitions.get(i);
-            if (tagDefinition == null) continue;
-            if (keys.containsKey(tagDefinition.getKey())) {
-                tagDefinitions.remove(i);
-                i--;
-                continue;
-            }
-            keys.put(tagDefinition.getKey(), tagDefinition);
-        }*/
-
-        for(int i = 0; i < tagDefinitions.size(); i++) {
-            TagDefinition tagDefinition = tagDefinitions.get(i);
-            System.out.println(tagDefinition.getId());
-        }
-
         return tagDefinitions;
     }
 
+    @SuppressWarnings("unused")
     public Project resolveProject() {
         return project.getTarget();
     }
@@ -178,7 +164,6 @@ public class StructureDefinition implements Serializable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        List<TagDefinition> tagDefinitions = new ArrayList<>(getTagDefinitions());
         builder.append("[");
         for (int i = 0; i < tagDefinitions.size(); i++) {
             TagDefinition tag = tagDefinitions.get(i);

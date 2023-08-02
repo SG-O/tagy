@@ -68,8 +68,11 @@ class DataManagerTest {
         assertTrue(project0.save());
         assertTrue(project1.save());
 
-        manager0 = new DataManager(project0);
-        manager1 = new DataManager(project1);
+        manager0 = project0.resolveDataManager();
+        manager1 = project1.resolveDataManager();
+
+        manager0.setSourceDirectories(null);
+        manager1.setSourceDirectories(null);
     }
 
     @Test

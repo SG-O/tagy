@@ -51,6 +51,9 @@ class StructureDefinitionTest {
 
     @BeforeEach
     void setUp() {
+        DB.closeDb();
+        new TestDb();
+
         tags0.add(new TagDefinition("tag0", Type.LONG));
         tags0.add(new TagDefinition("tag1", Type.DOUBLE));
 
@@ -60,8 +63,8 @@ class StructureDefinitionTest {
         td.addEnumerator("Option 2");
         tags1.add(td);
 
-        p0 = new Project("testProject0", User.getLocalUser());
-        p1 = new Project("testProject1", User.getLocalUser());
+        p0 = Project.openOrCreate("testProject0", User.getLocalUser());
+        p1 = Project.openOrCreate("testProject1", User.getLocalUser());
 
         def0 = new StructureDefinition(p0);
         def0.setTagDefinitions(tags0);
@@ -73,9 +76,6 @@ class StructureDefinitionTest {
         assertTrue(def2.setTagDefinitions("[{\"key\": \"tag0\", \"type\": \"LONG\", \"required\": false, \"enumerators\": []}, {\"key\": \"tag1\", \"type\": \"DOUBLE\", \"required\": false, \"enumerators\": []}]"));
         def3 = new StructureDefinition(p1);
         assertTrue(def3.setTagDefinitions("[{\"key\": \"tag2\", \"type\": \"LONG\", \"required\": false, \"enumerators\": []}, {\"key\": \"tag3\", \"type\": \"ENUM\", \"required\": false, \"enumerators\": [\"Option 1\", \"Option 2\"]}]"));
-
-        DB.closeDb();
-        new TestDb();
     }
 
     @Test
@@ -120,27 +120,164 @@ class StructureDefinitionTest {
 
     @Test
     void repeatedInsert() {
-        Project p2 = new Project("testProject2", User.getLocalUser());
+        Project p2 = Project.openOrCreate("testProject2", User.getLocalUser());
         assertTrue(p2.save());
 
         StructureDefinition sd = p2.resolveStructureDefinition();
         sd.clearTagDefinitions();
         assertEquals(0, sd.getTagDefinitions().size());
         sd.save();
+
         sd = p2.resolveStructureDefinition();
         assertEquals(0, sd.getTagDefinitions().size());
         sd.setTagDefinitions(tags0);
         assertEquals(2, sd.getTagDefinitions().size());
         sd.save();
+        for (int i = 0; i < 20; i++) {
+            sd = p2.resolveStructureDefinition();
+            assertEquals(2, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags0, sd.getTagDefinitions()));
+            sd.setTagDefinitions(tags0);
+            assertEquals(2, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags0, sd.getTagDefinitions()));
+            sd.save();
+        }
+        for (int i = 0; i < 20; i++) {
+            sd = p2.resolveStructureDefinition();
+            assertEquals(2, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags0, sd.getTagDefinitions()));
+            sd.setTagDefinitions(sd.toString());
+            assertEquals(2, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags0, sd.getTagDefinitions()));
+            sd.save();
+        }
+
+        sd.clearTagDefinitions();
+        assertEquals(0, sd.getTagDefinitions().size());
+        sd.save();
+
         sd = p2.resolveStructureDefinition();
-        assertEquals(2, sd.getTagDefinitions().size());
-        sd.setTagDefinitions(tags0);
+        assertEquals(0, sd.getTagDefinitions().size());
+        sd.setTagDefinitions(tags1);
         assertEquals(2, sd.getTagDefinitions().size());
         sd.save();
+
+        for (int i = 0; i < 20; i++) {
+            sd = p2.resolveStructureDefinition();
+            assertEquals(2, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags1, sd.getTagDefinitions()));
+            sd.setTagDefinitions(tags1);
+            assertEquals(2, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags1, sd.getTagDefinitions()));
+            sd.save();
+        }
+        for (int i = 0; i < 20; i++) {
+            sd = p2.resolveStructureDefinition();
+            assertEquals(2, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags1, sd.getTagDefinitions()));
+            sd.setTagDefinitions(sd.toString());
+            assertEquals(2, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags1, sd.getTagDefinitions()));
+            sd.save();
+        }
+
+        sd.clearTagDefinitions();
+        assertEquals(0, sd.getTagDefinitions().size());
+        sd.save();
+
+        TagDefinition tag4 = new TagDefinition("tag4", Type.LIST);
+        tag4.setInternal(new TagDefinition("", Type.STRING));
+
+        ArrayList<TagDefinition> tags2 = new ArrayList<>(tags1);
+        tags2.add(tag4);
+        tags2.add(new TagDefinition("tag5", Type.DATE));
+        tags2.addAll(tags0);
+
         sd = p2.resolveStructureDefinition();
-        assertEquals(2, sd.getTagDefinitions().size());
-        sd.setTagDefinitions(sd.toString());
-        assertEquals(2, sd.getTagDefinitions().size());
+        assertEquals(0, sd.getTagDefinitions().size());
+        sd.setTagDefinitions(tags2);
+        assertEquals(6, sd.getTagDefinitions().size());
+        sd.save();
+
+        for (int i = 0; i < 20; i++) {
+            sd = p2.resolveStructureDefinition();
+            assertEquals(6, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags2, sd.getTagDefinitions()));
+            sd.setTagDefinitions(tags2);
+            assertEquals(6, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags2, sd.getTagDefinitions()));
+            sd.save();
+        }
+        for (int i = 0; i < 20; i++) {
+            sd = p2.resolveStructureDefinition();
+            assertEquals(6, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags2, sd.getTagDefinitions()));
+            sd.setTagDefinitions(sd.toString());
+            assertEquals(6, sd.getTagDefinitions().size());
+            assertTrue(Util.betterListEquals(tags2, sd.getTagDefinitions()));
+            sd.save();
+        }
+
+        sd = p2.resolveStructureDefinition();
+        assertEquals(6, sd.getTagDefinitions().size());
+
+        assertTrue(Util.betterListEquals(tags2, sd.getTagDefinitions()));
+
+        assertEquals(tags1.get(0), sd.getTagDefinitions().get(0));
+        assertEquals(tags1.get(1), sd.getTagDefinitions().get(1));
+        assertEquals(tag4, sd.getTagDefinitions().get(2));
+        assertEquals(tags0.get(0), sd.getTagDefinitions().get(4));
+        assertEquals(tags0.get(1), sd.getTagDefinitions().get(5));
+
+        assertEquals("[\n" +
+                "\t{\n" +
+                "\t\t\"key\": \"tag2\",\n" +
+                "\t\t\"type\": \"LONG\",\n" +
+                "\t\t\"required\": false,\n" +
+                "\t\t\"enumerators\": []\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"key\": \"tag3\",\n" +
+                "\t\t\"type\": \"ENUM\",\n" +
+                "\t\t\"required\": false,\n" +
+                "\t\t\"enumerators\": \n" +
+                "\t\t\t[\n" +
+                "\t\t\t\t\"Option 1\",\n" +
+                "\t\t\t\t\"Option 2\"\n" +
+                "\t\t\t]\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"key\": \"tag4\",\n" +
+                "\t\t\"type\": \"LIST\",\n" +
+                "\t\t\"required\": false,\n" +
+                "\t\t\"enumerators\": [],\n" +
+                "\t\t\"internal\": \n" +
+                "\t\t\t{\n" +
+                "\t\t\t\t\"key\": \"\",\n" +
+                "\t\t\t\t\"type\": \"STRING\",\n" +
+                "\t\t\t\t\"required\": false,\n" +
+                "\t\t\t\t\"enumerators\": []\n" +
+                "\t\t\t}\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"key\": \"tag5\",\n" +
+                "\t\t\"type\": \"DATE\",\n" +
+                "\t\t\"required\": false,\n" +
+                "\t\t\"enumerators\": []\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"key\": \"tag0\",\n" +
+                "\t\t\"type\": \"LONG\",\n" +
+                "\t\t\"required\": false,\n" +
+                "\t\t\"enumerators\": []\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"key\": \"tag1\",\n" +
+                "\t\t\"type\": \"DOUBLE\",\n" +
+                "\t\t\"required\": false,\n" +
+                "\t\t\"enumerators\": []\n" +
+                "\t}\n" +
+                "]", sd.toString());
     }
 
     @Test

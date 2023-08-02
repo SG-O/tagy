@@ -136,6 +136,34 @@ public class Util {
     }
 
     @SuppressWarnings("unused")
+    public static String betterListPrint(List<?> list, int indent) {
+        if (list == null) return "[]";
+        if (list.isEmpty()) return "[]";
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            builder.append("\t");
+        }
+        builder.append("[\n");
+        for (int j = 0; j < list.size(); j++) {
+            Object o = list.get(j);
+            for (int i = -1; i < indent; i++) {
+                builder.append("\t");
+            }
+            builder.append(o);
+            if (j < list.size() - 1) {
+                builder.append(",\n");
+            } else {
+                builder.append("\n");
+            }
+        }
+        for (int i = 0; i < indent; i++) {
+            builder.append("\t");
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
+    @SuppressWarnings("unused")
     public static int betterListHash(List<?> arrayList0) {
         int hash = 0;
         if (arrayList0 == null) return 0;

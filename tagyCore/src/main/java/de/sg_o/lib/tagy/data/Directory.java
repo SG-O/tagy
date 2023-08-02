@@ -17,6 +17,9 @@
 
 package de.sg_o.lib.tagy.data;
 
+import de.sg_o.lib.tagy.db.DB;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
 import org.jetbrains.annotations.NotNull;
@@ -137,6 +140,15 @@ public class Directory {
         } catch (IOException e) {
             return new ArrayList<>();
         }
+    }
+
+    public boolean save() {
+        BoxStore db = DB.getDb();
+        if (db == null) return false;
+        Box<Directory> box = db.boxFor(Directory.class);
+        if (box == null) return false;
+        this.id = box.put(this);
+        return true;
     }
 
     @Override

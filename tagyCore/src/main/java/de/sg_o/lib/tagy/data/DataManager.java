@@ -86,9 +86,12 @@ public class DataManager extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    public void setSourceDirectories(@NotNull List<Directory> sourceDirectories) {
+    public void setSourceDirectories(List<Directory> sourceDirectories) {
         this.sourceDirectories.clear();
+        save();
+        if (sourceDirectories == null) return;
         this.sourceDirectories.addAll(sourceDirectories);
+        fireTableDataChanged();
     }
 
     public @NotNull List<Directory> getSourceDirectories() {
@@ -181,12 +184,15 @@ public class DataManager extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        Directory directory = sourceDirectories.get(rowIndex);
         switch (columnIndex) {
             case 1:
-                sourceDirectories.get(rowIndex).setRecursive((boolean) aValue);
+                directory.setRecursive((boolean) aValue);
+                directory.save();
                 break;
             case 2:
-                sourceDirectories.get(rowIndex).setFileExtensions((String) aValue);
+                directory.setFileExtensions((String) aValue);
+                directory.save();
                 break;
         }
 

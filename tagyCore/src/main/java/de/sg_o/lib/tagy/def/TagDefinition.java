@@ -346,7 +346,7 @@ public class TagDefinition implements Serializable {
         StringBuilder enumeratorsString = enumeratorToString(indent);
         builder.append(",\n").append(generateEntity(StructureConstants.ENUMERATORS_KEY, enumeratorsString, false, indent));
         if (internal.getTarget() != null) {
-            builder.append(",\n").append(generateEntity(StructureConstants.INTERNAL_KEY, "\n" + internal.getTarget().toString(indent + 1), false, indent));
+            builder.append(",\n").append(generateEntity(StructureConstants.INTERNAL_KEY, "\n" + internal.getTarget().toString(indent + 2), false, indent));
         }
         if (parameter != Parameter.NONE) {
             builder.append(",\n").append(generateEntity(StructureConstants.PARAMETER_KEY, parameter, true, indent));

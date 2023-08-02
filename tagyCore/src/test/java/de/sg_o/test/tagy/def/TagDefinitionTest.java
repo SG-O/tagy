@@ -419,12 +419,12 @@ class TagDefinitionTest {
                         "\t\"required\": true,\n" +
                         "\t\"enumerators\": [],\n" +
                         "\t\"internal\": \n" +
-                        "\t{\n" +
-                        "\t\t\"key\": \"Key\",\n" +
-                        "\t\t\"type\": \"LONG\",\n" +
-                        "\t\t\"required\": false,\n" +
-                        "\t\t\"enumerators\": []\n" +
-                        "\t},\n" +
+                        "\t\t{\n" +
+                        "\t\t\t\"key\": \"Key\",\n" +
+                        "\t\t\t\"type\": \"LONG\",\n" +
+                        "\t\t\t\"required\": false,\n" +
+                        "\t\t\t\"enumerators\": []\n" +
+                        "\t\t},\n" +
                         "\t\"parameter\": \"IN\"\n" +
                         "}",
                 td0.toString());
