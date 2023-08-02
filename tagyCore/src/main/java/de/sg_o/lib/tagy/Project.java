@@ -104,11 +104,12 @@ public class Project implements Serializable {
         this.id = id;
     }
 
+    @JsonProperty(value = "projectName", index = 0)
     public @NotNull String getProjectName() {
         return projectName;
     }
 
-    @JsonProperty(value = "structureDefinition", index = 1)
+    @JsonProperty(value = "structureDefinition", index = 2)
     public @NotNull StructureDefinition resolveStructureDefinition() {
         if (this.getId() == null) return new StructureDefinition(this);
         QueryBoxSpec<StructureDefinition> qbs = qb -> {
@@ -122,6 +123,7 @@ public class Project implements Serializable {
         return structureDefinition;
     }
 
+    @JsonProperty(value = "dataManager", index = 3)
     public DataManager resolveDataManager() {
         QueryBoxSpec<DataManager> qbs = qb -> {
             qb = qb.equal(DataManager_.projectId, this.getId());
@@ -134,7 +136,7 @@ public class Project implements Serializable {
         return dataManager;
     }
 
-    @JsonProperty(value = "user", index = 0)
+    @JsonProperty(value = "user", index =1)
     public @NotNull User resolveUser() {
         return user.getTarget();
     }
@@ -163,7 +165,7 @@ public class Project implements Serializable {
     }
 
     @SuppressWarnings("unused")
-    @JsonProperty(value = "annotated", index = 2)
+    @JsonProperty(value = "annotated", index = 4)
     private MetaDataIterator getMetaDataIterator() {
         return new MetaDataIterator(this);
     }

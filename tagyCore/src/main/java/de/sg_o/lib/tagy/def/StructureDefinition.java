@@ -17,8 +17,10 @@
 
 package de.sg_o.lib.tagy.def;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
@@ -126,6 +128,8 @@ public class StructureDefinition implements Serializable {
         save();
     }
 
+    @JsonProperty(value = "tagDefinitions", index = 0)
+    @JsonSerialize(using = TagDefinitionListSerializer.class)
     public List<TagDefinition> getTagDefinitions() {
         return tagDefinitions;
     }

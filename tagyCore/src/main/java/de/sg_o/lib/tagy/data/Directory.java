@@ -17,6 +17,7 @@
 
 package de.sg_o.lib.tagy.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.db.DB;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -70,6 +71,7 @@ public class Directory {
         return new File(rootDirectory);
     }
 
+    @JsonProperty(value = "rootDirectory", index = 0)
     public @NotNull String getRootDirectory() {
         return rootDirectory;
     }
@@ -78,10 +80,12 @@ public class Directory {
         this.recursive = recursive;
     }
 
+    @JsonProperty(value = "recursive", index = 1)
     public boolean isRecursive() {
         return recursive;
     }
 
+    @JsonProperty(value = "allowedFileExtensions", index = 2)
     public @NotNull ArrayList<String> getFileExtensions() {
         return new ArrayList<>(fileExtensions);
     }

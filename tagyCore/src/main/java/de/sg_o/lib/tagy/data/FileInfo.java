@@ -17,6 +17,7 @@
 
 package de.sg_o.lib.tagy.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
@@ -128,6 +129,8 @@ public class FileInfo implements Serializable {
     public @NotNull File getFile() {
         return new File(absolutePath);
     }
+
+    @JsonProperty(value = "absolutePath", index = 0)
     public @NotNull String getAbsolutePath() {
         return absolutePath;
     }
@@ -136,6 +139,7 @@ public class FileInfo implements Serializable {
         this.annotated = annotated;
     }
 
+    @JsonProperty(value = "annotated", index = 1)
     public boolean isAnnotated() {
         return annotated;
     }

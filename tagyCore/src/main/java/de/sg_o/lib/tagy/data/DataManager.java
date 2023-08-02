@@ -19,6 +19,7 @@ package de.sg_o.lib.tagy.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
@@ -94,6 +95,8 @@ public class DataManager extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    @JsonProperty(value = "directoryConfigs", index = 0)
+    @JsonSerialize(using = DirectoryListSerializer.class)
     public @NotNull List<Directory> getSourceDirectories() {
         return this.sourceDirectories;
     }
@@ -128,7 +131,7 @@ public class DataManager extends AbstractTableModel {
     }
 
     @SuppressWarnings("unused")
-    @JsonProperty("data")
+    @JsonProperty(value = "data", index = 1)
     public FileInfoIterator getFileInfoIterator() {
         return new FileInfoIterator(resolveProject());
     }

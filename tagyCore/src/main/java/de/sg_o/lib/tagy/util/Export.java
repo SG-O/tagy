@@ -20,12 +20,15 @@ package de.sg_o.lib.tagy.util;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import de.sg_o.lib.tagy.Project;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class Export {
     public enum Format {
@@ -34,33 +37,44 @@ public class Export {
         JSON
     }
 
-    private final File file;
+    private final OutputStream outputStream;
     private final Format format;
 
-    public Export(File file) {
-        this.file = file;
-        Format format = Format.JSON;
-        if (file == null) {
-            this.format = format;
-            return;
-        }
-        String fileName = file.getName();
-        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-        switch (extension) {
-            case "xml":
-                format = Format.XML;
-                break;
-            case "yaml":
-                format = Format.YAML;
-                break;
-        }
+    public Export(ByteArrayOutputStream baos, Format format) {
+        this.outputStream = baos;
+        if (format == null) format = Format.JSON;
         this.format = format;
     }
 
-    @SuppressWarnings("unused")
-    public Export(Format format) {
-        this.file = null;
+    public Export(File file) {
+        Format format = Format.JSON;
+        OutputStream outputStream = null;
+        if (file != null) {
+            try {
+                outputStream = Files.newOutputStream(file.toPath());
+                String fileName = file.getName();
+                String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+                switch (extension) {
+                    case "xml":
+                        format = Format.XML;
+                        break;
+                    case "yaml":
+                        format = Format.YAML;
+                        break;
+                }
+            } catch (Exception ignore) {
+            }
+        }
+
+        this.outputStream = outputStream;
         this.format = format;
+    }
+
+    public static String asString(Project project, Format format) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Export export = new Export(baos, format);
+        export.export(project);
+        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
     }
 
     public void export(Project project) {
@@ -82,17 +96,14 @@ public class Export {
                         .getDefaultVisibilityChecker()
                         .withFieldVisibility(JsonAutoDetect.Visibility.NONE)
                         .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+
         );
+
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
         ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 
-        OutputStream out = null;
-        if (file != null) {
-            try {
-                out = new FileOutputStream(file);
-            } catch (FileNotFoundException ignore) {
-            }
-        }
+        OutputStream out = this.outputStream;
         if (out == null) {
             out = System.out;
         }
