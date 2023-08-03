@@ -16,7 +16,7 @@
           <font size="24"/>
           <horizontalAlignment value="0"/>
           <horizontalTextPosition value="0"/>
-          <text resource-bundle="translations/formText_de" key="label.unknownMedia"/>
+          <text resource-bundle="translations/formText" key="label.unknownMedia"/>
         </properties>
       </component>
       <vspacer id="32191">

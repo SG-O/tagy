@@ -17,7 +17,6 @@
 
 package de.sg_o.lib.tagy.util;
 
-import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.ResourceBundle;
 

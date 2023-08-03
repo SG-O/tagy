@@ -70,12 +70,8 @@ public class ProjectsUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
-        open.addActionListener(e -> {
-            fileOpen();
-        });
-        newDb.addActionListener(e -> {
-            fileCreate();
-        });
+        open.addActionListener(e -> fileOpen());
+        newDb.addActionListener(e -> fileCreate());
         annotate.addActionListener(e -> annotate());
         edit.addActionListener(e -> edit());
         ingestDataButton.addActionListener(e -> ingestData());

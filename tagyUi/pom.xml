@@ -157,11 +157,6 @@
             <artifactId>java-gui-forms-rt</artifactId>
             <version>${intellij.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.jetbrains.intellij.java</groupId>
-            <artifactId>java-gui-forms-rt</artifactId>
-            <version>${intellij.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

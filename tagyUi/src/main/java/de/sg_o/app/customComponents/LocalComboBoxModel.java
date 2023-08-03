@@ -28,11 +28,6 @@ public class LocalComboBoxModel extends DefaultComboBoxModel<String> {
 
     public LocalComboBoxModel(List<Locale> locales) {
         this.locales = locales;
-        Vector<String> strings = new Vector<>();
-        for (Locale locale : locales) {
-            strings.add(locale.getDisplayLanguage());
-        }
-
     }
 
     @Override

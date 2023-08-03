@@ -59,7 +59,7 @@ public class UnknownMedia extends JPanel {
         if (label1Font != null) label1.setFont(label1Font);
         label1.setHorizontalAlignment(0);
         label1.setHorizontalTextPosition(0);
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("translations/formText_de", "label.unknownMedia"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("translations/formText", "label.unknownMedia"));
         unknownMedia.add(label1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         unknownMedia.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));

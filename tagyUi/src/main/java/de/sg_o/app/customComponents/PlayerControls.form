@@ -26,7 +26,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText resource-bundle="translations/formText_de" key="button.tooltip.inPosition"/>
+          <toolTipText resource-bundle="translations/formText" key="button.tooltip.inPosition"/>
         </properties>
       </component>
       <component id="ebda0" class="javax.swing.JButton" binding="rewindButton" default-binding="true">
@@ -35,7 +35,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText resource-bundle="translations/formText_de" key="button.tooltip.rewind"/>
+          <toolTipText resource-bundle="translations/formText" key="button.tooltip.rewind"/>
         </properties>
       </component>
       <component id="ac971" class="javax.swing.JButton" binding="playPauseButton" default-binding="true">
@@ -44,7 +44,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText resource-bundle="translations/formText_de" key="button.tooltip.playPause"/>
+          <toolTipText resource-bundle="translations/formText" key="button.tooltip.playPause"/>
         </properties>
       </component>
       <component id="a2444" class="javax.swing.JButton" binding="nextFrameButton" default-binding="true">
@@ -53,7 +53,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText resource-bundle="translations/formText_de" key="button.tooltip.nextFrame"/>
+          <toolTipText resource-bundle="translations/formText" key="button.tooltip.nextFrame"/>
         </properties>
       </component>
       <component id="6fb53" class="javax.swing.JButton" binding="outButton" default-binding="true">
@@ -62,7 +62,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText resource-bundle="translations/formText_de" key="button.tooltip.outPosition"/>
+          <toolTipText resource-bundle="translations/formText" key="button.tooltip.outPosition"/>
         </properties>
       </component>
       <component id="49b09" class="javax.swing.JButton" binding="rewind10Button" default-binding="true">
@@ -71,7 +71,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText resource-bundle="translations/formText_de" key="button.tooltip.rewindTen"/>
+          <toolTipText resource-bundle="translations/formText" key="button.tooltip.rewindTen"/>
         </properties>
       </component>
       <component id="b22ff" class="javax.swing.JButton" binding="skip10Button" default-binding="true">
@@ -80,7 +80,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText resource-bundle="translations/formText_de" key="button.tooltip.skipTen"/>
+          <toolTipText resource-bundle="translations/formText" key="button.tooltip.skipTen"/>
         </properties>
       </component>
       <hspacer id="9e8d9">

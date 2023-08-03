@@ -60,8 +60,10 @@ public class EditorUI extends JFrame {
 
         this.structureDefinition = project.resolveStructureDefinition();
         projectName.setText(project.getProjectName());
-
-        editor.setFont(FontImport.robotoMono.deriveFont(16f));
+        Font font = FontImport.robotoMono;
+        if (font != null) {
+            editor.setFont(font.deriveFont(16f));
+        }
         editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON_WITH_COMMENTS);
         editor.setCodeFoldingEnabled(true);
         editor.setMarkOccurrences(true);

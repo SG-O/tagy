@@ -46,7 +46,10 @@ public class MetaViewerUI extends JFrame {
         meta.setMarkOccurrences(true);
         meta.setText(data);
         meta.setEditable(false);
-        meta.setFont(FontImport.robotoMono.deriveFont(16f));
+        Font font = FontImport.robotoMono;
+        if (font != null) {
+            meta.setFont(font.deriveFont(16f));
+        }
         DarklafRSyntaxTheme syntaxTheme = new DarklafRSyntaxTheme();
         syntaxTheme.apply(meta);
         LafManager.addThemeChangeListener((ThemeInstalledListener) e -> syntaxTheme.apply(meta));
