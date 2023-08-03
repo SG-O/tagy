@@ -20,7 +20,6 @@ package de.sg_o.app.customComponents;
 import javax.swing.*;
 import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 
 public class LocalComboBoxModel extends DefaultComboBoxModel<String> {
     private final List<Locale> locales;
