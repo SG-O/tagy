@@ -41,3 +41,7 @@ build/
 /tagyCore/test.cblite2/
 /tagyCore/.flattened-pom.xml
 /.flattened-pom.xml
+/tagyUi/.flattened-pom.xml
+/tagyUi/dependency-reduced-pom.xml
+/tagyCore/objectbox-models/default.json.bak
+libobjectbox-jni**
