@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class FontImport {
-    public static Font robotoMono = loadFont("/fonts/RobotoMono-VariableFont_wght.ttf");
+    public static final Font robotoMono = loadFont("/fonts/RobotoMono-VariableFont_wght.ttf");
 
     @SuppressWarnings("SameParameterValue")
     private static @Nullable Font loadFont(String resource) {

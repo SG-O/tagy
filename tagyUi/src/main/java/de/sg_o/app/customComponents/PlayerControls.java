@@ -29,7 +29,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -155,31 +157,31 @@ public class PlayerControls {
         controlsPane.add(progress, new GridConstraints(0, 1, 1, 9, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         inButton = new JButton();
         inButton.setText("");
-        inButton.setToolTipText("In Position");
+        inButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText_de", "button.tooltip.inPosition"));
         controlsPane.add(inButton, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         rewindButton = new JButton();
         rewindButton.setText("");
-        rewindButton.setToolTipText("Rewind");
+        rewindButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText_de", "button.tooltip.rewind"));
         controlsPane.add(rewindButton, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         playPauseButton = new JButton();
         playPauseButton.setText("");
-        playPauseButton.setToolTipText("Play / Pause");
+        playPauseButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText_de", "button.tooltip.playPause"));
         controlsPane.add(playPauseButton, new GridConstraints(1, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         nextFrameButton = new JButton();
         nextFrameButton.setText("");
-        nextFrameButton.setToolTipText("Next Frame");
+        nextFrameButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText_de", "button.tooltip.nextFrame"));
         controlsPane.add(nextFrameButton, new GridConstraints(1, 6, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         outButton = new JButton();
         outButton.setText("");
-        outButton.setToolTipText("Out Position");
+        outButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText_de", "button.tooltip.outPosition"));
         controlsPane.add(outButton, new GridConstraints(1, 8, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         rewind10Button = new JButton();
         rewind10Button.setText("");
-        rewind10Button.setToolTipText("Rewind 10s");
+        rewind10Button.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText_de", "button.tooltip.rewindTen"));
         controlsPane.add(rewind10Button, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         skip10Button = new JButton();
         skip10Button.setText("");
-        skip10Button.setToolTipText("Skip 10s");
+        skip10Button.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText_de", "button.tooltip.skipTen"));
         controlsPane.add(skip10Button, new GridConstraints(1, 7, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         controlsPane.add(spacer1, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
@@ -195,6 +197,23 @@ public class PlayerControls {
         total.setHorizontalTextPosition(2);
         total.setText("00:00:00");
         controlsPane.add(total, new GridConstraints(0, 10, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
     }
 
     /**

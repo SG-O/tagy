@@ -34,12 +34,13 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ResourceBundle;
+
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 public class AnnotateUI extends JFrame {
     private JPanel variables;
@@ -61,12 +62,12 @@ public class AnnotateUI extends JFrame {
         this.project = project;
         $$$setupUI$$$();
         setContentPane(contentPane);
-        setTitle("Annotation");
+        setTitle(getMessageFromBundle("translations/formText", "form.title.annotation"));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         dataManager = new DataManager(this.project);
 
-
+        doneButton.setMnemonic(KeyEvent.VK_ENTER);
         doneButton.addActionListener(e -> {
             if (metaData == null) {
                 if (toView != null) {
@@ -119,8 +120,7 @@ public class AnnotateUI extends JFrame {
             }
         });
 
-        contentPane.addComponentListener(new ComponentAdapter()
-        {
+        contentPane.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent evt) {
                 contentPane.revalidate();
                 contentPane.repaint();
@@ -141,7 +141,7 @@ public class AnnotateUI extends JFrame {
                 for (Input input : inputs) {
                     input.reset(null);
                 }
-                errorMessage.setText("No more files that need annotating");
+                errorMessage.setText(this.$$$getMessageFromBundle$$$("translations/formText", "message.noMoreFiles"));
                 fileName.setText("");
                 metaData = null;
                 return;
@@ -182,7 +182,7 @@ public class AnnotateUI extends JFrame {
         contentPane = new JPanel();
         contentPane.setLayout(new GridLayoutManager(4, 3, new Insets(8, 8, 8, 8), -1, -1));
         doneButton = new JButton();
-        doneButton.setText("Done");
+        this.$$$loadButtonText$$$(doneButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.done"));
         contentPane.add(doneButton, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         contentPane.add(spacer1, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
@@ -202,10 +202,55 @@ public class AnnotateUI extends JFrame {
         contentPane.add(viewerHolder, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(100, 100), new Dimension(640, 480), null, 0, false));
     }
 
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
     /**
      * @noinspection ALL
      */
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
     }
+
 }

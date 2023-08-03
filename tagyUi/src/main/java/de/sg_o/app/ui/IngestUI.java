@@ -27,7 +27,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
+
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 public class IngestUI extends JDialog {
     private final Preferences prefs = Preferences.userRoot().node("de/sg-o/app/tagy");
@@ -39,6 +43,7 @@ public class IngestUI extends JDialog {
     private JTable directories;
     private JPanel contentPane;
     private JButton saveButton;
+    private JScrollPane directoriesScrollPane;
 
     private final DataManager dataManager;
 
@@ -46,9 +51,10 @@ public class IngestUI extends JDialog {
         addButton.setIcon(Icons.ADD_20);
         removeButton.setIcon(Icons.REMOVE_20);
         this.dataManager = dataManager;
+        setTitle(getMessageFromBundle("translations/formText", "form.title.ingest"));
         setContentPane(contentPane);
         setModal(true);
-        getRootPane().setDefaultButton(ingestButton);
+        getRootPane().setDefaultButton(saveButton);
         directories.setModel(dataManager);
         directories.getTableHeader().setResizingAllowed(false);
         directories.getTableHeader().setReorderingAllowed(false);
@@ -62,14 +68,19 @@ public class IngestUI extends JDialog {
         setLocationRelativeTo(null);
 
         addButton.addActionListener(e -> addDirectory());
+        addButton.setMnemonic(KeyEvent.VK_PLUS);
 
         removeButton.addActionListener(e -> dataManager.removeDirectory(directories.getSelectedRow()));
+        removeButton.setMnemonic(KeyEvent.VK_MINUS);
 
         saveButton.addActionListener(e -> save());
+        saveButton.setMnemonic(KeyEvent.VK_ENTER);
 
         ingestButton.addActionListener(e -> ingest());
+        ingestButton.setMnemonic(KeyEvent.VK_I);
 
         cancelButton.addActionListener(e -> onCancel());
+        cancelButton.setMnemonic(KeyEvent.VK_ESCAPE);
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -139,35 +150,82 @@ public class IngestUI extends JDialog {
         panel1.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.add(panel2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        ingestButton = new JButton();
-        ingestButton.setText("Save + Ingest");
-        panel2.add(ingestButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(panel2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(160, 34), null, 0, false));
         cancelButton = new JButton();
-        cancelButton.setText("Cancel");
+        this.$$$loadButtonText$$$(cancelButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.cancel"));
+        cancelButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.tooltip.cancel"));
         panel2.add(cancelButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         saveButton = new JButton();
-        saveButton.setText("Save");
+        this.$$$loadButtonText$$$(saveButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.save"));
+        saveButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.tooltip.save"));
         panel2.add(saveButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        ingestButton = new JButton();
+        this.$$$loadButtonText$$$(ingestButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.save.ingest"));
+        ingestButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.tooltip.ingest"));
+        panel2.add(ingestButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(800, -1), null, null, 0, false));
-        final JScrollPane scrollPane1 = new JScrollPane();
-        panel3.add(scrollPane1, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        directoriesScrollPane = new JScrollPane();
+        panel3.add(directoriesScrollPane, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         directories = new JTable();
-        scrollPane1.setViewportView(directories);
+        directoriesScrollPane.setViewportView(directories);
         addButton = new JButton();
         addButton.setHideActionText(true);
         addButton.setText("");
-        addButton.setToolTipText("Add");
+        addButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.add"));
         panel3.add(addButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         panel3.add(spacer2, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         removeButton = new JButton();
         removeButton.setHideActionText(true);
         removeButton.setText("");
-        removeButton.setToolTipText("Remove");
+        removeButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.remove"));
         panel3.add(removeButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
     }
 
     /**

@@ -34,6 +34,10 @@ import javax.swing.plaf.basic.BasicLabelUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ResourceBundle;
+
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 public class FileInfoUI extends JFrame {
     private JButton nextButton;
@@ -53,7 +57,7 @@ public class FileInfoUI extends JFrame {
         previousButton.setIcon(Icons.NAVIGATE_BEFORE_16);
         nextButton.setIcon(Icons.NAVIGATE_NEXT_16);
         setContentPane(contentPane);
-        setTitle("Projects");
+        setTitle(getMessageFromBundle("translations/formText", "form.title.fileInfo"));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         files.setModel(fileInfoList);
         files.getTableHeader().setResizingAllowed(false);
@@ -167,14 +171,14 @@ public class FileInfoUI extends JFrame {
         files = new JTable();
         scrollPane1.setViewportView(files);
         editButton = new JButton();
-        editButton.setText("Edit");
+        this.$$$loadButtonText$$$(editButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.edit"));
         contentPane.add(editButton, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel1, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         previousButton = new JButton();
         previousButton.setText("");
-        previousButton.setToolTipText("Previous");
+        previousButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.previous"));
         panel1.add(previousButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(11, 30), null, 0, false));
         page = new JLabel();
         page.setHorizontalAlignment(0);
@@ -183,7 +187,7 @@ public class FileInfoUI extends JFrame {
         panel1.add(page, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, new Dimension(30, -1), null, null, 0, false));
         nextButton = new JButton();
         nextButton.setText("");
-        nextButton.setToolTipText("Next");
+        nextButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.next"));
         panel1.add(nextButton, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         panel1.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
@@ -192,11 +196,55 @@ public class FileInfoUI extends JFrame {
         final Spacer spacer3 = new Spacer();
         contentPane.add(spacer3, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         dataButton = new JButton();
-        dataButton.setText("Inspect");
+        this.$$$loadButtonText$$$(dataButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.inspect"));
         contentPane.add(dataButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         exportButton = new JButton();
-        exportButton.setText("Export");
+        this.$$$loadButtonText$$$(exportButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.export"));
         contentPane.add(exportButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
     }
 
     /**

@@ -26,7 +26,6 @@ import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
-import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.floating.TagDouble;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
 import de.sg_o.lib.tagy.util.Export;

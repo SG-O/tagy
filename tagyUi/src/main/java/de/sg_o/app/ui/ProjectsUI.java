@@ -32,7 +32,11 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
+
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 public class ProjectsUI extends JFrame {
     private JButton annotate;
@@ -62,7 +66,7 @@ public class ProjectsUI extends JFrame {
         inspectButton.setIcon(Icons.FIND_IN_PAGE_24);
 
         setContentPane(contentPane);
-        setTitle("Projects");
+        setTitle(getMessageFromBundle("translations/formText", "form.title.projects"));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
@@ -145,7 +149,8 @@ public class ProjectsUI extends JFrame {
     private void updateProjectList() {
         BoxStore db = DB.getDb();
         if (db != null) {
-            setTitle("Projects - " + DB.getName());
+            setTitle(getMessageFromBundle("translations/formText", "form.title.projects") +
+                    " - " + DB.getName());
             annotate.setEnabled(true);
             edit.setEnabled(true);
             ingestDataButton.setEnabled(true);
@@ -236,38 +241,55 @@ public class ProjectsUI extends JFrame {
         scrollPane1.setViewportView(projectList);
         annotate = new JButton();
         annotate.setText("");
-        annotate.setToolTipText("Annotate");
+        annotate.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.annotate"));
         contentPane.add(annotate, new GridConstraints(2, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         contentPane.add(spacer1, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         open = new JButton();
         open.setText("");
-        open.setToolTipText("Open");
+        open.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.openDatabase"));
         contentPane.add(open, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         create = new JButton();
         create.setText("");
-        create.setToolTipText("Add");
+        create.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.addProject"));
         contentPane.add(create, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         newDb = new JButton();
         newDb.setText("");
-        newDb.setToolTipText("New");
+        newDb.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.newDatabase"));
         contentPane.add(newDb, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         edit = new JButton();
         edit.setText("");
-        edit.setToolTipText("Edit");
+        edit.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.edit"));
         contentPane.add(edit, new GridConstraints(2, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         settingsButton = new JButton();
         settingsButton.setText("");
-        settingsButton.setToolTipText("Settings");
+        settingsButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.settings"));
         contentPane.add(settingsButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ingestDataButton = new JButton();
         ingestDataButton.setText("");
-        ingestDataButton.setToolTipText("IngestData");
+        ingestDataButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.ingestData"));
         contentPane.add(ingestDataButton, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         inspectButton = new JButton();
         inspectButton.setText("");
-        inspectButton.setToolTipText("Inspect");
+        inspectButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.inspect"));
         contentPane.add(inspectButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
     }
 
     /**
@@ -276,4 +298,5 @@ public class ProjectsUI extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
     }
+
 }

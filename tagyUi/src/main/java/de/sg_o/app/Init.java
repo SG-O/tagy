@@ -29,12 +29,14 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 import static com.github.weisj.darklaf.LafManager.getPreferredThemeStyle;
 
 public class Init {
     private static final Preferences prefs = Preferences.userRoot().node("de/sg-o/app/tagy");
+    public static final List<ResourceBundle> FORM_TEXT = getResourceBundles("translations/formText");
 
     public static void main(String[] args) {
         LafManager.themeForPreferredStyle(getPreferredThemeStyle());
@@ -56,6 +58,9 @@ public class Init {
         } catch (InterruptedException ignore) {
         }
 
+        String language = prefs.get("language", "en");
+        Locale.setDefault(new Locale(language));
+
         String lastUsed = prefs.get("lastOpenedDb", null);
         if (lastUsed != null) {
             File lastUsedFile = new File(lastUsed);
@@ -68,5 +73,18 @@ public class Init {
 
         ProjectsUI projectsUI = new ProjectsUI();
         SwingUtilities.invokeLater(() -> projectsUI.setVisible(true));
+    }
+
+    public static List<ResourceBundle> getResourceBundles(String baseName) {
+        HashSet<ResourceBundle> resourceBundles = new HashSet<>();
+
+        for (Locale locale : Locale.getAvailableLocales()) {
+            try {
+                resourceBundles.add(ResourceBundle.getBundle(baseName, locale));
+            } catch (MissingResourceException ignore) {
+            }
+        }
+
+        return Collections.unmodifiableList(new ArrayList<>(resourceBundles));
     }
 }

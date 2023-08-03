@@ -30,13 +30,15 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import javax.swing.*;
 import java.awt.*;
 
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
+
 public class MetaViewerUI extends JFrame {
     private RSyntaxTextArea meta;
     private RTextScrollPane scrollPane;
     private JPanel contentPane;
 
     public MetaViewerUI(String data) throws HeadlessException {
-        setTitle("Projects");
+        setTitle(getMessageFromBundle("translations/formText", "form.title.metaViewer"));
         setContentPane(contentPane);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         meta.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON_WITH_COMMENTS);

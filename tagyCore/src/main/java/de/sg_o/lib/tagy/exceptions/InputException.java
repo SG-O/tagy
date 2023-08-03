@@ -22,18 +22,20 @@ import org.jetbrains.annotations.NotNull;
 import java.text.MessageFormat;
 import java.util.Objects;
 
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
+
 public class InputException extends Exception {
     @SuppressWarnings("unused")
     public enum Rule {
-        INVALID_MANDATORY_FIELD("The data entered into the mandatory field {0} is not valid. Please check your input."),
-        EMPTY_MANDATORY_FIELD("The mandatory field {0} is empty. Please check your input."),
-        LESS_THAN_MIN("The data entered in field {0} is smaller than the minimum allowed value {1}. Please check your input."),
-        MORE_THAN_MAX("The data entered in field {0} is larger than the maximum allowed value {1}. Please check your input."),
-        LIST_NOT_ENOUGH_VALUES("The {0} list has less than the required {1} values. Please check your input"),
-        LIST_TOO_MANY_VALUES("The {0} list has more than the allowed {1} values. Please check your input."),
-        STRING_TOO_SHORT("The data entered in field {0} is shorter than the minimum required length {1}. Please check your input"),
-        STRING_TOO_LONG("The data entered in field {0} is longer than the maximum allowed length {1}. Please check your input."),
-        OTHER("Data entered in field {0} is not valid. Please check your input.");
+        INVALID_MANDATORY_FIELD(getMessageFromBundle("translations/text", "exception.rule.invalidMandatoryField")),
+        EMPTY_MANDATORY_FIELD(getMessageFromBundle("translations/text", "exception.rule.emptyMandatoryField")),
+        LESS_THAN_MIN(getMessageFromBundle("translations/text", "exception.rule.lessTanMin")),
+        MORE_THAN_MAX(getMessageFromBundle("translations/text", "exception.rule.moreThanMax")),
+        LIST_NOT_ENOUGH_VALUES(getMessageFromBundle("translations/text", "exception.rule.listNotEnoughValues")),
+        LIST_TOO_MANY_VALUES(getMessageFromBundle("translations/text", "exception.rule.listTooManyValues")),
+        STRING_TOO_SHORT(getMessageFromBundle("translations/text", "exception.rule.stringTooShort")),
+        STRING_TOO_LONG(getMessageFromBundle("translations/text", "exception.rule.stringTooLong")),
+        OTHER(getMessageFromBundle("translations/text", "exception.rule.other"));
 
         private final String message;
 

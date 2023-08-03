@@ -35,7 +35,11 @@ import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.ResourceBundle;
+
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 public class EditorUI extends JFrame {
     private JButton saveButton;
@@ -51,7 +55,7 @@ public class EditorUI extends JFrame {
     public EditorUI(@NotNull Project project) throws HeadlessException {
         super();
         setContentPane(contentPane);
-        setTitle("Project Editor");
+        setTitle(getMessageFromBundle("translations/formText", "form.title.editor"));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         this.structureDefinition = project.resolveStructureDefinition();
@@ -116,13 +120,13 @@ public class EditorUI extends JFrame {
         projectName.setText("Label");
         contentPane.add(projectName, new GridConstraints(0, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cancelButton = new JButton();
-        cancelButton.setText("Cancel");
+        this.$$$loadButtonText$$$(cancelButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.cancel"));
         contentPane.add(cancelButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         okButton = new JButton();
-        okButton.setText("OK");
+        this.$$$loadButtonText$$$(okButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.ok"));
         contentPane.add(okButton, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         saveButton = new JButton();
-        saveButton.setText("Apply");
+        this.$$$loadButtonText$$$(saveButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.apply"));
         contentPane.add(saveButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
@@ -148,10 +152,55 @@ public class EditorUI extends JFrame {
         return fontWithFallback instanceof FontUIResource ? fontWithFallback : new FontUIResource(fontWithFallback);
     }
 
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
     /**
      * @noinspection ALL
      */
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
     }
+
 }

@@ -29,7 +29,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="Annotate"/>
+          <toolTipText resource-bundle="translations/formText" key="button.annotate"/>
         </properties>
       </component>
       <hspacer id="b6d0d">
@@ -43,7 +43,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="Open"/>
+          <toolTipText resource-bundle="translations/formText" key="button.openDatabase"/>
         </properties>
       </component>
       <component id="ecd44" class="javax.swing.JButton" binding="create">
@@ -52,7 +52,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="Add"/>
+          <toolTipText resource-bundle="translations/formText" key="button.addProject"/>
         </properties>
       </component>
       <component id="f9ad6" class="javax.swing.JButton" binding="newDb">
@@ -61,7 +61,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="New"/>
+          <toolTipText resource-bundle="translations/formText" key="button.newDatabase"/>
         </properties>
       </component>
       <component id="f2712" class="javax.swing.JButton" binding="edit">
@@ -70,7 +70,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="Edit"/>
+          <toolTipText resource-bundle="translations/formText" key="button.edit"/>
         </properties>
       </component>
       <component id="b47fa" class="javax.swing.JButton" binding="settingsButton" default-binding="true">
@@ -79,7 +79,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="Settings"/>
+          <toolTipText resource-bundle="translations/formText" key="button.settings"/>
         </properties>
       </component>
       <component id="51e97" class="javax.swing.JButton" binding="ingestDataButton" default-binding="true">
@@ -88,7 +88,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="IngestData"/>
+          <toolTipText resource-bundle="translations/formText" key="button.ingestData"/>
         </properties>
       </component>
       <component id="c5e79" class="javax.swing.JButton" binding="inspectButton" default-binding="true">
@@ -97,7 +97,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="Inspect"/>
+          <toolTipText resource-bundle="translations/formText" key="button.inspect"/>
         </properties>
       </component>
     </children>

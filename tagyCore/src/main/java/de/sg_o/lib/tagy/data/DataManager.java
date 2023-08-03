@@ -38,6 +38,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
+
 @Entity
 @JsonIgnoreProperties({ "listenerList", "project"})
 public class DataManager extends AbstractTableModel {
@@ -164,11 +166,11 @@ public class DataManager extends AbstractTableModel {
     {
         switch (column) {
             case 0:
-                return "Directory";
+                return getMessageFromBundle("translations/text", "column.directory");
             case 1:
-                return "Recursive";
+                return getMessageFromBundle("translations/text", "column.recursive");
             case 2:
-                return "File Extensions";
+                return getMessageFromBundle("translations/text", "column.fileExtensions");
             default:
                 return null;
         }

@@ -23,6 +23,8 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
+
 public class FileInfoList extends AbstractTableModel {
     @NotNull
     private final DataManager dataManager;
@@ -67,9 +69,9 @@ public class FileInfoList extends AbstractTableModel {
     public String getColumnName(int column) {
         switch (column) {
             case 0:
-                return "File";
+                return getMessageFromBundle("translations/text", "column.file");
             case 1:
-                return "Annotated";
+                return getMessageFromBundle("translations/text", "column.annotated");
             default:
                 return null;
         }

@@ -23,13 +23,21 @@ import com.github.weisj.darklaf.settings.ThemeSettingsPanel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import de.sg_o.app.Init;
+import de.sg_o.app.customComponents.LocalComboBoxModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
+
+import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 public class Settings extends JFrame {
     private static final Preferences prefs = Preferences.userRoot().node("de/sg-o/app/tagy");
@@ -38,21 +46,29 @@ public class Settings extends JFrame {
     private JPanel themeSettings;
     private JButton applyButton;
     private JPanel contentPane;
+    private JComboBox<String> languageSelection;
 
     private final ThemeSettings themeSettingsPane;
 
     public Settings() throws HeadlessException {
         super();
-        setTitle("Settings");
+        setTitle(getMessageFromBundle("translations/formText", "form.title.settings"));
         setContentPane(contentPane);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         themeSettingsPane = ThemeSettings.getInstance();
         ThemeSettingsPanel panel = themeSettingsPane.getSettingsPanel();
         System.out.println(panel);
         themeSettings.add(panel);
-
+        ArrayList<Locale> languages = new ArrayList<>(Init.FORM_TEXT.size());
+        for (ResourceBundle resourceBundle : Init.FORM_TEXT) {
+            languages.add(resourceBundle.getLocale());
+        }
+        LocalComboBoxModel localeComboBoxModel = new LocalComboBoxModel(languages);
+        languageSelection.setModel(localeComboBoxModel);
         pack();
         setLocationRelativeTo(null);
+
+        localeComboBoxModel.setSelectedItem(Locale.getDefault());
 
         okButton.addActionListener(e -> {
             themeSettingsPane.apply();
@@ -64,9 +80,14 @@ public class Settings extends JFrame {
                 prefs.putByteArray("themeSettings", bos.toByteArray());
             } catch (IOException ignore) {
             }
+            Locale.setDefault(localeComboBoxModel.getAt(languageSelection.getSelectedIndex()));
+            prefs.put("language", localeComboBoxModel.getAt(languageSelection.getSelectedIndex()).toString());
             dispose();
         });
-        applyButton.addActionListener(e -> themeSettingsPane.apply());
+        applyButton.addActionListener(e -> {
+            themeSettingsPane.apply();
+            Locale.setDefault(localeComboBoxModel.getAt(languageSelection.getSelectedIndex()));
+        });
     }
 
     {
@@ -85,18 +106,96 @@ public class Settings extends JFrame {
      */
     private void $$$setupUI$$$() {
         contentPane = new JPanel();
-        contentPane.setLayout(new GridLayoutManager(2, 3, new Insets(8, 8, 8, 8), -1, -1));
+        contentPane.setLayout(new GridLayoutManager(3, 5, new Insets(8, 8, 8, 8), -1, -1));
         themeSettings = new JPanel();
         themeSettings.setLayout(new BorderLayout(0, 0));
-        contentPane.add(themeSettings, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        contentPane.add(themeSettings, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         okButton = new JButton();
-        okButton.setText("OK");
-        contentPane.add(okButton, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        this.$$$loadButtonText$$$(okButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.ok"));
+        contentPane.add(okButton, new GridConstraints(2, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        contentPane.add(spacer1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        contentPane.add(spacer1, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         applyButton = new JButton();
-        applyButton.setText("Apply");
-        contentPane.add(applyButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        this.$$$loadButtonText$$$(applyButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.apply"));
+        contentPane.add(applyButton, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("translations/formText", "label.language"));
+        contentPane.add(label1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        languageSelection = new JComboBox();
+        contentPane.add(languageSelection, new GridConstraints(1, 2, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        contentPane.add(spacer2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
     }
 
     /**
@@ -105,4 +204,5 @@ public class Settings extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
     }
+
 }
