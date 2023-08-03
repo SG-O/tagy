@@ -114,10 +114,10 @@ class TagStringTest {
         assertNotEquals(tag0, tag2);
         assertNotEquals(tag0, tag3);
 
-        assertEquals(-1790332429, tag0.hashCode());
-        assertEquals(511170003, tag1.hashCode());
-        assertEquals(-1790332428, tag2.hashCode());
-        assertEquals(511170004, tag3.hashCode());
+        assertEquals(-718888493, tag0.hashCode());
+        assertEquals(1908210163, tag1.hashCode());
+        assertEquals(-718888492, tag2.hashCode());
+        assertEquals(1908210164, tag3.hashCode());
         assertEquals(tag0.hashCode(), tag4.hashCode());
     }
 

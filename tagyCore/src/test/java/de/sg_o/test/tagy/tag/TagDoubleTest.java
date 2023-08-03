@@ -114,10 +114,10 @@ class TagDoubleTest {
         assertNotEquals(tag0, tag2);
         assertNotEquals(tag0, tag3);
 
-        assertEquals(-1804549357, tag0.hashCode());
-        assertEquals(496953075, tag1.hashCode());
-        assertEquals(-944717037, tag2.hashCode());
-        assertEquals(1356785395, tag3.hashCode());
+        assertEquals(2072456879, tag0.hashCode());
+        assertEquals(404588239, tag1.hashCode());
+        assertEquals(-1362678097, tag2.hashCode());
+        assertEquals(1264420559, tag3.hashCode());
         assertEquals(tag0.hashCode(), tag4.hashCode());
     }
 

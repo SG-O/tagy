@@ -19,6 +19,7 @@ package de.sg_o.lib.tagy.def;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sg_o.lib.tagy.util.JsonPrintable;
 import de.sg_o.lib.tagy.util.Util;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.*;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class TagDefinition implements Serializable {
+public class TagDefinition extends JsonPrintable implements Serializable {
     @Id
     private Long id;
     @NotNull
@@ -48,11 +49,14 @@ public class TagDefinition implements Serializable {
     @Convert(converter = Parameter.ParameterConverter.class, dbType = Integer.class)
     private Parameter parameter = Parameter.NONE;
     private final ToOne<TagDefinition> internal = new ToOne<>(this, TagDefinition_.internal);
+    private final ToOne<TagEnablerDefinition> tagEnabler = new ToOne<>(this, TagDefinition_.tagEnabler);
 
     @Transient
     transient BoxStore __boxStore = null;
 
-    public TagDefinition(Long id, @NotNull String key, String name, String description, Type type, double min, double max, boolean required, List<String> enumerators, Parameter parameter, long internalId) {
+    public TagDefinition(Long id, @NotNull String key, String name, String description,
+                         Type type, double min, double max, boolean required, List<String> enumerators,
+                         Parameter parameter, long internalId, long tagEnablerId) {
         this.id = id;
         this.key = key;
         this.name = name;
@@ -62,8 +66,9 @@ public class TagDefinition implements Serializable {
         this.max = max;
         this.required = required;
         this.enumerators = enumerators;
-        this.internal.setTargetId(internalId);
         this.parameter = parameter;
+        this.internal.setTargetId(internalId);
+        this.tagEnabler.setTargetId(tagEnablerId);
     }
 
     public TagDefinition(@Nullable String key, @NotNull Type type) {
@@ -75,7 +80,9 @@ public class TagDefinition implements Serializable {
     }
 
     public TagDefinition(@NotNull JsonNode encoded) {
-
+        if (!encoded.isObject()){
+            throw new IllegalArgumentException("Invalid encoded TagDefinition");
+        }
         JsonNode keyNode = encoded.get(StructureConstants.KEY_KEY);
         if (keyNode == null) {
             throw new IllegalArgumentException("Invalid encoded TagDefinition");
@@ -153,6 +160,11 @@ public class TagDefinition implements Serializable {
             } else {
                 throw new IllegalArgumentException("Invalid encoded TagDefinition");
             }
+        }
+
+        JsonNode tagEnablerNode = encoded.get(StructureConstants.TAG_ENABLER_KEY);
+        if (tagEnablerNode != null) {
+            this.tagEnabler.setTarget(new TagEnablerDefinition(tagEnablerNode));
         }
     }
 
@@ -261,7 +273,7 @@ public class TagDefinition implements Serializable {
         return new ArrayList<>(enumerators);
     }
 
-    @JsonProperty(index = 8)
+    @JsonProperty(value = StructureConstants.INTERNAL_KEY, index = 8)
     public TagDefinition resolveInternal() {
         if (type != Type.LIST) return null;
         return internal.getTarget();
@@ -288,6 +300,20 @@ public class TagDefinition implements Serializable {
         if (parameter == null) parameter = Parameter.NONE;
         this.parameter = parameter;
     }
+
+    @JsonProperty(value = StructureConstants.TAG_ENABLER_KEY, index = 10)
+    public TagEnablerDefinition resolveTagEnabler() {
+        return tagEnabler.getTarget();
+    }
+
+    public ToOne<TagEnablerDefinition> getTagEnabler() {
+        return tagEnabler;
+    }
+
+    public void setTagEnabler(TagEnablerDefinition tagEnabler) {
+        this.tagEnabler.setTarget(tagEnabler);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -300,33 +326,18 @@ public class TagDefinition implements Serializable {
                 that.resolveName()) && Objects.equals(getDescription(),
                 that.getDescription()) && getType().getId() == that.getType().getId() && Objects.equals(getEnumerators(),
                 that.getEnumerators()) && Objects.equals(resolveInternal(),
-                that.resolveInternal()) && getParameter().getId() == that.getParameter().getId();
+                that.resolveInternal()) && getParameter().getId() == that.getParameter().getId() && Objects.equals(resolveTagEnabler(),
+                that.resolveTagEnabler());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getKey(), resolveName(), getDescription(), getType().getId(), getMin(), getMax(), isRequired(), getEnumerators(), resolveInternal(), getParameter().getId());
-    }
-
-    private static String generateEntity(String key, Object value, boolean encapsulate, int indent) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = -1; i < indent; i++) {
-            builder.append('\t');
-        }
-        builder.append("\"");
-        builder.append(key);
-        builder.append("\": ");
-        if(encapsulate) builder.append("\"");
-        builder.append(value);
-        if(encapsulate) builder.append("\"");
-        return builder.toString();
+        return Objects.hash(getKey(), resolveName(), getDescription(), getType().getId(), getMin(), getMax(), isRequired(), getEnumerators(), resolveInternal(), getParameter().getId(), resolveTagEnabler());
     }
 
     public String toString(int indent) {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < indent; i++) {
-            builder.append('\t');
-        }
+        builder.append(generateIndent(indent));
         builder.append("{\n");
         builder.append(generateEntity(StructureConstants.KEY_KEY, key, true, indent)).append(",\n");
         builder.append(generateEntity(StructureConstants.TYPE_KEY, type, true, indent));
@@ -351,10 +362,11 @@ public class TagDefinition implements Serializable {
         if (parameter != Parameter.NONE) {
             builder.append(",\n").append(generateEntity(StructureConstants.PARAMETER_KEY, parameter, true, indent));
         }
-        builder.append("\n");
-        for (int i = 0; i < indent; i++) {
-            builder.append('\t');
+        if (resolveTagEnabler() != null) {
+            builder.append(",\n").append(generateEntity(StructureConstants.TAG_ENABLER_KEY, "\n" + resolveTagEnabler().toString(indent + 2), false, indent));
         }
+        builder.append("\n");
+        builder.append(generateIndent(indent));
         builder.append("}");
         return builder.toString();
     }
@@ -367,9 +379,7 @@ public class TagDefinition implements Serializable {
         }
         if (!enumerators.isEmpty()) {
             enumeratorsString.append("\n");
-            for (int i = -2; i < indent; i++) {
-                enumeratorsString.append('\t');
-            }
+            enumeratorsString.append(generateIndent(indent + 2));
         }
         enumeratorsString.append("[");
         for (int i = 0; i < enumerators.size(); i++) {
@@ -387,15 +397,9 @@ public class TagDefinition implements Serializable {
         }
         if (!enumerators.isEmpty()) {
             enumeratorsString.append("\n");
-            for (int i = -2; i < indent; i++) {
-                enumeratorsString.append('\t');
-            }
+            enumeratorsString.append(generateIndent(indent + 2));
         }
         enumeratorsString.append("]");
         return enumeratorsString;
-    }
-
-    public String toString() {
-        return toString(0);
     }
 }

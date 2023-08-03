@@ -158,8 +158,8 @@ class TagListTest {
         assertNotEquals(tag0, tag1);
         assertEquals(tag0, tag2);
 
-        assertEquals(856438021, tag0.hashCode());
-        assertEquals(-635483306, tag1.hashCode());
+        assertEquals(962620637, tag0.hashCode());
+        assertEquals(1958621416, tag1.hashCode());
         assertEquals(tag0.hashCode(), tag2.hashCode());
     }
 

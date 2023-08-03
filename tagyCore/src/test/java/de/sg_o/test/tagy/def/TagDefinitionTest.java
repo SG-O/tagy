@@ -21,6 +21,7 @@ import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.Parameter;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition_;
+import de.sg_o.lib.tagy.def.TagEnablerDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.test.tagy.testDb.TestDb;
 import io.objectbox.Box;
@@ -205,12 +206,12 @@ class TagDefinitionTest {
         assertNotEquals(td0, td5);
         assertEquals(td0, td6);
 
-        assertEquals(-1094124148, td0.hashCode());
-        assertEquals(2084378861, td1.hashCode());
-        assertEquals(967914574, td2.hashCode());
-        assertEquals(-148548752, td3.hashCode());
-        assertEquals(-1265014000, td4.hashCode());
-        assertEquals(1913489009, td5.hashCode());
+        assertEquals(441889780, td0.hashCode());
+        assertEquals(191235251, td1.hashCode());
+        assertEquals(-59419278, td2.hashCode());
+        assertEquals(-310044016, td3.hashCode());
+        assertEquals(-560728336, td4.hashCode());
+        assertEquals(-811382865, td5.hashCode());
         assertEquals(td0.hashCode(), td6.hashCode());
 
         td0.setMin(1);
@@ -238,6 +239,12 @@ class TagDefinitionTest {
         assertTrue(td3.addEnumerator("TEST1"));
 
         td0.setInternal(new TagDefinition("Key", Type.LONG));
+
+        td0.setTagEnabler(new TagEnablerDefinition("test3", 0));
+        td1.setTagEnabler(new TagEnablerDefinition("test3", "TEST"));
+        td2.setTagEnabler(new TagEnablerDefinition("test3", 1));
+        td4.setTagEnabler(new TagEnablerDefinition("test3", "TEST1"));
+        td5.setTagEnabler(new TagEnablerDefinition("test3", 0));
 
         assertEquals(td0, td0);
         assertEquals(td2, td2);
@@ -409,6 +416,12 @@ class TagDefinitionTest {
 
         td0.setInternal(new TagDefinition("Key", Type.LONG));
 
+        td0.setTagEnabler(new TagEnablerDefinition("test3", 0));
+        td1.setTagEnabler(new TagEnablerDefinition("test3", "TEST"));
+        td2.setTagEnabler(new TagEnablerDefinition("test3", 1));
+        td4.setTagEnabler(new TagEnablerDefinition("test3", "TEST1"));
+        td5.setTagEnabler(new TagEnablerDefinition("test3", 0));
+
         assertEquals("{\n" +
                         "\t\"key\": \"test0\",\n" +
                         "\t\"type\": \"LIST\",\n" +
@@ -425,7 +438,12 @@ class TagDefinitionTest {
                         "\t\t\t\"required\": false,\n" +
                         "\t\t\t\"enumerators\": []\n" +
                         "\t\t},\n" +
-                        "\t\"parameter\": \"IN\"\n" +
+                        "\t\"parameter\": \"IN\",\n" +
+                        "\t\"tagEnabler\": \n" +
+                        "\t\t{\n" +
+                        "\t\t\t\"selectorKey\": \"test3\",\n" +
+                        "\t\t\t\"enumEntry\": 0\n" +
+                        "\t\t}\n" +
                         "}",
                 td0.toString());
         assertEquals("{\n" +
@@ -437,7 +455,12 @@ class TagDefinitionTest {
                         "\t\"max\": 20.0,\n" +
                         "\t\"required\": true,\n" +
                         "\t\"enumerators\": [],\n" +
-                        "\t\"parameter\": \"OUT\"\n" +
+                        "\t\"parameter\": \"OUT\",\n" +
+                        "\t\"tagEnabler\": \n" +
+                        "\t\t{\n" +
+                        "\t\t\t\"selectorKey\": \"test3\",\n" +
+                        "\t\t\t\"enumEntry\": \"TEST\"\n" +
+                        "\t\t}\n" +
                         "}",
                 td1.toString());
         assertEquals("{\n" +
@@ -449,7 +472,12 @@ class TagDefinitionTest {
                         "\t\"max\": 30.0,\n" +
                         "\t\"required\": true,\n" +
                         "\t\"enumerators\": [],\n" +
-                        "\t\"parameter\": \"LENGTH\"\n" +
+                        "\t\"parameter\": \"LENGTH\",\n" +
+                        "\t\"tagEnabler\": \n" +
+                        "\t\t{\n" +
+                        "\t\t\t\"selectorKey\": \"test3\",\n" +
+                        "\t\t\t\"enumEntry\": 1\n" +
+                        "\t\t}\n" +
                         "}",
                 td2.toString());
         assertEquals("{\n" +
@@ -477,7 +505,12 @@ class TagDefinitionTest {
                         "\t\"max\": 50.0,\n" +
                         "\t\"required\": true,\n" +
                         "\t\"enumerators\": [],\n" +
-                        "\t\"parameter\": \"OUT\"\n" +
+                        "\t\"parameter\": \"OUT\",\n" +
+                        "\t\"tagEnabler\": \n" +
+                        "\t\t{\n" +
+                        "\t\t\t\"selectorKey\": \"test3\",\n" +
+                        "\t\t\t\"enumEntry\": \"TEST1\"\n" +
+                        "\t\t}\n" +
                         "}",
                 td4.toString());
         assertEquals("{\n" +
@@ -489,7 +522,12 @@ class TagDefinitionTest {
                         "\t\"max\": 60.0,\n" +
                         "\t\"required\": true,\n" +
                         "\t\"enumerators\": [],\n" +
-                        "\t\"parameter\": \"IN\"\n" +
+                        "\t\"parameter\": \"IN\",\n" +
+                        "\t\"tagEnabler\": \n" +
+                        "\t\t{\n" +
+                        "\t\t\t\"selectorKey\": \"test3\",\n" +
+                        "\t\t\t\"enumEntry\": 0\n" +
+                        "\t\t}\n" +
                         "}",
                 td5.toString());
     }

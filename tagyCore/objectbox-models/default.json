@@ -202,7 +202,7 @@
     },
     {
       "id": "7:2263346785548643076",
-      "lastPropertyId": "11:4375718678650335526",
+      "lastPropertyId": "12:9086341235806726940",
       "name": "TagDefinition",
       "properties": [
         {
@@ -263,6 +263,14 @@
           "type": 11,
           "flags": 520,
           "relationTarget": "TagDefinition"
+        },
+        {
+          "id": "12:9086341235806726940",
+          "name": "tagEnablerId",
+          "indexId": "11:6713997706611873673",
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "TagEnablerDefinition"
         }
       ],
       "relations": []
@@ -290,10 +298,39 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "9:3507861343766599633",
+      "lastPropertyId": "4:7865463913097828707",
+      "name": "TagEnablerDefinition",
+      "properties": [
+        {
+          "id": "1:467114990901740593",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2351923639190746516",
+          "name": "selectorKey",
+          "type": 9
+        },
+        {
+          "id": "3:8581937999296342884",
+          "name": "enumIndex",
+          "type": 5
+        },
+        {
+          "id": "4:7865463913097828707",
+          "name": "enumString",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "8:4588766451774047036",
-  "lastIndexId": "10:9155549785424640407",
+  "lastEntityId": "9:3507861343766599633",
+  "lastIndexId": "11:6713997706611873673",
   "lastRelationId": "3:7486696846601167633",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

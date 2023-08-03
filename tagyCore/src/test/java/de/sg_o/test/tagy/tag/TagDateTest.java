@@ -116,10 +116,10 @@ class TagDateTest {
         assertNotEquals(tag0, tag2);
         assertNotEquals(tag0, tag3);
 
-        assertEquals(-154856651, tag0.hashCode());
-        assertEquals(2146645781, tag1.hashCode());
-        assertEquals(-68456651, tag2.hashCode());
-        assertEquals(-2061921515, tag3.hashCode());
+        assertEquals(1661289783, tag0.hashCode());
+        assertEquals(-6578857, tag1.hashCode());
+        assertEquals(1747689783, tag2.hashCode());
+        assertEquals(79821143, tag3.hashCode());
         assertEquals(tag0.hashCode(), tag4.hashCode());
     }
 
