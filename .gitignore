@@ -39,3 +39,5 @@ build/
 /CouchbaseLiteTemp/
 /tagyCore/CouchbaseLiteTemp/
 /tagyCore/test.cblite2/
+/tagyCore/.flattened-pom.xml
+/.flattened-pom.xml
