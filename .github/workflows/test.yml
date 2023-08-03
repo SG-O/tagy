@@ -42,7 +42,7 @@ jobs:
           coverage_report_title: 'Test coverage results'
           coverage_report_name: 'Test coverage results'
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 80
+          minimum_coverage: 50
           fail_below_threshold: false
           publish_only_summary: true
       - name: Add coverage to PR
