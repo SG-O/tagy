@@ -29,7 +29,8 @@ public enum Type {
     DOUBLE,
     ENUM,
     STRING,
-    DATE;
+    DATE,
+    BOOLEAN;
 
     private final int id;
     private static final HashMap<Integer, Type> types = new HashMap<>();

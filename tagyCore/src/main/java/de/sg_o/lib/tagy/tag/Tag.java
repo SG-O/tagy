@@ -19,6 +19,7 @@ package de.sg_o.lib.tagy.tag;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
+import de.sg_o.lib.tagy.tag.bool.TagBool;
 import de.sg_o.lib.tagy.tag.date.TagDate;
 import de.sg_o.lib.tagy.tag.enumerator.TagEnum;
 import de.sg_o.lib.tagy.tag.floating.TagDouble;
@@ -50,6 +51,8 @@ public abstract class Tag implements Serializable {
                 return new TagString(definition, dictionary);
             case DATE:
                 return new TagDate(definition, dictionary);
+            case BOOLEAN:
+                return new TagBool(definition, dictionary);
             default:
                 return null;
         }

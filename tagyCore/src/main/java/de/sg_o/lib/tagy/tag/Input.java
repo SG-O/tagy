@@ -21,6 +21,7 @@ import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
+import de.sg_o.lib.tagy.tag.bool.BoolInput;
 import de.sg_o.lib.tagy.tag.date.DateInput;
 import de.sg_o.lib.tagy.tag.enumerator.EnumInput;
 import de.sg_o.lib.tagy.tag.floating.DoubleInput;
@@ -75,6 +76,8 @@ public abstract class Input {
                 return new StringInput(tag);
             case DATE:
                 return new DateInput(tag);
+            case BOOLEAN:
+                return new BoolInput(tag);
         }
         return null;
     }
@@ -93,6 +96,8 @@ public abstract class Input {
                 return new StringInput(tagDefinition);
             case DATE:
                 return new DateInput(tagDefinition);
+            case BOOLEAN:
+                return new BoolInput(tagDefinition);
         }
         return null;
     }
@@ -112,8 +117,8 @@ public abstract class Input {
         panel.setBorder(title);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         JComponent component = getComponent();
-        component.setAlignmentX(Component.LEFT_ALIGNMENT);
-        component.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+        component.setAlignmentX(Component.CENTER_ALIGNMENT);
+        component.setAlignmentY(Component.CENTER_ALIGNMENT);
         panel.add(component);
         return panel;
     }

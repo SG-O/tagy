@@ -56,6 +56,16 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
 
 "parameter":    OPTIONAL - See parameter for details.
 
+### Boolean
+
+    {
+        "key": "someKey",
+        "type": "BOOLEAN",
+        "name": "Tage Name",
+        "description": "Tag Description",
+        "required": true
+    }
+
 ### Enum
 
     {
