@@ -44,7 +44,7 @@ public class TagDouble extends Tag {
     }
 
     @JsonProperty(value = "value", index = 0)
-    public double getValue() {
+    public @NotNull Double getValue() {
         double value = this.value;
         if (value < super.getDefinition().getMin()) value = super.getDefinition().getMin();
         if (value > super.getDefinition().getMax()) value = super.getDefinition().getMax();

@@ -44,7 +44,7 @@ public class TagLong extends Tag {
     }
 
     @JsonProperty(value = "value", index = 0)
-    public long getValue() {
+    public @NotNull Long getValue() {
         long value = this.value;
         if (value < super.getDefinition().getMin()) value = Math.round(super.getDefinition().getMin());
         if (value > super.getDefinition().getMax()) value = Math.round(super.getDefinition().getMax());
@@ -68,7 +68,7 @@ public class TagLong extends Tag {
         if (o == null || getClass() != o.getClass()) return false;
         TagLong tagLong = (TagLong) o;
         if (!super.definitionEquals(((Tag) o).getDefinition())) return false;
-        return getValue() == tagLong.getValue();
+        return getValue().equals(tagLong.getValue());
     }
 
     @Override

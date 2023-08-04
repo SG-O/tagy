@@ -49,7 +49,7 @@ public class TagEnum extends Tag {
     }
 
     @JsonProperty(value = "value", index = 0)
-    public int getValue() {
+    public @NotNull Integer getValue() {
         return value;
     }
 
@@ -77,7 +77,7 @@ public class TagEnum extends Tag {
         if (o == null || getClass() != o.getClass()) return false;
         TagEnum tagEnum = (TagEnum) o;
         if (!super.definitionEquals(((Tag) o).getDefinition())) return false;
-        return getValue() == tagEnum.getValue();
+        return getValue().equals(tagEnum.getValue());
     }
 
     @Override

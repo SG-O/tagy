@@ -46,7 +46,7 @@ public class TagDate extends Tag {
     }
 
     @JsonProperty(value = "value", index = 0)
-    public Date getValue() {
+    public @NotNull Date getValue() {
         return value;
     }
 

@@ -93,12 +93,12 @@ public class LongInput extends Input {
         }
         if (tag == null) return;
         if (tag instanceof TagLong) {
-            TagLong tagDouble = (TagLong) tag;
+            TagLong tagLong = (TagLong) tag;
             if (component instanceof JSlider) {
-                ((JSlider) component).setValue((int) (tagDouble.getValue()));
+                ((JSlider) component).setValue(tagLong.getValue().intValue());
             }
             if (component instanceof JTextField) {
-                ((JTextField) component).setText(String.valueOf(tagDouble.getValue()));
+                ((JTextField) component).setText(String.valueOf(tagLong.getValue()));
             }
         }
     }

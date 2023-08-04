@@ -327,11 +327,59 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "10:7776181613872091814",
+      "lastPropertyId": "6:8344851080851640084",
+      "name": "TagContainer",
+      "properties": [
+        {
+          "id": "1:5064969788339611987",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:177348891009364746",
+          "name": "tagDefinitionId",
+          "indexId": "12:4136000233353161236",
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "TagDefinition"
+        },
+        {
+          "id": "3:1758352955369886300",
+          "name": "booleanValue",
+          "type": 1
+        },
+        {
+          "id": "4:1875060886482049432",
+          "name": "longValue",
+          "type": 6
+        },
+        {
+          "id": "5:1669200333404636578",
+          "name": "doubleValue",
+          "type": 8
+        },
+        {
+          "id": "6:8344851080851640084",
+          "name": "stringValue",
+          "type": 9
+        }
+      ],
+      "relations": [
+        {
+          "id": "4:617613141290167314",
+          "name": "listValues",
+          "targetId": "10:7776181613872091814"
+        }
+      ]
     }
   ],
-  "lastEntityId": "9:3507861343766599633",
-  "lastIndexId": "11:6713997706611873673",
-  "lastRelationId": "3:7486696846601167633",
+  "lastEntityId": "10:7776181613872091814",
+  "lastIndexId": "12:4136000233353161236",
+  "lastRelationId": "4:617613141290167314",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,

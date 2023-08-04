@@ -79,7 +79,7 @@ public class TagList extends Tag {
     }
 
     @JsonProperty(value = "values", index = 0)
-    public ArrayList<Tag> getValues() {
+    public @NotNull ArrayList<Tag> getValue() {
         return new ArrayList<>(values);
     }
 
@@ -117,7 +117,7 @@ public class TagList extends Tag {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.getDefinition(), getValues());
+        return Objects.hash(super.getDefinition(), getValue());
     }
 
     @Override

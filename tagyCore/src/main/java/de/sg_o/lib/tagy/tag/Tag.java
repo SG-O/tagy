@@ -66,6 +66,9 @@ public abstract class Tag implements Serializable {
         return definition.getKey();
     }
 
+    @NotNull
+    public abstract Object getValue();
+
     public abstract String getValueAsString();
 
     @SuppressWarnings("unused")

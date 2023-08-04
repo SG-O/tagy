@@ -45,7 +45,7 @@ public class TagBool extends Tag {
     }
 
     @JsonProperty(value = "value", index = 0)
-    public boolean getValue() {
+    public @NotNull Boolean getValue() {
         return value;
     }
 

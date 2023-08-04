@@ -63,24 +63,24 @@ class TagListTest {
 
     @Test
     void getValues() {
-        assertEquals(0, tag0.getValues().size());
-        assertEquals(0, tag1.getValues().size());
-        assertEquals(0, tag2.getValues().size());
+        assertEquals(0, tag0.getValue().size());
+        assertEquals(0, tag1.getValue().size());
+        assertEquals(0, tag2.getValue().size());
 
         assertTrue(tag0.addValue(new TagLong(tdl0, 0)));
         assertTrue(tag1.addValue(new TagLong(tdl1, 1)));
         assertTrue(tag2.addValue(new TagLong(tdl0, 0)));
 
-        assertEquals(1, tag0.getValues().size());
-        assertEquals(1, tag1.getValues().size());
-        assertEquals(1, tag2.getValues().size());
+        assertEquals(1, tag0.getValue().size());
+        assertEquals(1, tag1.getValue().size());
+        assertEquals(1, tag2.getValue().size());
 
         assertTrue(tag0.addValue(new TagLong(tdl2, 2)));
         assertTrue(tag2.addValue(new TagLong(tdl2, 2)));
 
-        assertEquals(2, tag0.getValues().size());
-        assertEquals(1, tag1.getValues().size());
-        assertEquals(2, tag2.getValues().size());
+        assertEquals(2, tag0.getValue().size());
+        assertEquals(1, tag1.getValue().size());
+        assertEquals(2, tag2.getValue().size());
 
         assertEquals("\"key0\": [0, 2]", tag0.toString());
         assertEquals("\"key1\": [1]", tag1.toString());
@@ -92,9 +92,9 @@ class TagListTest {
         assertNull(tag2.removeValue(2));
         assertNull(tag2.removeValue(-1));
 
-        assertEquals(1, tag0.getValues().size());
-        assertEquals(0, tag1.getValues().size());
-        assertEquals(1, tag2.getValues().size());
+        assertEquals(1, tag0.getValue().size());
+        assertEquals(0, tag1.getValue().size());
+        assertEquals(1, tag2.getValue().size());
 
         assertEquals("\"key0\": [0]", tag0.toString());
         assertEquals("\"key1\": []", tag1.toString());

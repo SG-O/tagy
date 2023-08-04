@@ -126,7 +126,7 @@ public class ListInput extends Input {
         if (tag == null) return;
         if (tag instanceof TagList) {
             TagList tagList = (TagList) tag;
-            for (Tag child : tagList.getValues()) {
+            for (Tag child : tagList.getValue()) {
                 addChild(child);
             }
         }

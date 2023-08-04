@@ -314,6 +314,24 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         this.tagEnabler.setTarget(tagEnabler);
     }
 
+    public StorageType getStorageType() {
+        switch (this.type) {
+            case BOOLEAN:
+                return StorageType.BOOLEAN;
+            case LIST:
+                return StorageType.LIST;
+            case DATE:
+            case ENUM:
+            case LONG:
+                return StorageType.LONG;
+            case DOUBLE:
+                return StorageType.DOUBLE;
+            case STRING:
+            default:
+                return StorageType.STRING;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
