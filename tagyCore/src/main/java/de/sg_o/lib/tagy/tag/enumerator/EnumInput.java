@@ -27,9 +27,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class EnumInput extends Input {
     private final JComboBox<String> component;
+    private final HashMap<Integer, ArrayList<Input>> enableInputs = new HashMap<>();
 
     public EnumInput(@NotNull TagDefinition tagDefinition) {
         super(tagDefinition);
@@ -39,11 +41,32 @@ public class EnumInput extends Input {
         component = new JComboBox<>(enumerators.toArray(new String[0]));
         component.setSelectedIndex(enumerators.size() - 1);
         component.setToolTipText(getTagDefinition().getKey());
+        component.addActionListener(e -> enableInputs(component.getSelectedIndex()));
+
     }
 
     public EnumInput(@NotNull Tag tag) {
         this(tag.getDefinition());
         reset(tag);
+    }
+
+    public void attachInputToEnable(Input input, int index) {
+        if (!enableInputs.containsKey(index)) enableInputs.put(index, new ArrayList<>());
+        enableInputs.get(index).add(input);
+    }
+
+    private void enableInputs(int index) {
+        for (Integer key :  enableInputs.keySet()) {
+            if (key == index) {
+                for (Input input : enableInputs.get(key)) {
+                    input.addViewer(this);
+                }
+            } else {
+                for (Input input : enableInputs.get(key)) {
+                    input.removeViewer(this);
+                }
+            }
+        }
     }
 
     public @NotNull JComponent getComponent() {
@@ -59,11 +82,14 @@ public class EnumInput extends Input {
     @Override
     public void reset(Tag tag) {
         component.setSelectedIndex(component.getItemCount() - 1);
+        enableInputs(component.getSelectedIndex());
         if (tag == null) return;
         if (tag instanceof TagEnum) {
             TagEnum tagEnum = (TagEnum) tag;
-            if (tagEnum.getValue() >= 0 && tagEnum.getValue() < component.getItemCount() - 1)
+            if (tagEnum.getValue() >= 0 && tagEnum.getValue() < component.getItemCount() - 1) {
                 component.setSelectedIndex(tagEnum.getValue());
+                enableInputs(component.getSelectedIndex());
+            }
         }
     }
 

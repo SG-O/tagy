@@ -18,9 +18,17 @@
 package de.sg_o.lib.tagy.tag.list;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
+import de.sg_o.lib.tagy.def.TagEnablerDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
 import de.sg_o.lib.tagy.tag.Input;
+import de.sg_o.lib.tagy.tag.InputHolder;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.bool.BoolInput;
+import de.sg_o.lib.tagy.tag.date.DateInput;
+import de.sg_o.lib.tagy.tag.enumerator.EnumInput;
+import de.sg_o.lib.tagy.tag.floating.DoubleInput;
+import de.sg_o.lib.tagy.tag.integer.LongInput;
+import de.sg_o.lib.tagy.tag.string.StringInput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +41,7 @@ public class ListInput extends Input {
     private final JPanel list;
 
     private final ArrayList<ChildListEntry> children = new ArrayList<>();
+    private ArrayList<Input> otherInputs;
 
     public ListInput(@NotNull TagDefinition tagDefinition) {
         super(tagDefinition);
@@ -54,16 +63,33 @@ public class ListInput extends Input {
         reset(tag);
     }
 
+    public void setOtherInputs(ArrayList<Input> otherInputs) {
+        this.otherInputs = otherInputs;
+    }
+
     private void addChild(Tag tag) {
         TagDefinition childTagDefinition = super.getTagDefinition().resolveInternal();
         if (childTagDefinition == null) return;
         Input child;
         if (tag != null && tag.getDefinition().getType() == childTagDefinition.getType()) {
-            child = create(tag);
+            child = createChildInput(tag);
         } else {
             child = create(childTagDefinition);
         }
         if (child == null) return;
+        if (child instanceof EnumInput) {
+            EnumInput enumChild = (EnumInput) child;
+            if (otherInputs != null) {
+                for (Input input : otherInputs) {
+                    TagEnablerDefinition ted = input.getTagDefinition().resolveTagEnabler();
+                    if (ted == null) continue;
+                    if (childTagDefinition.getKey().equals(ted.getSelectorKey())) {
+                        enumChild.attachInputToEnable(input, InputHolder.getEnumIndex(ted, enumChild.getTagDefinition()));
+                    }
+                }
+            }
+        }
+
         children.add(new ChildListEntry(child));
         refreshList();
     }
@@ -92,6 +118,9 @@ public class ListInput extends Input {
 
     @Override
     public void reset(Tag tag) {
+        for (ChildListEntry cle :  children) {
+            cle.getChild().reset(null);
+        }
         children.clear();
         refreshList();
         if (tag == null) return;
@@ -137,6 +166,7 @@ public class ListInput extends Input {
             removeButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
             removeButton.addActionListener(e -> {
                 children.remove(this);
+                child.reset(null);
                 refreshList();
             });
             add(removeButton);
@@ -146,5 +176,26 @@ public class ListInput extends Input {
         public Input getChild() {
             return child;
         }
+    }
+
+    private static Input createChildInput(@NotNull Tag tag) {
+        TagDefinition tagDefinition = tag.getDefinition();
+        switch (tagDefinition.getType()) {
+            case LIST:
+                return new ListInput(tag);
+            case LONG:
+                return new LongInput(tag);
+            case DOUBLE:
+                return new DoubleInput(tag);
+            case ENUM:
+                return new EnumInput(tag);
+            case STRING:
+                return new StringInput(tag);
+            case DATE:
+                return new DateInput(tag);
+            case BOOLEAN:
+                return new BoolInput(tag);
+        }
+        return null;
     }
 }

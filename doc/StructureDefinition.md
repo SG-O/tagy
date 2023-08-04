@@ -16,6 +16,8 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
 
 "required":     OPTIONAL - If true the value must be set. Defaults to false.
 
+"tagEnabler":   OPTIONAL - Allows the input to only be shown when a specific Enum entry is selected. See TagEnabler for details.
+
 ## Types
 
 ### Long
@@ -28,7 +30,12 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
         "max": 100,
         "description": "Tag Description",
         "required": true,
-        "parameter": "IN"
+        "parameter": "IN",
+        "tagEnabler":
+            {
+                "selectorKey": "enabler",
+                "enumEntry": 0
+            }
     }
 
 "min":          OPTIONAL - The minimum allowed value (inclusive).
@@ -47,14 +54,19 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
         "max": 100.0,
         "description": "Tag Description",
         "required": true,
-        "parameter": "OUT"
+        "parameter": "OUT",
+        "tagEnabler":
+            {
+                "selectorKey": "enabler",
+                "enumEntry": 0
+            }
     }
 
 "min":          OPTIONAL - The minimum allowed value (inclusive).
 
 "max":          OPTIONAL - The maximum allowed value (inclusive).
 
-"parameter":    OPTIONAL - See parameter for details.
+"parameter":    OPTIONAL - See Parameter for details.
 
 ### Boolean
 
@@ -63,7 +75,12 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
         "type": "BOOLEAN",
         "name": "Tage Name",
         "description": "Tag Description",
-        "required": true
+        "required": true,
+        "tagEnabler":
+            {
+                "selectorKey": "enabler",
+                "enumEntry": 0
+            }
     }
 
 ### Enum
@@ -79,7 +96,12 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
                 "Option 1",
                 "Option 2",
                 "Option 3"
-            ]
+            ],
+        "tagEnabler":
+            {
+                "selectorKey": "enabler",
+                "enumEntry": 0
+            }
     }
 
 "enumerators":  OPTIONAL - A JSON array of strings with the enumerators.
@@ -92,7 +114,12 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
         "name": "Tage Name",
         "description": "Tag Description",
         "required": true,
-        "parameter": "LENGTH"
+        "parameter": "LENGTH",
+        "tagEnabler":
+            {
+                "selectorKey": "enabler",
+                "enumEntry": 0
+            }
     }
 
 "parameter":    OPTIONAL - See parameter for details.
@@ -104,7 +131,12 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
         "type": "DATE",
         "name": "Tage Name",
         "description": "Tag Description",
-        "required": true
+        "required": true,
+        "tagEnabler":
+            {
+                "selectorKey": "enabler",
+                "enumEntry": 0
+            }
     }
 
 ### List
@@ -122,6 +154,11 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
                 "name": "Tage Name",
                 "description": "Tag Description",
                 "required": true
+            },
+        "tagEnabler":
+            {
+                "selectorKey": "enabler",
+                "enumEntry": 0
             }
     }
 
@@ -137,7 +174,15 @@ The parameter can give values a special meaning with special features:
 
 "LENGTH":       The total length of the data. In ms for audio/video.
 
+## TagEnabler
+
+Allows the input to only be shown when a specific Enum entry is selected.
+
+"selectorKey":  The key of the enum to act as the selector. Must reference an Enum or a List of Enums.
+"enumEntry":    The Enum entry that should make the input visible.
+
 ## Example
+
 Here is an example with the annotation UI it generates.
 
     [

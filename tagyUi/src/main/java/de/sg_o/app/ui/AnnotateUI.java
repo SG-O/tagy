@@ -28,7 +28,7 @@ import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.exceptions.InputException;
 import de.sg_o.lib.tagy.tag.Input;
-import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.InputHolder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -37,7 +37,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
@@ -51,9 +50,9 @@ public class AnnotateUI extends JFrame {
     private JPanel viewerHolder;
     private JPanel contentPane;
     private final Project project;
-    private ArrayList<Input> inputs;
 
     private final DataManager dataManager;
+    private final InputHolder inputHolder;
     private MetaData metaData;
     private Viewer viewer;
 
@@ -66,6 +65,7 @@ public class AnnotateUI extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         dataManager = new DataManager(this.project);
+        inputHolder = new InputHolder(this.project);
 
         doneButton.setMnemonic(KeyEvent.VK_ENTER);
         doneButton.addActionListener(e -> {
@@ -77,17 +77,13 @@ public class AnnotateUI extends JFrame {
                 }
                 return;
             }
-            for (Input input : inputs) {
-                try {
-                    Tag tag = input.getTag();
-                    if (tag == null) continue;
-                    metaData.addTag(tag);
-                } catch (InputException ex) {
-                    errorMessage.setText(ex.toString());
-                    errorMessage.revalidate();
-                    errorMessage.repaint();
-                    return;
-                }
+            try {
+                metaData = inputHolder.getData();
+            } catch (InputException ex) {
+                errorMessage.setText(ex.toString());
+                errorMessage.revalidate();
+                errorMessage.repaint();
+                return;
             }
             errorMessage.setText("OK");
             metaData.save();
@@ -104,7 +100,7 @@ public class AnnotateUI extends JFrame {
             @Override
             public void windowOpened(WindowEvent e) {
                 super.windowOpened(e);
-                inputs = Input.parseProject(project);
+                ArrayList<Input> inputs = inputHolder.getInputs();
                 for (Input input : inputs) {
                     variables.add(input.getModule());
                 }
@@ -138,9 +134,7 @@ public class AnnotateUI extends JFrame {
         } else {
             FileInfo fileInfo = dataManager.getNextFile();
             if (fileInfo == null) {
-                for (Input input : inputs) {
-                    input.reset(null);
-                }
+                inputHolder.reset();
                 errorMessage.setText(this.$$$getMessageFromBundle$$$("translations/formText", "message.noMoreFiles"));
                 fileName.setText("");
                 metaData = null;
@@ -151,15 +145,7 @@ public class AnnotateUI extends JFrame {
         fileName.setText(metaData.resolveReference().getAbsolutePath());
         viewer.display(metaData.resolveReference());
 
-        HashMap<String, Tag> tags = metaData.getTagsAsMap();
-
-        for (Input input : inputs) {
-            Tag tag = null;
-            if (tags.containsKey(input.getTagDefinition().getKey())) {
-                tag = tags.get(input.getTagDefinition().getKey());
-            }
-            input.reset(tag);
-        }
+        inputHolder.setData(metaData);
 
         revalidate();
         repaint();

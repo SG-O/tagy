@@ -17,8 +17,6 @@
 
 package de.sg_o.lib.tagy.tag;
 
-import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
 import de.sg_o.lib.tagy.tag.bool.BoolInput;
@@ -35,54 +33,72 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public abstract class Input {
     @NotNull
     private final TagDefinition tagDefinition;
+    private JPanel module;
+    private final HashSet<Input> viewers = new HashSet<>();
 
     public Input(@NotNull TagDefinition tagDefinition) {
         this.tagDefinition = tagDefinition;
+        viewers.add(this);
     }
 
     public @NotNull TagDefinition getTagDefinition() {
         return tagDefinition;
     }
 
-    public static ArrayList<Input> parseProject(Project project) {
-        StructureDefinition structureDefinition = project.resolveStructureDefinition();
-        ArrayList<Input> inputs = new ArrayList<>();
-        for (TagDefinition tagDefinition : structureDefinition.getTagDefinitions()) {
-            Input input = create(tagDefinition);
-            if (input != null) {
-                inputs.add(input);
-            }
-        }
-        return inputs;
+    public @NotNull abstract JComponent getComponent();
+
+    public abstract void reset(Tag tag);
+
+    public abstract void setValue(@NotNull Object value);
+
+    public abstract @Nullable Tag getTag() throws InputException;
+
+    public void addViewer(Input viewer) {
+        viewers.add(viewer);
+        getModule().setVisible(!viewers.isEmpty());
+        getModule().revalidate();
+        getModule().repaint();
     }
 
-    public static Input create(@NotNull Tag tag) {
-        TagDefinition tagDefinition = tag.getDefinition();
-        switch (tagDefinition.getType()) {
-            case LIST:
-                return new ListInput(tag);
-            case LONG:
-                return new LongInput(tag);
-            case DOUBLE:
-                return new DoubleInput(tag);
-            case ENUM:
-                return new EnumInput(tag);
-            case STRING:
-                return new StringInput(tag);
-            case DATE:
-                return new DateInput(tag);
-            case BOOLEAN:
-                return new BoolInput(tag);
-        }
-        return null;
+    public void removeViewer(Input viewer) {
+        viewers.remove(viewer);
+        getModule().setVisible(!viewers.isEmpty());
+        getModule().revalidate();
+        getModule().repaint();
     }
 
-    public static Input create(@NotNull TagDefinition tagDefinition) {
+    public boolean isVisible() {
+        return getModule().isVisible();
+    }
+
+    public @NotNull JPanel getModule() {
+        if (module == null) {
+            module = generateModule();
+        }
+        return module;
+    }
+
+    protected @NotNull JPanel generateModule() {
+        JPanel panel = new JPanel();
+        panel.setMinimumSize(new Dimension(200, 160));
+        panel.setPreferredSize(new Dimension(200, 160));
+        TitledBorder title;
+        title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), getTagDefinition().getName());
+        panel.setBorder(title);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JComponent component = getComponent();
+        component.setAlignmentX(Component.CENTER_ALIGNMENT);
+        component.setAlignmentY(Component.CENTER_ALIGNMENT);
+        panel.add(component);
+        return panel;
+    }
+
+    protected static Input create(@NotNull TagDefinition tagDefinition) {
         switch (tagDefinition.getType()) {
             case LIST:
                 return new ListInput(tagDefinition);
@@ -101,27 +117,4 @@ public abstract class Input {
         }
         return null;
     }
-
-    public @NotNull abstract JComponent getComponent();
-
-    public abstract void reset(Tag tag);
-
-    public abstract void setValue(@NotNull Object value);
-
-    public @NotNull JPanel getModule() {
-        JPanel panel = new JPanel();
-        panel.setMinimumSize(new Dimension(200, 160));
-        panel.setPreferredSize(new Dimension(200, 160));
-        TitledBorder title;
-        title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), getTagDefinition().getName());
-        panel.setBorder(title);
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JComponent component = getComponent();
-        component.setAlignmentX(Component.CENTER_ALIGNMENT);
-        component.setAlignmentY(Component.CENTER_ALIGNMENT);
-        panel.add(component);
-        return panel;
-    }
-
-    public abstract @Nullable Tag getTag() throws InputException;
 }
