@@ -19,10 +19,13 @@ package de.sg_o.lib.tagy.tag.list;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import de.sg_o.lib.tagy.data.TagContainerListSerializer;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Input;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.TagListSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -43,19 +46,23 @@ public class TagList extends Tag {
         values = new ArrayList<>(initialCapacity);
     }
 
-    public TagList(@NotNull TagDefinition definition, JsonNode array) {
+    public TagList(@NotNull TagDefinition definition, JsonNode raw) {
         super(definition);
-        if (array == null) {
+        if (raw == null) {
             this.values = new ArrayList<>();
             return;
         }
-        if (array.isObject()) array = array.get("values");
+        JsonNode array = raw;
+        if (raw.isObject()) array = raw.get("values");
+        if (array == null) array = raw.get(getKey());
         if (definition.getType() != Type.LIST) throw new IllegalArgumentException("Definition is not of type list");
         if (definition.getInternal() == null) throw new IllegalArgumentException("Internal definition is null");
         if (array != null) {
             this.values = new ArrayList<>(array.size());
             for (int i = 0; i < array.size(); i++) {
-                values.add(Tag.create(definition.resolveInternal(), array.get(i)));
+                JsonNode value = array.get(i);
+                if (value == null) continue;
+                values.add(Tag.create(definition.resolveInternal(), value));
             }
         } else {
             this.values = new ArrayList<>();
@@ -79,6 +86,7 @@ public class TagList extends Tag {
     }
 
     @JsonProperty(value = "values", index = 0)
+    @JsonSerialize(using = TagListSerializer.class)
     public @NotNull ArrayList<Tag> getValue() {
         return new ArrayList<>(values);
     }

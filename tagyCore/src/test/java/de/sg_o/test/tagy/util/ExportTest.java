@@ -101,10 +101,10 @@ class ExportTest {
     @Test
     void asString() {
         String exported = Export.asString(p0, Export.Format.JSON);
-        assertEquals(83, exported.split("\r\n|\r|\n").length);
+        assertEquals(75, exported.split("\r\n|\r|\n").length);
         exported = Export.asString(p0, Export.Format.XML);
-        assertEquals(101, exported.split("\r\n|\r|\n").length);
+        assertEquals(97, exported.split("\r\n|\r|\n").length);
         exported = Export.asString(p0, Export.Format.YAML);
-        assertEquals(67, exported.split("\r\n|\r|\n").length);
+        assertEquals(63, exported.split("\r\n|\r|\n").length);
     }
 }

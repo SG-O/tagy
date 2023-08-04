@@ -40,8 +40,15 @@ public class TagBool extends Tag {
         super(definition);
         if (definition.getType() != Type.BOOLEAN) throw new IllegalArgumentException("Definition is not of type double");
         JsonNode value = document.get("value");
-        if (value == null) throw new IllegalArgumentException("Document does not contain key");
-        this.value = value.booleanValue();
+        if (value == null) value = document.get(getKey());
+        Boolean tmp = null;
+        if (value != null) {
+            tmp = value.booleanValue();
+        } else if (document.isBoolean()){
+            tmp = document.booleanValue();
+        }
+        if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
+        this.value = tmp;
     }
 
     @JsonProperty(value = "value", index = 0)

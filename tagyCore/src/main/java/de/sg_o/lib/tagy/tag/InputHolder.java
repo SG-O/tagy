@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static de.sg_o.lib.tagy.tag.Input.create;
 
@@ -71,12 +72,16 @@ public class InputHolder {
 
     public void setData(@NotNull MetaData metaData) {
         this.loaded = metaData;
-        HashMap<String, Tag> tags = metaData.getTagsAsMap();
-
+        List<TagContainer> tags = metaData.getTagContainers();
+        HashMap<String, Tag> tagsMap = new HashMap<>();
+        for (TagContainer tagContainer : tags) {
+            Tag t = tagContainer.getTag();
+            tagsMap.put(t.getKey(), t);
+        }
         for (Input input : inputs) {
             Tag tag = null;
-            if (tags.containsKey(input.getTagDefinition().getKey())) {
-                tag = tags.get(input.getTagDefinition().getKey());
+            if (tagsMap.containsKey(input.getTagDefinition().getKey())) {
+                tag = tagsMap.get(input.getTagDefinition().getKey());
             }
             input.reset(tag);
         }

@@ -39,8 +39,15 @@ public class TagDouble extends Tag {
         super(definition);
         if (definition.getType() != Type.DOUBLE) throw new IllegalArgumentException("Definition is not of type double");
         JsonNode value = document.get("value");
-        if (value == null) throw new IllegalArgumentException("Document does not contain key");
-        this.value = value.doubleValue();
+        if (value == null) value = document.get(getKey());
+        Double tmp = null;
+        if (value != null) {
+            tmp = value.asDouble();
+        } else if (document.isValueNode()){
+            tmp = document.asDouble();
+        }
+        if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
+        this.value = tmp;
     }
 
     @JsonProperty(value = "value", index = 0)

@@ -15,25 +15,27 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.def;
+package de.sg_o.lib.tagy.data;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.TagContainer;
 
 import java.io.IOException;
 import java.util.List;
 
-public class TagDefinitionListSerializer extends JsonSerializer<List<TagDefinition>> {
+public class TagContainerListSerializer extends JsonSerializer<List<TagContainer>> {
 
     @Override
-    public void serialize(List<TagDefinition> value, JsonGenerator jgen,
+    public void serialize(List<TagContainer> value, JsonGenerator jgen,
                           SerializerProvider provider) throws IOException {
-        jgen.writeStartArray();
-        for (TagDefinition td : value) {
-            jgen.writeObject(td);
+        jgen.writeStartObject();
+        for (TagContainer td : value) {
+            Tag tag = td.getTag();
+            jgen.writePOJOField(tag.getKey(), tag.getValue());
         }
-        jgen.writeEndArray();
+        jgen.writeEndObject();
     }
-
 }

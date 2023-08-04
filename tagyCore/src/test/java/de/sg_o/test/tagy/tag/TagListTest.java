@@ -126,9 +126,9 @@ class TagListTest {
         String json1 = holder1.getEncoded();
         String json2 = holder2.getEncoded();
 
-        assertEquals("{\"values\":[{\"value\":0},{\"value\":2}]}", json0);
-        assertEquals("{\"values\":[{\"value\":1}]}", json1);
-        assertEquals("{\"values\":[{\"value\":0},{\"value\":2}]}", json2);
+        assertEquals("{\"values\":[0,2]}", json0);
+        assertEquals("{\"values\":[1]}", json1);
+        assertEquals("{\"values\":[0,2]}", json2);
 
         TagHolder holder5 = new TagHolder(tag0.getDefinition(), json0);
         TagHolder holder6 = new TagHolder(tag1.getDefinition(), json1);

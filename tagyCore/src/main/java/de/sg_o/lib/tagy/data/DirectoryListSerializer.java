@@ -31,9 +31,7 @@ public class DirectoryListSerializer  extends JsonSerializer<List<Directory>> {
                           SerializerProvider provider) throws IOException {
         jgen.writeStartArray();
         for (Directory td : value) {
-            jgen.writeStartArray();
             jgen.writeObject(td);
-            jgen.writeEndArray();
         }
         jgen.writeEndArray();
     }

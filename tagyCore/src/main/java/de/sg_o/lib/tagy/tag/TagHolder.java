@@ -43,6 +43,7 @@ public class TagHolder {
         try {
             encoded = mapper.writeValueAsString(tag);
         } catch (JsonProcessingException ignored) {
+            System.out.println(ignored.getMessage());
         }
         this.encoded = encoded;
     }

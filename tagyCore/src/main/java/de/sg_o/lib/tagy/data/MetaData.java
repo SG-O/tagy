@@ -18,13 +18,16 @@
 package de.sg_o.lib.tagy.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.TagContainer;
 import de.sg_o.lib.tagy.tag.TagHolder;
+import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -51,11 +54,11 @@ public class MetaData implements Serializable {
     private final ToOne<StructureDefinition> structureDefinition = new ToOne<>(this, MetaData_.structureDefinition);
     @NotNull
     private final ToMany<User> editHistory = new ToMany<>(this, MetaData_.editHistory);
+    @NotNull
+    private final ToMany<TagContainer> tagContainers = new ToMany<>(this, MetaData_.tagContainers);
 
     @Transient
     transient BoxStore __boxStore = null;
-    @Transient
-    private HashMap<String, Tag> internalTags;
     @Transient
     private transient boolean updated = false;
 
@@ -66,15 +69,13 @@ public class MetaData implements Serializable {
         this.project.setTargetId(projectId);
         this.reference.setTargetId(referenceId);
         this.structureDefinition.setTargetId(structureDefinitionId);
-        internalTags = null;
     }
 
     public MetaData(@NotNull FileInfo reference, @NotNull Project project) {
         this.reference.setTarget(reference);
         this.project.setTarget(project);
         this.structureDefinition.setTarget(project.resolveStructureDefinition());
-        internalTags = new HashMap<>();
-        this.tags = null;
+        this.tags = new HashMap<>();
     }
 
     public static List<MetaData> query(QueryBoxSpec<MetaData> queryBoxSpec, int length, int offset) {
@@ -117,8 +118,9 @@ public class MetaData implements Serializable {
     }
 
     public void addTag(@NotNull Tag tag) {
-        parseTags();
-        internalTags.put(tag.getKey(), tag);
+        TagContainer container = new TagContainer(tag);
+        container.save();
+        tagContainers.add(container);
         if (!this.updated) {
             editHistory.add(resolveProject().resolveUser());
             this.updated = true;
@@ -131,10 +133,14 @@ public class MetaData implements Serializable {
         return resolveReference().getAbsolutePath();
     }
 
+    public void clearTags() {
+        tagContainers.clear();
+        save();
+    }
+
     @SuppressWarnings("unused")
     public void setTags(@Nullable List<Tag> tags) {
-        if (internalTags == null) internalTags = new HashMap<>();
-        this.internalTags.clear();
+        clearTags();
         if (tags == null) return;
         for (Tag tag : tags) {
             addTag(tag);
@@ -142,33 +148,29 @@ public class MetaData implements Serializable {
     }
 
     public Map<String, String> getTags() {
-        parseTags();
-        Map<String, String> tags = new HashMap<>();
-        for (Map.Entry<String, Tag> entry : this.internalTags.entrySet()) {
-            TagHolder holder = new TagHolder(entry.getValue());
-            tags.put(entry.getKey(), holder.getEncoded());
-        }
-        return tags;
+        return new HashMap<>();
     }
 
-    private void parseTags() {
-        if (internalTags != null) return;
-        internalTags = new HashMap<>();
+    private void migrateTags() {
         if (tags == null) return;
         for (TagDefinition definition : structureDefinition.getTarget().getTagDefinitions()) {
-            String encoded = this.tags.get(definition.getKey());
+            String encoded = tags.get(definition.getKey());
             if (encoded == null) continue;
             TagHolder tagHolder = new TagHolder(definition, encoded);
             Tag tag = tagHolder.getTag();
             if (tag == null) continue;
-            internalTags.put(definition.getKey(), tag);
+            TagContainer container = new TagContainer(tag);
+            container.save();
+            tagContainers.add(container);
         }
+        tags.clear();
     }
 
     @JsonProperty(index = 1)
-    public HashMap<String, Tag> getTagsAsMap() {
-        parseTags();
-        return internalTags;
+    @JsonSerialize(using = TagContainerListSerializer.class)
+    public ToMany<TagContainer> getTagContainers() {
+        if (!this.tags.isEmpty()) migrateTags();
+        return tagContainers;
     }
 
     public Project resolveProject() {
@@ -197,6 +199,7 @@ public class MetaData implements Serializable {
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean save() {
+        if (!this.tags.isEmpty()) migrateTags();
         BoxStore db = DB.getDb();
         if (db == null) return false;
         Box<MetaData> box = db.boxFor(MetaData.class);
@@ -224,7 +227,7 @@ public class MetaData implements Serializable {
 
         MetaData metaData = (MetaData) o;
 
-        if (getTagsAsMap() != null ? !getTagsAsMap().equals(metaData.getTagsAsMap()) : metaData.getTagsAsMap() != null) return false;
+        if (!Util.betterListEquals(this.tagContainers, metaData.tagContainers)) return false;
         if (getProject().getTargetId() != metaData.getProject().getTargetId()) return false;
         return getReference().getTargetId() == (metaData.getReference().getTargetId());
     }
@@ -244,8 +247,8 @@ public class MetaData implements Serializable {
         builder.append("\t\"_id\": \n");
         builder.append(resolveReference().toString(2));
         builder.append(",\n");
-        Map<String, Tag> tags = getTagsAsMap();
-        for (Tag tag : tags.values()) {
+        List<TagContainer> tags = getTagContainers();
+        for (TagContainer tag : tags) {
             builder.append("\t");
             builder.append(tag.toString());
             builder.append(",\n");

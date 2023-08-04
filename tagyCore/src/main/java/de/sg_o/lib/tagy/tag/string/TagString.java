@@ -41,10 +41,15 @@ public class TagString extends Tag {
         super(definition);
         if (definition.getType() != Type.STRING) throw new IllegalArgumentException("Definition is not of type string");
         JsonNode value = document.get("value");
-        if (value == null) throw new IllegalArgumentException("Document does not contain key");
-        String value1 = value.textValue();
-        if (value1 == null) throw new IllegalArgumentException("Value is null");
-        this.value = value1;
+        if (value == null) value = document.get(getKey());
+        String tmp = null;
+        if (value != null) {
+            tmp = value.asText();
+        } else if (document.isValueNode()){
+            tmp = document.asText();
+        }
+        if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
+        this.value = tmp;
     }
 
     @JsonProperty(value = "value", index = 0)

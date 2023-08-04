@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class TagContainer {
@@ -187,5 +188,23 @@ public class TagContainer {
         if (box == null) return false;
         this.id = box.put(this);
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TagContainer container = (TagContainer) o;
+        return Objects.equals(getTag(), container.getTag());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTag());
+    }
+
+    @Override
+    public String toString() {
+        return getTag().toString();
     }
 }

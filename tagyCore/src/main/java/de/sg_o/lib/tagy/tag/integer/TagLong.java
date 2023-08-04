@@ -39,8 +39,15 @@ public class TagLong extends Tag {
         super(definition);
         if (definition.getType() != Type.LONG) throw new IllegalArgumentException("Definition is not of type long");
         JsonNode value = document.get("value");
-        if (value == null) throw new IllegalArgumentException("Document does not contain key");
-        this.value = value.longValue();
+        if (value == null) value = document.get(getKey());
+        Long tmp = null;
+        if (value != null) {
+            tmp = value.longValue();
+        } else if (document.canConvertToLong()){
+            tmp = document.longValue();
+        }
+        if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
+        this.value = tmp;
     }
 
     @JsonProperty(value = "value", index = 0)

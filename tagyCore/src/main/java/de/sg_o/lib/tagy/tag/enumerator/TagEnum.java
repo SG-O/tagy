@@ -44,8 +44,15 @@ public class TagEnum extends Tag {
         super(definition);
         if (definition.getType() != Type.ENUM) throw new IllegalArgumentException("Definition is not of type enum");
         JsonNode value = document.get("value");
-        if (value == null) throw new IllegalArgumentException("Document does not contain key");
-        this.value = value.intValue();
+        if (value == null) value = document.get(getKey());
+        Integer tmp = null;
+        if (value != null) {
+            tmp = value.asInt();
+        } else if (document.isValueNode()){
+            tmp = document.asInt();
+        }
+        if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
+        this.value = tmp;
     }
 
     @JsonProperty(value = "value", index = 0)

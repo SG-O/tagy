@@ -137,8 +137,8 @@ class MetaDataTest {
                 "\t\t\t\"file\": \"sample03.wmv\",\n" +
                 "\t\t\t\"annotated\": false\n" +
                 "\t\t},\n" +
-                "\t\"key1\": \"Test String 1\",\n" +
                 "\t\"key0\": \"Test String 0\",\n" +
+                "\t\"key1\": \"Test String 1\",\n" +
                 "\t\"_editHistory\": \n" +
                 "\t\t[\n" +
                 "\t\t\t{\"id\": 1, \"name\": \"Local\"}\n" +
