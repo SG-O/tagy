@@ -18,8 +18,6 @@
 package de.sg_o.lib.tagy.tag;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import de.sg_o.lib.tagy.data.TagContainerListSerializer;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.bool.TagBool;
 import de.sg_o.lib.tagy.tag.date.TagDate;
