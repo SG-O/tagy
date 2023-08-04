@@ -26,6 +26,7 @@ import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class Player extends JPanel {
@@ -35,8 +36,8 @@ public class Player extends JPanel {
     public Player(List<Input> inputs) {
         mediaPlayerComponent = new EmbeddedMediaPlayerComponent("-vv");
         setLayout(new BorderLayout());
+        Player player = this;
 
-        add(mediaPlayerComponent, BorderLayout.CENTER);
         Input in = null;
         Input out = null;
         Input length = null;
@@ -50,6 +51,36 @@ public class Player extends JPanel {
                 length = input;
             }
         }
+        playerControls = new PlayerControls(mediaPlayerComponent.mediaPlayer(), in, out);
+
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.addKeyEventPostProcessor(e -> {
+            if (e.getID() != KeyEvent.KEY_PRESSED) return false;
+            Point mousePos = MouseInfo.getPointerInfo().getLocation();
+            Rectangle bounds = player.getBounds();
+            bounds.setLocation(player.getLocationOnScreen());
+            if (!bounds.contains(mousePos)) return false;
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                playerControls.playPause();
+                return true;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                mediaPlayerComponent.mediaPlayer().controls().skipTime(-2000);
+                return true;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                mediaPlayerComponent.mediaPlayer().controls().skipTime(2000);
+                return true;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_UP) {
+                playerControls.in();
+            }
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                playerControls.out();
+            }
+            return false;
+        });
+        add(mediaPlayerComponent, BorderLayout.CENTER);
 
         Input finalLength = length;
         mediaPlayerComponent.mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
@@ -60,8 +91,6 @@ public class Player extends JPanel {
                 }
             }
         });
-
-        playerControls = new PlayerControls(mediaPlayerComponent.mediaPlayer(), in, out);
 
         add(playerControls.getControlsPane(), BorderLayout.SOUTH);
         revalidate();

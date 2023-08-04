@@ -27,6 +27,7 @@ import uk.co.caprica.vlcj.player.base.MediaPlayer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.reflect.Method;
@@ -53,6 +54,10 @@ public class PlayerControls {
 
     private boolean progressClicked = false;
 
+    private final MediaPlayer mediaPlayerComponent;
+    private final Input in;
+    private final Input out;
+
     public PlayerControls(@NotNull MediaPlayer mediaPlayerComponent, Input in, Input out) {
         inButton.setIcon(Icons.START_20);
         rewindButton.setIcon(Icons.FAST_REWIND_20);
@@ -62,16 +67,22 @@ public class PlayerControls {
         skip10Button.setIcon(Icons.FORWARD_10_20);
         outButton.setIcon(Icons.LAST_PAGE_20);
 
+        fixButtonKeypress(inButton);
+        fixButtonKeypress(rewindButton);
+        fixButtonKeypress(rewind10Button);
+        fixButtonKeypress(playPauseButton);
+        fixButtonKeypress(nextFrameButton);
+        fixButtonKeypress(skip10Button);
+        fixButtonKeypress(outButton);
+
+
+        this.mediaPlayerComponent = mediaPlayerComponent;
+        this.in = in;
+        this.out = out;
 
         rewindButton.addActionListener(e -> mediaPlayerComponent.controls().setPosition(0.0f));
         rewind10Button.addActionListener(e -> mediaPlayerComponent.controls().skipTime(-10000));
-        playPauseButton.addActionListener(e -> {
-            if (mediaPlayerComponent.status().isPlaying()) {
-                mediaPlayerComponent.controls().pause();
-            } else {
-                mediaPlayerComponent.controls().play();
-            }
-        });
+        playPauseButton.addActionListener(e -> playPause());
         nextFrameButton.addActionListener(e -> {
             List<VideoTrackInfo> videoTracks = mediaPlayerComponent.media().info().videoTracks();
             int track = mediaPlayerComponent.video().track();
@@ -84,14 +95,8 @@ public class PlayerControls {
             }
         });
         skip10Button.addActionListener(e -> mediaPlayerComponent.controls().skipTime(10000));
-        inButton.addActionListener(e -> {
-            if (in == null) return;
-            in.setValue(mediaPlayerComponent.status().time());
-        });
-        outButton.addActionListener(e -> {
-            if (out == null) return;
-            out.setValue(mediaPlayerComponent.status().time());
-        });
+        inButton.addActionListener(e -> in());
+        outButton.addActionListener(e -> out());
         progress.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -121,6 +126,31 @@ public class PlayerControls {
             }
         });
         executorService.scheduleAtFixedRate(new UpdateRunnable(mediaPlayerComponent), 0L, 100L, TimeUnit.MILLISECONDS);
+    }
+
+    private void fixButtonKeypress(JButton button) {
+        button.getInputMap(JComponent.WHEN_FOCUSED)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "none");
+        button.getInputMap(JComponent.WHEN_FOCUSED)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), "none");
+    }
+
+    public void in() {
+        if (in == null) return;
+        in.setValue(mediaPlayerComponent.status().time());
+    }
+
+    public void out() {
+        if (out == null) return;
+        out.setValue(mediaPlayerComponent.status().time());
+    }
+
+    public void playPause() {
+        if (mediaPlayerComponent.status().isPlaying()) {
+            mediaPlayerComponent.controls().pause();
+        } else {
+            mediaPlayerComponent.controls().play();
+        }
     }
 
     public JPanel getControlsPane() {

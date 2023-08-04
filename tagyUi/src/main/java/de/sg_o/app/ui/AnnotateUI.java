@@ -54,13 +54,16 @@ public class AnnotateUI extends JFrame {
     private final DataManager dataManager;
     private final InputHolder inputHolder;
     private MetaData metaData;
+    private final MetaData toView;
     private Viewer viewer;
 
     public AnnotateUI(@NotNull Project project, MetaData toView) throws HeadlessException {
         super();
         this.project = project;
+        this.toView = toView;
         $$$setupUI$$$();
         setContentPane(contentPane);
+        contentPane.setFocusTraversalKeysEnabled(false);
         setTitle(getMessageFromBundle("translations/formText", "form.title.annotation"));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -68,33 +71,7 @@ public class AnnotateUI extends JFrame {
         inputHolder = new InputHolder(this.project);
 
         doneButton.setMnemonic(KeyEvent.VK_ENTER);
-        doneButton.addActionListener(e -> {
-            if (metaData == null) {
-                if (toView != null) {
-                    this.dispose();
-                } else {
-                    showNext(null);
-                }
-                return;
-            }
-            try {
-                metaData = inputHolder.getData();
-            } catch (InputException ex) {
-                errorMessage.setText(ex.toString());
-                errorMessage.revalidate();
-                errorMessage.repaint();
-                return;
-            }
-            errorMessage.setText("OK");
-            metaData.save();
-            System.out.println(metaData);
-            if (toView != null) {
-                this.dispose();
-            } else {
-                showNext(null);
-            }
-
-        });
+        doneButton.addActionListener(e -> doneAction());
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -116,6 +93,16 @@ public class AnnotateUI extends JFrame {
             }
         });
 
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.addKeyEventPostProcessor(e -> {
+            if (e.getID() != KeyEvent.KEY_PRESSED) return false;
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                AnnotateUI.this.doneAction();
+                return true;
+            }
+            return false;
+        });
+
         contentPane.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent evt) {
                 contentPane.revalidate();
@@ -126,6 +113,33 @@ public class AnnotateUI extends JFrame {
         setMinimumSize(new Dimension(700, 500));
         pack();
         setLocationRelativeTo(null);
+    }
+
+    private void doneAction() {
+        if (metaData == null) {
+            if (toView != null) {
+                this.dispose();
+            } else {
+                showNext(null);
+            }
+            return;
+        }
+        try {
+            metaData = inputHolder.getData();
+        } catch (InputException ex) {
+            errorMessage.setText(ex.toString());
+            errorMessage.revalidate();
+            errorMessage.repaint();
+            return;
+        }
+        errorMessage.setText("OK");
+        metaData.save();
+        System.out.println(metaData);
+        if (toView != null) {
+            this.dispose();
+        } else {
+            showNext(null);
+        }
     }
 
     public void showNext(MetaData toView) {
