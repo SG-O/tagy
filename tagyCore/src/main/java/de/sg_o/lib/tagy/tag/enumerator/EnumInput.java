@@ -53,6 +53,7 @@ public class EnumInput extends Input {
     public void attachInputToEnable(Input input, int index) {
         if (!enableInputs.containsKey(index)) enableInputs.put(index, new ArrayList<>());
         enableInputs.get(index).add(input);
+        enableInputs(component.getSelectedIndex());
     }
 
     private void enableInputs(int index) {
