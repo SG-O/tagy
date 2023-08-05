@@ -38,7 +38,7 @@
         <maven-compiler-plugin-version>3.11.0</maven-compiler-plugin-version>
 
         <objectboxVersion>3.6.0</objectboxVersion>
-        <intellij.version>232.8660.197</intellij.version>
+        <intellij.version>232.8660.211</intellij.version>
         <twelvemonkeys.version>3.9.4</twelvemonkeys.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
