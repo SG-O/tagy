@@ -21,7 +21,7 @@ import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.extensions.rsyntaxarea.DarklafRSyntaxTheme;
 import com.github.weisj.darklaf.theme.event.ThemeInstalledListener;
 import de.sg_o.lib.tagy.data.FileInfo;
-import de.sg_o.lib.tagy.tag.Input;
+import de.sg_o.app.annotator.Input;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 

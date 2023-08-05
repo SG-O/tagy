@@ -71,9 +71,6 @@ public abstract class Tag implements Serializable {
 
     public abstract String getValueAsString();
 
-    @SuppressWarnings("unused")
-    public abstract Input getInputElement();
-
     @Override
     public abstract boolean equals(Object o);
 

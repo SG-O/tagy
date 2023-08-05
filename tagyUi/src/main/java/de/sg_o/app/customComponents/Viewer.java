@@ -18,7 +18,7 @@
 package de.sg_o.app.customComponents;
 
 import de.sg_o.lib.tagy.data.FileInfo;
-import de.sg_o.lib.tagy.tag.Input;
+import de.sg_o.app.annotator.Input;
 
 import javax.swing.*;
 import java.awt.*;

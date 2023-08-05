@@ -27,8 +27,8 @@ import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.exceptions.InputException;
-import de.sg_o.lib.tagy.tag.Input;
-import de.sg_o.lib.tagy.tag.InputHolder;
+import de.sg_o.app.annotator.Input;
+import de.sg_o.app.annotator.InputHolder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

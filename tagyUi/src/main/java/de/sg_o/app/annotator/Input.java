@@ -15,17 +15,12 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.tag;
+package de.sg_o.app.annotator;
 
+import de.sg_o.app.annotator.inputs.*;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
-import de.sg_o.lib.tagy.tag.bool.BoolInput;
-import de.sg_o.lib.tagy.tag.date.DateInput;
-import de.sg_o.lib.tagy.tag.enumerator.EnumInput;
-import de.sg_o.lib.tagy.tag.floating.DoubleInput;
-import de.sg_o.lib.tagy.tag.integer.LongInput;
-import de.sg_o.lib.tagy.tag.list.ListInput;
-import de.sg_o.lib.tagy.tag.string.StringInput;
+import de.sg_o.lib.tagy.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -15,23 +15,25 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.tag;
+package de.sg_o.app.annotator;
 
+import de.sg_o.app.annotator.inputs.EnumInput;
+import de.sg_o.app.annotator.inputs.ListInput;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagEnablerDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
-import de.sg_o.lib.tagy.tag.enumerator.EnumInput;
-import de.sg_o.lib.tagy.tag.list.ListInput;
+import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.TagContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static de.sg_o.lib.tagy.tag.Input.create;
+import static de.sg_o.app.annotator.Input.create;
 
 public class InputHolder {
     private final ArrayList<Input> inputs;

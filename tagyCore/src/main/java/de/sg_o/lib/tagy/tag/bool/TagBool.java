@@ -21,9 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
-import de.sg_o.lib.tagy.tag.Input;
 import de.sg_o.lib.tagy.tag.Tag;
-import de.sg_o.lib.tagy.tag.floating.DoubleInput;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -59,12 +57,6 @@ public class TagBool extends Tag {
     @Override
     public String getValueAsString() {
         return String.valueOf(getValue());
-    }
-
-    @SuppressWarnings("unused")
-    @Override
-    public Input getInputElement() {
-        return new DoubleInput(this);
     }
 
     @Override

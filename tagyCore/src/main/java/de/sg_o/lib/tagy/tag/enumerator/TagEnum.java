@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
-import de.sg_o.lib.tagy.tag.Input;
 import de.sg_o.lib.tagy.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 
@@ -70,12 +69,6 @@ public class TagEnum extends Tag {
         List<String> enumerators = super.getDefinition().getEnumerators();
         if (value >= enumerators.size()) return UNRECOGNIZED;
         return enumerators.get(value);
-    }
-
-    @SuppressWarnings("unused")
-    @Override
-    public Input getInputElement() {
-        return new EnumInput(this);
     }
 
     @Override

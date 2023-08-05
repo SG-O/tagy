@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.tag.integer;
+package de.sg_o.app.annotator.inputs;
 
+import de.sg_o.app.annotator.Input;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
-import de.sg_o.lib.tagy.tag.Input;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.floating.TagDouble;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,26 +30,24 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class LongInput extends Input {
+public class DoubleInput extends Input {
     private final JComponent component;
     private final long min;
     private final long max;
 
-    public LongInput(@NotNull TagDefinition tagDefinition) {
+    public DoubleInput(@NotNull TagDefinition tagDefinition) {
         super(tagDefinition);
-
         if (tagDefinition.getMin() == Double.NEGATIVE_INFINITY) {
             min = Long.MIN_VALUE;
         } else {
-            min = Math.round(getTagDefinition().getMin());
+            min = Math.round(getTagDefinition().getMin()) * 100;
         }
         if (tagDefinition.getMax() == Double.POSITIVE_INFINITY) {
             max = Long.MAX_VALUE;
         } else {
-            max = Math.round(getTagDefinition().getMax());
+            max = Math.round(getTagDefinition().getMax()) * 100;
         }
-
-        if (min >= -50 && max <= 50) {
+        if (getTagDefinition().getMin() >= -100.0 && getTagDefinition().getMax() <= 100.0) {
             component = new JSlider((int) (min), (int) max, (int) min) {
                 private SliderPopupListener popupHandler;
                 @Override public void updateUI() {
@@ -68,7 +67,7 @@ public class LongInput extends Input {
         component.setToolTipText(getTagDefinition().getKey());
     }
 
-    public LongInput(@NotNull Tag tag) {
+    public DoubleInput(@NotNull Tag tag) {
         this(tag.getDefinition());
         reset(tag);
     }
@@ -92,13 +91,13 @@ public class LongInput extends Input {
             ((JTextField) component).setText("");
         }
         if (tag == null) return;
-        if (tag instanceof TagLong) {
-            TagLong tagLong = (TagLong) tag;
+        if (tag instanceof TagDouble) {
+            TagDouble tagDouble = (TagDouble) tag;
             if (component instanceof JSlider) {
-                ((JSlider) component).setValue(tagLong.getValue().intValue());
+                ((JSlider) component).setValue((int) (tagDouble.getValue() * 100));
             }
             if (component instanceof JTextField) {
-                ((JTextField) component).setText(String.valueOf(tagLong.getValue()));
+                ((JTextField) component).setText(String.valueOf(tagDouble.getValue()));
             }
         }
     }
@@ -106,35 +105,38 @@ public class LongInput extends Input {
     @SuppressWarnings("unused")
     @Override
     public void setValue(@NotNull Object value) {
-        Long longValue = null;
+        Double doubleValue = null;
         if (value instanceof Number) {
-            longValue = ((Number) value).longValue();
+            doubleValue = ((Number) value).doubleValue();
         }
         if (value instanceof String) {
             try {
-                longValue = Long.parseLong((String) value);
+                doubleValue = Double.parseDouble((String) value);
             } catch (Exception e) {
                 return;
             }
         }
-        if (longValue == null) return;
-        if (longValue < min) return;
-        if (longValue > max) return;
+
+        if (doubleValue == null) return;
+        double doubleMulti = doubleValue * 100.0D;
+        if (doubleMulti < min) return;
+        if (doubleMulti > max) return;
         if (component instanceof JSlider) {
-            ((JSlider) component).setValue(longValue.intValue());
+            ((JSlider) component).setValue((int) doubleMulti);
         }
         if (component instanceof JTextField) {
-            ((JTextField) component).setText(longValue.toString());
+            ((JTextField) component).setText(doubleValue.toString());
         }
         component.revalidate();
         component.repaint();
     }
 
+
     @SuppressWarnings("unused")
     public @Nullable Tag getTag() throws InputException {
-        long value = 0;
+        double value = 0;
         if (component instanceof JSlider) {
-            value = ((JSlider) component).getValue();
+            value = ((JSlider) component).getValue() / 100.0;
         }
         if (component instanceof JTextField) {
             String text = ((JTextField) component).getText();
@@ -142,7 +144,7 @@ public class LongInput extends Input {
                 throw new InputException(InputException.Rule.EMPTY_MANDATORY_FIELD, super.getTagDefinition().getName());
             }
             try {
-                value = Long.parseLong(text);
+                value = Double.parseDouble(text);
             } catch (Exception ignore) {
                 if (super.getTagDefinition().isRequired())
                     throw new InputException(InputException.Rule.INVALID_MANDATORY_FIELD, super.getTagDefinition().getName());
@@ -159,7 +161,7 @@ public class LongInput extends Input {
                         super.getTagDefinition().getMax());
             }
         }
-        return new TagLong(super.getTagDefinition(), value);
+        return new TagDouble(super.getTagDefinition(), value);
     }
 
     static class SliderPopupListener extends MouseAdapter {
@@ -180,7 +182,7 @@ public class LongInput extends Input {
             JSlider slider = (JSlider) me.getComponent();
             int intValue = slider.getValue();
             if (prevValue != intValue) {
-                label.setText(String.valueOf(slider.getValue()));
+                label.setText(String.format("%.2f", slider.getValue() / 100f));
                 Point pt = me.getPoint();
                 pt.y = -size.height;
                 SwingUtilities.convertPointToScreen(pt, me.getComponent());

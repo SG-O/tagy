@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
-import de.sg_o.lib.tagy.tag.Input;
 import de.sg_o.lib.tagy.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 
@@ -100,12 +99,6 @@ public class TagList extends Tag {
         }
         builder.append("]");
         return builder.toString();
-    }
-
-    @SuppressWarnings("unused")
-    @Override
-    public Input getInputElement() {
-        return new ListInput(this);
     }
 
     @Override

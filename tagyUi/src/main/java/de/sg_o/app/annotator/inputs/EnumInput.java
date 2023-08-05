@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.tag.enumerator;
+package de.sg_o.app.annotator.inputs;
 
+import de.sg_o.app.annotator.Input;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
-import de.sg_o.lib.tagy.tag.Input;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.lib.tagy.tag.enumerator.TagEnum;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
