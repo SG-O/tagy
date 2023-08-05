@@ -18,11 +18,9 @@
 package de.sg_o.lib.tagy.query.properties;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.query.QueryProperty;
 import de.sg_o.lib.tagy.tag.TagContainer;
 import de.sg_o.lib.tagy.tag.TagContainer_;
-import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
