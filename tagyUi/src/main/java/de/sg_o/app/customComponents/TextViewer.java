@@ -25,6 +25,7 @@ import de.sg_o.app.annotator.Input;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -38,7 +39,10 @@ public class TextViewer extends RTextScrollPane {
         textArea = new RSyntaxTextArea();
         textArea.setEditable(false);
         textArea.setLineWrap(true);
-        textArea.setFont(FontImport.robotoMono.deriveFont(16f));
+        Font roboto = FontImport.robotoMono;
+        if (roboto != null) {
+            textArea.setFont(roboto.deriveFont(16f));
+        }
         DarklafRSyntaxTheme syntaxTheme = new DarklafRSyntaxTheme();
         syntaxTheme.apply(textArea);
         LafManager.addThemeChangeListener((ThemeInstalledListener) e -> syntaxTheme.apply(textArea));

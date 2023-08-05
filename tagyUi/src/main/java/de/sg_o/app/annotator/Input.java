@@ -67,6 +67,7 @@ public abstract class Input {
         getModule().repaint();
     }
 
+    @SuppressWarnings("unused")
     public boolean isVisible() {
         return getModule().isVisible();
     }
