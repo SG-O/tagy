@@ -5,8 +5,6 @@ name: Java CD with Maven
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
 
 permissions:
   pull-requests: write
