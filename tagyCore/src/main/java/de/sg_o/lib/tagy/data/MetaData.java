@@ -46,7 +46,7 @@ import java.util.*;
 public class MetaData implements Serializable {
     @Id
     Long id;
-    private final Map<String, String> tags;
+    private Map<String, String> tags;
 
     private final ToOne<Project> project = new ToOne<>(this, MetaData_.project);
 
@@ -75,7 +75,7 @@ public class MetaData implements Serializable {
         this.reference.setTarget(reference);
         this.project.setTarget(project);
         this.structureDefinition.setTarget(project.resolveStructureDefinition());
-        this.tags = new HashMap<>();
+        this.tags = null;
     }
 
     public static List<MetaData> query(QueryBoxSpec<MetaData> queryBoxSpec, int length, int offset) {
@@ -164,12 +164,13 @@ public class MetaData implements Serializable {
             tagContainers.add(container);
         }
         tags.clear();
+        tags = null;
     }
 
     @JsonProperty(index = 1)
     @JsonSerialize(using = TagContainerListSerializer.class)
     public ToMany<TagContainer> getTagContainers() {
-        if (!this.tags.isEmpty()) migrateTags();
+        if (this.tags != null) migrateTags();
         return tagContainers;
     }
 
@@ -199,7 +200,7 @@ public class MetaData implements Serializable {
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean save() {
-        if (!this.tags.isEmpty()) migrateTags();
+        if (this.tags != null) migrateTags();
         for (TagContainer container : tagContainers) {
             if (!container.save()) return false;
         }
