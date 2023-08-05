@@ -20,7 +20,7 @@ package de.sg_o.test.tagy.tag;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
-import de.sg_o.lib.tagy.tag.TagHolder;
+import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
 import de.sg_o.lib.tagy.tag.list.TagList;
 import org.junit.jupiter.api.BeforeEach;
@@ -118,9 +118,9 @@ class TagListTest {
         assertTrue(tag0.addValue(new TagLong(tdl2, 2)));
         assertTrue(tag2.addValue(new TagLong(tdl2, 2)));
 
-        TagHolder holder0 = new TagHolder(tag0);
-        TagHolder holder1 = new TagHolder(tag1);
-        TagHolder holder2 = new TagHolder(tag2);
+        TagMigration holder0 = new TagMigration(tag0);
+        TagMigration holder1 = new TagMigration(tag1);
+        TagMigration holder2 = new TagMigration(tag2);
 
         String json0 = holder0.getEncoded();
         String json1 = holder1.getEncoded();
@@ -130,9 +130,9 @@ class TagListTest {
         assertEquals("{\"values\":[1]}", json1);
         assertEquals("{\"values\":[0,2]}", json2);
 
-        TagHolder holder5 = new TagHolder(tag0.getDefinition(), json0);
-        TagHolder holder6 = new TagHolder(tag1.getDefinition(), json1);
-        TagHolder holder7 = new TagHolder(tag2.getDefinition(), json2);
+        TagMigration holder5 = new TagMigration(tag0.getDefinition(), json0);
+        TagMigration holder6 = new TagMigration(tag1.getDefinition(), json1);
+        TagMigration holder7 = new TagMigration(tag2.getDefinition(), json2);
 
         Tag decoded0 = holder5.getTag();
         Tag decoded1 = holder6.getTag();

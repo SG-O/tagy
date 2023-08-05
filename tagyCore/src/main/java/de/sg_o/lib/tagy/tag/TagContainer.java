@@ -182,6 +182,9 @@ public class TagContainer {
     }
 
     public boolean save() {
+        for (TagContainer tc : this.listValues) {
+            if (!tc.save()) return false;
+        }
         BoxStore db = DB.getDb();
         if (db == null) return false;
         Box<TagContainer> box = db.boxFor(TagContainer.class);

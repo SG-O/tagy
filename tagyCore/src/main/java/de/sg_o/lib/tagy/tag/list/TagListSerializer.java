@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.tag;
+package de.sg_o.lib.tagy.tag.list;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import de.sg_o.lib.tagy.tag.Tag;
 
 import java.io.IOException;
 import java.util.List;

@@ -24,7 +24,6 @@ import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Input;
 import de.sg_o.lib.tagy.tag.Tag;
-import de.sg_o.lib.tagy.tag.TagListSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

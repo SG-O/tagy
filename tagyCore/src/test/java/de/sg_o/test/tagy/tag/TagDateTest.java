@@ -20,7 +20,7 @@ package de.sg_o.test.tagy.tag;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
-import de.sg_o.lib.tagy.tag.TagHolder;
+import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.date.TagDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,11 +69,11 @@ class TagDateTest {
 
     @Test
     void addToDocument() {
-        TagHolder holder0 = new TagHolder(tag0);
-        TagHolder holder1 = new TagHolder(tag1);
-        TagHolder holder2 = new TagHolder(tag2);
-        TagHolder holder3 = new TagHolder(tag3);
-        TagHolder holder4 = new TagHolder(tag4);
+        TagMigration holder0 = new TagMigration(tag0);
+        TagMigration holder1 = new TagMigration(tag1);
+        TagMigration holder2 = new TagMigration(tag2);
+        TagMigration holder3 = new TagMigration(tag3);
+        TagMigration holder4 = new TagMigration(tag4);
 
         String json0 = holder0.getEncoded();
         String json1 = holder1.getEncoded();
@@ -87,11 +87,11 @@ class TagDateTest {
         assertEquals("{\"value\":1672617600000}", json3);
         assertEquals("{\"value\":1672531200000}", json4);
 
-        TagHolder holder5 = new TagHolder(tag0.getDefinition(), json0);
-        TagHolder holder6 = new TagHolder(tag1.getDefinition(), json1);
-        TagHolder holder7 = new TagHolder(tag2.getDefinition(), json2);
-        TagHolder holder8 = new TagHolder(tag3.getDefinition(), json3);
-        TagHolder holder9 = new TagHolder(tag4.getDefinition(), json4);
+        TagMigration holder5 = new TagMigration(tag0.getDefinition(), json0);
+        TagMigration holder6 = new TagMigration(tag1.getDefinition(), json1);
+        TagMigration holder7 = new TagMigration(tag2.getDefinition(), json2);
+        TagMigration holder8 = new TagMigration(tag3.getDefinition(), json3);
+        TagMigration holder9 = new TagMigration(tag4.getDefinition(), json4);
 
         Tag decoded0 = holder5.getTag();
         Tag decoded1 = holder6.getTag();

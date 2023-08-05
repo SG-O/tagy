@@ -25,12 +25,12 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import org.jetbrains.annotations.NotNull;
 
-public class TagHolder {
+public class TagMigration {
 
     private Tag tag = null;
     private final String encoded;
 
-    public TagHolder(Tag tag) {
+    public TagMigration(Tag tag) {
         this.tag = tag;
         ObjectMapper mapper = new JsonMapper();
         mapper.setVisibility(
@@ -47,7 +47,7 @@ public class TagHolder {
         this.encoded = encoded;
     }
 
-    public TagHolder(@NotNull TagDefinition definition, String encoded) {
+    public TagMigration(@NotNull TagDefinition definition, String encoded) {
         this.encoded = encoded;
         if (encoded == null) return;
         ObjectMapper mapper = new JsonMapper();

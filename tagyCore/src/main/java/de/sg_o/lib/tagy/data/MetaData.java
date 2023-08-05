@@ -26,7 +26,7 @@ import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagContainer;
-import de.sg_o.lib.tagy.tag.TagHolder;
+import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
 import io.objectbox.Box;
@@ -156,8 +156,8 @@ public class MetaData implements Serializable {
         for (TagDefinition definition : structureDefinition.getTarget().getTagDefinitions()) {
             String encoded = tags.get(definition.getKey());
             if (encoded == null) continue;
-            TagHolder tagHolder = new TagHolder(definition, encoded);
-            Tag tag = tagHolder.getTag();
+            TagMigration tagMigration = new TagMigration(definition, encoded);
+            Tag tag = tagMigration.getTag();
             if (tag == null) continue;
             TagContainer container = new TagContainer(tag);
             container.save();
@@ -200,6 +200,9 @@ public class MetaData implements Serializable {
     @SuppressWarnings("UnusedReturnValue")
     public boolean save() {
         if (!this.tags.isEmpty()) migrateTags();
+        for (TagContainer container : tagContainers) {
+            if (!container.save()) return false;
+        }
         BoxStore db = DB.getDb();
         if (db == null) return false;
         Box<MetaData> box = db.boxFor(MetaData.class);
