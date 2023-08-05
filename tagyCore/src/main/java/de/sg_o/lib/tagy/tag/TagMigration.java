@@ -77,7 +77,7 @@ public class TagMigration {
     private static List<MetaData> needsMigration(Project project) {
         QueryBoxSpec<MetaData> qbs = qb -> {
             qb.apply(MetaData_.projectId.equal(project.getId())
-                    .and(MetaData_.tags.equal("")));
+                    .and(MetaData_.tags.notNull()));
             return qb;
         };
         return DB.query(MetaData.class, qbs, 100, 0);

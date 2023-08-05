@@ -148,7 +148,7 @@ public class MetaData implements Serializable {
     }
 
     public Map<String, String> getTags() {
-        return new HashMap<>();
+        return null;
     }
 
     private void migrateTags() {
