@@ -17,6 +17,9 @@
 
 package de.sg_o.app.annotator;
 
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.event.ThemeChangeEvent;
+import com.github.weisj.darklaf.theme.event.ThemeChangeListener;
 import de.sg_o.app.annotator.inputs.EnumInput;
 import de.sg_o.app.annotator.inputs.ListInput;
 import de.sg_o.lib.tagy.Project;
@@ -40,6 +43,8 @@ public class InputHolder {
     private MetaData loaded;
 
     public InputHolder(Project project) {
+        float factor = LafManager.getPreferredThemeStyle().getFontSizeRule().getPercentage() / 100.0f;
+        Input.DEFAULT_DIMENSION.setFactor(factor);
         StructureDefinition structureDefinition = project.resolveStructureDefinition();
         HashMap<String, EnumInput> enumMap = new HashMap<>();
         ArrayList<Input> inputs = new ArrayList<>();
@@ -58,6 +63,7 @@ public class InputHolder {
                 ((ListInput) input).setOtherInputs(inputs);
             }
         }
+        LafManager.addThemeChangeListener(new CustomThemeListener());
         this.inputs = inputs;
     }
 
@@ -99,6 +105,28 @@ public class InputHolder {
             loaded.addTag(tag);
         }
         return loaded;
+    }
+
+    class CustomThemeListener implements ThemeChangeListener {
+
+        @Override
+        public void themeChanged(ThemeChangeEvent themeChangeEvent) {
+            float factor = themeChangeEvent.getNewTheme().getFontSizeRule().getPercentage() / 100.0f;
+            System.out.println(factor);
+            Input.DEFAULT_DIMENSION.setFactor(factor);
+            for (Input input : inputs) {
+                input.getModule().setMinimumSize(Input.DEFAULT_DIMENSION);
+                input.getModule().setPreferredSize(Input.DEFAULT_DIMENSION);
+                input.getModule().setMaximumSize(Input.DEFAULT_DIMENSION);
+                input.getModule().revalidate();
+                input.getModule().repaint();
+            }
+        }
+
+        @Override
+        public void themeInstalled(ThemeChangeEvent themeChangeEvent) {
+
+        }
     }
 
     private static void attachInputEnablers(@NotNull HashMap<String, EnumInput> enumMap, @NotNull ArrayList<Input> inputs) {

@@ -41,7 +41,6 @@ public class Init {
     public static void main(String[] args) {
         LafManager.themeForPreferredStyle(getPreferredThemeStyle());
         LafManager.install();
-
         ThemeSettings settings = ThemeSettings.getInstance();
         byte[] serializedSettings = prefs.getByteArray("themeSettings", null);
         if (serializedSettings != null) {

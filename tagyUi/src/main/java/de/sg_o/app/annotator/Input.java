@@ -18,6 +18,7 @@
 package de.sg_o.app.annotator;
 
 import de.sg_o.app.annotator.inputs.*;
+import de.sg_o.app.customComponents.ScalableDimension;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
 import de.sg_o.lib.tagy.tag.Tag;
@@ -31,6 +32,8 @@ import java.awt.*;
 import java.util.HashSet;
 
 public abstract class Input {
+    public static final ScalableDimension DEFAULT_DIMENSION = new ScalableDimension(200, 160);
+
     @NotNull
     private final TagDefinition tagDefinition;
     private JPanel module;
@@ -81,8 +84,9 @@ public abstract class Input {
 
     protected @NotNull JPanel generateModule() {
         JPanel panel = new JPanel();
-        panel.setMinimumSize(new Dimension(200, 160));
-        panel.setPreferredSize(new Dimension(200, 160));
+        panel.setMinimumSize(DEFAULT_DIMENSION);
+        panel.setPreferredSize(DEFAULT_DIMENSION);
+        panel.setMaximumSize(DEFAULT_DIMENSION);
         TitledBorder title;
         title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), getTagDefinition().getName());
         panel.setBorder(title);
