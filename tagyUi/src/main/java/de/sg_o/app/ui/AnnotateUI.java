@@ -38,6 +38,7 @@ import java.awt.event.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
@@ -50,6 +51,8 @@ public class AnnotateUI extends JFrame {
     private JPanel viewerHolder;
     private JPanel contentPane;
     private final Project project;
+
+    private static final Preferences prefs = Preferences.userRoot().node("de/sg-o/app/tagy");
 
     private final DataManager dataManager;
     private final InputHolder inputHolder;
@@ -167,7 +170,17 @@ public class AnnotateUI extends JFrame {
 
     private void createUIComponents() {
         variables = new JPanel();
-        variables.setLayout(new WrapLayout(WrapLayout.LEFT, 5, 5));
+        valueScrollPane = new JScrollPane();
+        if (prefs.getBoolean("singleRow", false)) {
+            variables.setLayout(new BoxLayout(variables, BoxLayout.X_AXIS));
+            valueScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            valueScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        } else {
+            variables.setLayout(new WrapLayout(WrapLayout.LEFT, 5, 5));
+            valueScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            valueScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        }
+        valueScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
     }
 
     /**
@@ -189,8 +202,6 @@ public class AnnotateUI extends JFrame {
         errorMessage = new JLabel();
         errorMessage.setText("OK");
         contentPane.add(errorMessage, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        valueScrollPane = new JScrollPane();
-        valueScrollPane.setHorizontalScrollBarPolicy(31);
         contentPane.add(valueScrollPane, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(-1, 180), null, new Dimension(-1, 350), 0, false));
         valueScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         valueScrollPane.setViewportView(variables);

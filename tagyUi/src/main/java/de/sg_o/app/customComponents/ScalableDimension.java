@@ -17,6 +17,10 @@
 
 package de.sg_o.app.customComponents;
 
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.event.ThemeChangeEvent;
+import com.github.weisj.darklaf.theme.event.ThemeChangeListener;
+
 import java.awt.*;
 
 @SuppressWarnings("unused")
@@ -27,18 +31,26 @@ public class ScalableDimension extends Dimension {
     private int originalHeight = 0;
 
     public ScalableDimension() {
+        initFactor();
     }
 
     public ScalableDimension(Dimension d) {
         super(d);
         this.originalWidth = d.width;
         this.originalHeight = d.height;
+        initFactor();
     }
 
     public ScalableDimension(int width, int height) {
         super(width, height);
         this.originalWidth = width;
         this.originalHeight = height;
+        initFactor();
+    }
+
+    private void initFactor() {
+        setFactor(LafManager.getInstalledTheme().getFontSizeRule().getPercentage() / 100.0f);
+        LafManager.addThemeChangeListener(new CustomThemeListener());
     }
 
     public float getFactor() {
@@ -49,5 +61,18 @@ public class ScalableDimension extends Dimension {
         this.factor = factor;
         super.width = Math.round(originalWidth * factor);
         super.height = Math.round(originalHeight * factor);
+    }
+
+    class CustomThemeListener implements ThemeChangeListener {
+
+        @Override
+        public void themeChanged(ThemeChangeEvent themeChangeEvent) {
+            setFactor(themeChangeEvent.getNewTheme().getFontSizeRule().getPercentage() / 100.0f);
+        }
+
+        @Override
+        public void themeInstalled(ThemeChangeEvent themeChangeEvent) {
+
+        }
     }
 }

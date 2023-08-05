@@ -29,16 +29,14 @@
           <text value="OK" noi18n="true"/>
         </properties>
       </component>
-      <scrollpane id="ad961" binding="valueScrollPane">
+      <scrollpane id="ad961" binding="valueScrollPane" custom-create="true">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="2" fill="1" indent="0" use-parent-layout="false">
             <minimum-size width="-1" height="180"/>
             <maximum-size width="-1" height="350"/>
           </grid>
         </constraints>
-        <properties>
-          <horizontalScrollBarPolicy value="31"/>
-        </properties>
+        <properties/>
         <border type="etched"/>
         <children>
           <grid id="a68d2" binding="variables" custom-create="true" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
