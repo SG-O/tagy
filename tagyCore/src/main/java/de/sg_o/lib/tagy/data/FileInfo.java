@@ -17,6 +17,7 @@
 
 package de.sg_o.lib.tagy.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
@@ -40,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+@JsonIgnoreProperties({"checkedOut"})
 @Entity
 public class FileInfo implements Serializable {
     private static final Tika tika = new Tika();
@@ -126,11 +128,11 @@ public class FileInfo implements Serializable {
         this.id = id;
     }
 
+    @JsonProperty(value = "url", index = 0)
     public @NotNull String getUrlAsString() {
         return absolutePath.toString();
     }
 
-    @JsonProperty(value = "absolutePath", index = 0)
     public InputStream getInputStream() throws IOException {
         return absolutePath.openStream();
     }
