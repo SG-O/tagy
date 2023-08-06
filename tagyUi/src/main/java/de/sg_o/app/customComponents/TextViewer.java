@@ -26,9 +26,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 
 public class TextViewer extends RTextScrollPane {
@@ -55,8 +53,9 @@ public class TextViewer extends RTextScrollPane {
     }
 
     public void display(FileInfo fileInfo) {
-        try (FileReader fileReader = new FileReader(fileInfo.getFile());
-             BufferedReader reader = new BufferedReader(fileReader)) {
+        try (InputStream fileInfoInputStream = fileInfo.getInputStream();
+             InputStreamReader fileInfoReader = new InputStreamReader(fileInfoInputStream);
+             BufferedReader reader = new BufferedReader(fileInfoReader)) {
             textArea.read(reader, null);
             textArea.setCaretPosition(0);
             textArea.discardAllEdits();

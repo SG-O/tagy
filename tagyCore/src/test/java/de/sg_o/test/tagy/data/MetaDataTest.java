@@ -35,8 +35,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,19 +50,20 @@ class MetaDataTest {
     FileInfo fi0;
     FileInfo fi1;
 
+    URL sampleMediaFile;
+    URL sampleMixedFile;
+
     @BeforeEach
-    void setUp() throws URISyntaxException {
+    void setUp() {
         DB.closeDb();
         new TestDb();
 
         project0 = Project.openOrCreate("Test_Project_Meta_1", User.getLocalUser());
 
-        URL sampleMediaFolder = this.getClass().getResource("/sampleFiles/media/video/sample03.wmv");
-        assertNotNull(sampleMediaFolder);
-        File sampleMediaFile = new File(sampleMediaFolder.toURI());
-        URL sampleMixedFolder = this.getClass().getResource("/sampleFiles/mixed/sample07.webp");
-        assertNotNull(sampleMixedFolder);
-        File sampleMixedFile = new File(sampleMixedFolder.toURI());
+        sampleMediaFile = this.getClass().getResource("/sampleFiles/media/video/sample03.wmv");
+        assertNotNull(sampleMediaFile);
+        sampleMixedFile = this.getClass().getResource("/sampleFiles/mixed/sample07.webp");
+        assertNotNull(sampleMixedFile);
 
         fi0 = new FileInfo(sampleMediaFile, project0);
         fi1 = new FileInfo(sampleMixedFile, project0);
@@ -134,7 +133,7 @@ class MetaDataTest {
         assertEquals("{\n" +
                 "\t\"_id\": \n" +
                 "\t\t{\n" +
-                "\t\t\t\"file\": \"sample03.wmv\",\n" +
+                "\t\t\t\"file\": \"" + sampleMediaFile.toString() + "\",\n" +
                 "\t\t\t\"annotated\": false\n" +
                 "\t\t},\n" +
                 "\t\"key0\": \"Test String 0\",\n" +
@@ -147,7 +146,7 @@ class MetaDataTest {
         assertEquals("{\n" +
                 "\t\"_id\": \n" +
                 "\t\t{\n" +
-                "\t\t\t\"file\": \"sample07.webp\",\n" +
+                "\t\t\t\"file\": \"" + sampleMixedFile.toString() + "\",\n" +
                 "\t\t\t\"annotated\": false\n" +
                 "\t\t},\n" +
                 "\t\"key2\": [5, 500],\n" +

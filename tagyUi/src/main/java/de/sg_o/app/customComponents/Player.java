@@ -98,7 +98,12 @@ public class Player extends JPanel {
     }
 
     public void display(FileInfo fileInfo) {
-        mediaPlayerComponent.mediaPlayer().media().play(fileInfo.getAbsolutePath());
+        String url = fileInfo.getUrlAsString();
+        if (url.startsWith("file:")) {
+            url = url.substring(5);
+            url = "file://" + url;
+        }
+        mediaPlayerComponent.mediaPlayer().media().play(url);
     }
 
     public void stop() {

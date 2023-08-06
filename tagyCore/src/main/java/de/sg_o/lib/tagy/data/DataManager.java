@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.table.AbstractTableModel;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,9 +114,11 @@ public class DataManager extends AbstractTableModel {
 
     public boolean ingest() {
         for (Directory directory : sourceDirectories) {
-            ArrayList<File> files = directory.getFiles();
-            for (File file : files) {
-                FileInfo fileInfo = FileInfo.queryOrCreate(file, resolveProject());
+            ArrayList<URL> urls = directory.getFiles();
+            for (URL url : urls) {
+                if (url == null) continue;
+                FileInfo fileInfo;
+                fileInfo = FileInfo.queryOrCreate(url, resolveProject());
                 MetaData metaData = MetaData.queryFirst(fileInfo);
                 fileInfo.setAnnotated(metaData != null);
                 fileInfo.save();

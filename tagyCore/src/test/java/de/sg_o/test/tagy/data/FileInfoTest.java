@@ -23,6 +23,7 @@ import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.data.FileInfo_;
 import de.sg_o.lib.tagy.data.FileType;
 import de.sg_o.lib.tagy.db.DB;
+import de.sg_o.lib.tagy.util.UrlConverter;
 import de.sg_o.lib.tagy.values.User;
 import de.sg_o.test.tagy.testDb.TestDb;
 import io.objectbox.Box;
@@ -46,17 +47,18 @@ class FileInfoTest {
     FileInfo fi2;
     FileInfo fi3;
 
+    URL sampleMediaFile;
+    URL sampleMixedFile;
+    URL sampleTextFile;
+
     @BeforeEach
     void setUp() throws URISyntaxException {
-        URL sampleMediaFolder = this.getClass().getResource("/sampleFiles/media/video/sample04.mkv");
-        assertNotNull(sampleMediaFolder);
-        File sampleMediaFile = new File(sampleMediaFolder.toURI());
-        URL sampleMixedFolder = this.getClass().getResource("/sampleFiles/mixed/sample07.webp");
-        assertNotNull(sampleMixedFolder);
-        File sampleMixedFile = new File(sampleMixedFolder.toURI());
-        URL sampleTextFolder = this.getClass().getResource("/sampleFiles/text/sample0.txt");
-        assertNotNull(sampleTextFolder);
-        File sampleTextFile = new File(sampleTextFolder.toURI());
+        sampleMediaFile = this.getClass().getResource("/sampleFiles/media/video/sample04.mkv");
+        assertNotNull(sampleMediaFile);
+        sampleMixedFile = this.getClass().getResource("/sampleFiles/mixed/sample07.webp");
+        assertNotNull(sampleMixedFile);
+        sampleTextFile = this.getClass().getResource("/sampleFiles/text/sample0.txt");
+        assertNotNull(sampleTextFile);
 
         p0 = Project.openOrCreate("testProject", User.getLocalUser());
         p0.save();
@@ -64,7 +66,12 @@ class FileInfoTest {
         fi0 = new FileInfo(sampleMediaFile, p0);
         fi1 = new FileInfo(sampleMixedFile, p0);
         fi2 = new FileInfo(sampleTextFile, p0);
-        fi3 = new FileInfo(sampleMediaFile, p0);
+
+        File file = new File(sampleMediaFile.toURI());
+        UrlConverter  uc = new UrlConverter();
+        URL converted = uc.convertToEntityProperty(file.getAbsolutePath());
+
+        fi3 = new FileInfo(converted, p0);
 
         DB.closeDb();
         new TestDb();
@@ -72,10 +79,10 @@ class FileInfoTest {
 
     @Test
     void getFile() {
-        assertNotNull(fi0.getFile());
-        assertNotNull(fi1.getFile());
-        assertNotNull(fi2.getFile());
-        assertNotNull(fi3.getFile());
+        assertNotNull(fi0.getUrlAsString());
+        assertNotNull(fi1.getUrlAsString());
+        assertNotNull(fi2.getUrlAsString());
+        assertNotNull(fi3.getUrlAsString());
     }
 
     @Test
@@ -167,15 +174,15 @@ class FileInfoTest {
     @Test
     void testToString() {
         assertEquals("{\n" +
-                "\t\"file\": \"sample04.mkv\",\n" +
+                "\t\"file\": \"" + sampleMediaFile.toString() + "\",\n" +
                 "\t\"annotated\": false\n" +
                 "}", fi0.toString());
         assertEquals("{\n" +
-                "\t\"file\": \"sample07.webp\",\n" +
+                "\t\"file\": \"" + sampleMixedFile.toString() + "\",\n" +
                 "\t\"annotated\": false\n" +
                 "}", fi1.toString());
         assertEquals("{\n" +
-                "\t\"file\": \"sample0.txt\",\n" +
+                "\t\"file\": \"" + sampleTextFile.toString() + "\",\n" +
                 "\t\"annotated\": false\n" +
                 "}", fi2.toString());
         assertEquals(fi0.toString(), fi3.toString());

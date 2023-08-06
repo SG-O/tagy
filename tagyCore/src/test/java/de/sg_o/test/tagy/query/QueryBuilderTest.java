@@ -37,8 +37,6 @@ import de.sg_o.test.tagy.testDb.TestDb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,19 +62,17 @@ class QueryBuilderTest {
     Tag tag3;
 
     @BeforeEach
-    void setUp() throws URISyntaxException {
+    void setUp() {
         DB.closeDb();
         new TestDb();
 
         project0 = Project.openOrCreate("Test_Query_Meta_1", User.getLocalUser());
         project0.save();
 
-        URL sampleMediaFolder = this.getClass().getResource("/sampleFiles/media/video/sample03.wmv");
-        assertNotNull(sampleMediaFolder);
-        File sampleMediaFile = new File(sampleMediaFolder.toURI());
-        URL sampleMixedFolder = this.getClass().getResource("/sampleFiles/mixed/sample07.webp");
-        assertNotNull(sampleMixedFolder);
-        File sampleMixedFile = new File(sampleMixedFolder.toURI());
+        URL sampleMediaFile = this.getClass().getResource("/sampleFiles/media/video/sample03.wmv");
+        assertNotNull(sampleMediaFile);
+        URL sampleMixedFile = this.getClass().getResource("/sampleFiles/mixed/sample07.webp");
+        assertNotNull(sampleMixedFile);
 
         FileInfo fi0 = new FileInfo(sampleMediaFile, project0);
         FileInfo fi1 = new FileInfo(sampleMixedFile, project0);

@@ -114,7 +114,7 @@ public class IngestUI extends JDialog {
         JFileChooser fileChooser = new JFileChooser();
         String lastUsed = prefs.get("lastOpenedDirectory", System.getProperty("user.home"));
         fileChooser.setCurrentDirectory(new File(lastUsed));
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();

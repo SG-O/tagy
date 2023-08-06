@@ -158,7 +158,7 @@ public class Settings extends JFrame {
         final Spacer spacer3 = new Spacer();
         contentPane.add(spacer3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        label2.setText("All options in single row");
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("translations/formText", "label.singleRow"));
         contentPane.add(label2, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 

@@ -26,6 +26,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 
 public class ImageViewer  extends JComponent {
@@ -79,11 +80,12 @@ public class ImageViewer  extends JComponent {
     }
 
     public void display(FileInfo fileInfo) {
-        try (ImageInputStream input = ImageIO.createImageInputStream(fileInfo.getFile())) {
+        try (InputStream fileInput = fileInfo.getInputStream();
+                ImageInputStream input = ImageIO.createImageInputStream(fileInput)) {
             Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
 
             if (!readers.hasNext()) {
-                throw new IllegalArgumentException("No reader for: " + fileInfo.getFile());
+                throw new IllegalArgumentException("No reader for: " + fileInfo.getUrlAsString());
             }
 
             ImageReader reader = readers.next();

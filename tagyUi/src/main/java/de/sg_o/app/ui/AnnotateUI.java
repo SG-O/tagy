@@ -159,7 +159,7 @@ public class AnnotateUI extends JFrame {
             }
             metaData = MetaData.queryOrCreate(fileInfo, project);
         }
-        fileName.setText(metaData.resolveReference().getAbsolutePath());
+        fileName.setText(metaData.resolveReference().getUrlAsString());
         viewer.display(metaData.resolveReference());
 
         inputHolder.setData(metaData);

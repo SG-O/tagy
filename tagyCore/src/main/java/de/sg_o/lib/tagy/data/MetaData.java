@@ -130,7 +130,7 @@ public class MetaData implements Serializable {
     @SuppressWarnings("unused")
     @JsonProperty(value = "id", index = 0)
     public String getID() {
-        return resolveReference().getAbsolutePath();
+        return resolveReference().getUrlAsString();
     }
 
     public void clearTags() {

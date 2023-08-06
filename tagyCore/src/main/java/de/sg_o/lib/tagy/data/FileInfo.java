@@ -21,54 +21,51 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import de.sg_o.lib.tagy.util.UrlConverter;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
+import io.objectbox.annotation.Convert;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
 import io.objectbox.annotation.Index;
 import io.objectbox.relation.ToOne;
+import org.apache.tika.Tika;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.Files;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 public class FileInfo implements Serializable {
+    private static final Tika tika = new Tika();
+
     @Id
     private Long id;
     @Index
-    @NotNull
-    private final String absolutePath;
+    @Convert(converter = UrlConverter.class, dbType = String.class)
+    private final URL absolutePath;
     private boolean annotated;
     private final ToOne<Project> project = new ToOne<>(this, FileInfo_.project);
 
-    public FileInfo(Long id, @NotNull String absolutePath, boolean annotated, long projectId) {
+    public FileInfo(Long id, @NotNull URL absolutePath, boolean annotated, long projectId) {
         this.id = id;
         this.absolutePath = absolutePath;
         this.annotated = annotated;
         this.project.setTargetId(projectId);
     }
 
-    public FileInfo(@NotNull File file, @NotNull Project project) {
-        this.absolutePath = file.getAbsolutePath();
+    public FileInfo(@NotNull URL fileReference, @NotNull Project project) {
+        this.absolutePath = fileReference;
         this.project.setTarget(project);
-        validateFile();
         annotated = false;
     }
 
-    private void validateFile() {
-        File file = getFile();
-        if (file.isDirectory()) throw new RuntimeException("File is a directory");
-        if (!file.exists()) throw new RuntimeException("File does not exist");
-        if (!file.canRead()) throw new RuntimeException("File is not readable");
-    }
-
-    public static FileInfo queryOrCreate(File file, Project project) {
-        String absolutePathSearch = file.getAbsolutePath();
+    public static FileInfo queryOrCreate(@NotNull URL file, Project project) {
+        String absolutePathSearch = file.toString();
         QueryBoxSpec<FileInfo> qbs = qb -> {
             qb = qb.equal(FileInfo_.absolutePath, absolutePathSearch, io.objectbox.query.QueryBuilder.StringOrder.CASE_SENSITIVE)
                     .equal(FileInfo_.projectId, project.getId());
@@ -126,12 +123,16 @@ public class FileInfo implements Serializable {
         this.id = id;
     }
 
-    public @NotNull File getFile() {
-        return new File(absolutePath);
+    public @NotNull String getUrlAsString() {
+        return absolutePath.toString();
     }
 
     @JsonProperty(value = "absolutePath", index = 0)
-    public @NotNull String getAbsolutePath() {
+    public InputStream getInputStream() throws IOException {
+        return absolutePath.openStream();
+    }
+
+    public @NotNull URL getAbsolutePath() {
         return absolutePath;
     }
 
@@ -152,7 +153,7 @@ public class FileInfo implements Serializable {
         FileType fileType = FileType.UNKNOWN;
         String fileTypeString = "";
         try {
-            fileTypeString = Files.probeContentType(getFile().toPath());
+            fileTypeString = tika.detect(absolutePath);
         } catch (IOException ignored) {
         }
 
@@ -189,12 +190,12 @@ public class FileInfo implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FileInfo fileInfo = (FileInfo) o;
-        return isAnnotated() == fileInfo.isAnnotated() && Objects.equals(getFile(), fileInfo.getFile());
+        return isAnnotated() == fileInfo.isAnnotated() && Objects.equals(getUrlAsString(), fileInfo.getUrlAsString());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getFile(), isAnnotated());
+        return Objects.hash(getUrlAsString(), isAnnotated());
     }
 
     private String indent(int indent) {
@@ -210,7 +211,7 @@ public class FileInfo implements Serializable {
                 "{\n" +
                 indent(indent + 1) +
                 "\"file\": \"" +
-                getFile().getName() +
+                getAbsolutePath() +
                 "\",\n" +
                 indent(indent + 1) +
                 "\"annotated\": " +

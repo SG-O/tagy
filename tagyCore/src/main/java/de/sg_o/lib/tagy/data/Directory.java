@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,14 +57,13 @@ public class Directory {
     }
 
     /**
-     * @param rootDirectory The directory containing the files of interest
+     * @param locator       The directory containing the files of interest or a file containing a list of fies of interest
      * @param recursive     Whether to recursively search for files in subdirectories
      */
-    public Directory(@NotNull File rootDirectory, boolean recursive) {
-        if (!rootDirectory.isDirectory()) throw new RuntimeException("Root directory is not a directory");
-        if (!rootDirectory.exists()) throw new RuntimeException("Root directory does not exist");
+    public Directory(@NotNull File locator, boolean recursive) {
+        if (!locator.exists()) throw new RuntimeException("Root directory does not exist");
 
-        this.rootDirectory = rootDirectory.getAbsolutePath();
+        this.rootDirectory = locator.getAbsolutePath();
         this.recursive = recursive;
         this.fileExtensions = new ArrayList<>();
     }
@@ -122,7 +123,7 @@ public class Directory {
         return fileExtensions.toString();
     }
 
-    public @NotNull ArrayList<File> getFiles() {
+    public @NotNull ArrayList<URL> getFiles() {
         StringBuilder regex = new StringBuilder();
         if (fileExtensions.isEmpty()) {
             regex.append(".*");
@@ -132,18 +133,50 @@ public class Directory {
             regex.append(".*\\.").append(fileExtension);
             if (i < fileExtensions.size() - 1) regex.append("|");
         }
+        File locator = new File(rootDirectory);
+        if (locator.isDirectory()) {
+            return getFilesInDirectory(regex.toString());
+        } else {
+            return getFilesFromList(regex.toString());
+        }
+    }
 
+    private @NotNull ArrayList<URL> getFilesInDirectory(String regex) {
         int maxDepth = recursive ? 999 : 1;
 
         try (Stream<Path> files = Files.find(
                 Paths.get(rootDirectory), maxDepth,
                 (p, bfa) -> bfa.isRegularFile()
-                        && p.getFileName().toString().matches(regex.toString())))
+                        && p.getFileName().toString().matches(regex)))
         {
-            return files.map(Path::toFile).collect(Collectors.toCollection(ArrayList::new));
+            return files.map(Path::toUri).map(uri -> {
+                try {
+                    return uri.toURL();
+                } catch (MalformedURLException e) {
+                    return null;
+                }
+            }).collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
             return new ArrayList<>();
         }
+    }
+
+    private @NotNull ArrayList<URL> getFilesFromList(String regex) {
+        ArrayList<URL> urls = new ArrayList<>();
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(rootDirectory));
+            for (String line : lines) {
+                if (line.matches(regex)) {
+                    try {
+                        urls.add(new URL(line));
+                    } catch (MalformedURLException ignored) {
+                    }
+                }
+            }
+        } catch (IOException e) {
+            return urls;
+        }
+        return urls;
     }
 
     public boolean save() {

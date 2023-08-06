@@ -1,0 +1,3 @@
+https://github.com/SG-O/tagy/raw/master/tagyCore/src/test/resources/sampleFiles/media/video/sample01.mkv
+https://raw.githubusercontent.com/SG-O/tagy/master/tagyCore/src/test/resources/sampleFiles/media/image/sample08.png
+https://raw.githubusercontent.com/SG-O/tagy/master/tagyCore/src/test/resources/sampleFiles/text/sample0.txt
