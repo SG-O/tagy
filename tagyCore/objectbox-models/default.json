@@ -62,7 +62,7 @@
     },
     {
       "id": "3:9106841964455425144",
-      "lastPropertyId": "4:8236695741965684567",
+      "lastPropertyId": "5:5295835031758573709",
       "name": "FileInfo",
       "properties": [
         {
@@ -90,6 +90,11 @@
           "type": 11,
           "flags": 520,
           "relationTarget": "Project"
+        },
+        {
+          "id": "5:5295835031758573709",
+          "name": "checkedOutUntil",
+          "type": 10
         }
       ],
       "relations": []

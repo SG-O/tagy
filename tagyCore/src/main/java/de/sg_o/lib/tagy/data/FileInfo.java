@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,12 +50,14 @@ public class FileInfo implements Serializable {
     @Convert(converter = UrlConverter.class, dbType = String.class)
     private final URL absolutePath;
     private boolean annotated;
+    private Date checkedOutUntil;
     private final ToOne<Project> project = new ToOne<>(this, FileInfo_.project);
 
-    public FileInfo(Long id, @NotNull URL absolutePath, boolean annotated, long projectId) {
+    public FileInfo(Long id, @NotNull URL absolutePath, boolean annotated, Date checkedOutUntil, long projectId) {
         this.id = id;
         this.absolutePath = absolutePath;
         this.annotated = annotated;
+        this.checkedOutUntil = checkedOutUntil;
         this.project.setTargetId(projectId);
     }
 
@@ -143,6 +146,24 @@ public class FileInfo implements Serializable {
     @JsonProperty(value = "annotated", index = 1)
     public boolean isAnnotated() {
         return annotated;
+    }
+
+    public boolean checkOut(Date until) {
+        if (until == null) return false;
+        if (isCheckedOut()) return false;
+        checkedOutUntil = until;
+        return true;
+    }
+
+    public Date getCheckedOutUntil() {
+        if (checkedOutUntil == null) return null;
+        if (checkedOutUntil.after(new Date())) return null;
+        return checkedOutUntil;
+    }
+
+    public boolean isCheckedOut() {
+        if (checkedOutUntil == null) return false;
+        return checkedOutUntil.after(new Date());
     }
 
     public ToOne<Project> getProject() {
