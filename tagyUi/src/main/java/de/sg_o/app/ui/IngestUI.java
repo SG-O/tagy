@@ -174,7 +174,8 @@ public class IngestUI extends JDialog {
         ingestButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.tooltip.ingest"));
         panel2.add(ingestButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         clear = new JButton();
-        this.$$$loadButtonText$$$(clear, this.$$$getMessageFromBundle$$$("translations/formText", "butten.removeIngested"));
+        this.$$$loadButtonText$$$(clear, this.$$$getMessageFromBundle$$$("translations/formText", "button.removeIngested"));
+        clear.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.tooltip.removeIngested"));
         panel1.add(clear, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));

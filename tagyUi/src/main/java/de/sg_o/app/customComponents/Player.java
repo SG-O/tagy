@@ -17,15 +17,14 @@
 
 package de.sg_o.app.customComponents;
 
+import de.sg_o.app.annotator.Input;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.def.Parameter;
-import de.sg_o.app.annotator.Input;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
 import javax.swing.*;
-import javax.swing.JLabel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.List;
