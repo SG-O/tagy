@@ -18,15 +18,19 @@
 package de.sg_o.lib.tagy.values;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.sg_o.lib.tagy.Project;
+import de.sg_o.lib.tagy.Project_;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
 import io.objectbox.annotation.Convert;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
-import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 public class User implements Serializable {
@@ -40,7 +44,9 @@ public class User implements Serializable {
     public static User getLocalUser() {
         User localUser = DB.queryFirst(User.class, qb -> qb.equal(User_.userType, UserType.LOCAL.getId()));
         if (localUser != null) return localUser;
-        return new User("Local", UserType.LOCAL);
+        localUser = new User("Local", UserType.LOCAL);
+        localUser.save();
+        return localUser;
     }
 
     public User(Long id, UserType userType, @NotNull String name) {
@@ -70,6 +76,39 @@ public class User implements Serializable {
     @JsonProperty(value = "name", index = 1)
     public @NotNull String getName() {
         return name;
+    }
+
+    public boolean save() {
+        BoxStore db = DB.getDb();
+        if (db == null) return false;
+        Box<User> box = db.boxFor(User.class);
+        if (box == null) return false;
+        this.id = box.put(this);
+        return true;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean delete() {
+        if (this.userType == UserType.LOCAL) return false;
+        QueryBoxSpec<Project> qbs = qb -> {
+            qb = qb.equal(Project_.id, getId());
+            return qb;
+        };
+        this.id = 0L;
+        return DB.delete(Project.class, qbs);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(getId(), user.getId()) && getUserType() == user.getUserType() && Objects.equals(getName(), user.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getUserType(), getName());
     }
 
     @Override

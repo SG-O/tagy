@@ -31,18 +31,22 @@ import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
-import io.objectbox.annotation.*;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Index;
+import io.objectbox.annotation.Transient;
 import io.objectbox.query.QueryBuilder;
 import io.objectbox.relation.ToMany;
 import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Entity
-public class MetaData implements Serializable {
+public class MetaData {
     @Id
     Long id;
     private Map<String, String> tags;
@@ -213,6 +217,10 @@ public class MetaData implements Serializable {
         return fileReference;
     }
 
+    public StructureDefinition resolveStructureDefinition() {
+        return structureDefinition.getTarget();
+    }
+
     public ToOne<StructureDefinition> getStructureDefinition() {
         return structureDefinition;
     }
@@ -237,33 +245,25 @@ public class MetaData implements Serializable {
         return true;
     }
 
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-    }
-
-    @SuppressWarnings("unused")
-    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-        throw new IOException("Deserialization not supported");
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         MetaData metaData = (MetaData) o;
-
-        if (!Util.betterListEquals(this.tagContainers, metaData.tagContainers)) return false;
-        if (getProject().getTargetId() != metaData.getProject().getTargetId()) return false;
-        return getReference().getTargetId() == (metaData.getReference().getTargetId());
+        return Objects.equals(resolveProject(), metaData.resolveProject()) &&
+                Objects.equals(resolveFileReference(), metaData.resolveFileReference()) &&
+                Objects.equals(resolveStructureDefinition(), metaData.resolveStructureDefinition()) &&
+                Util.betterListEquals(getEditHistory(), metaData.getEditHistory()) &&
+                Util.betterListEquals(getTagContainers(), metaData.getTagContainers());
     }
 
     @Override
     public int hashCode() {
-        int result = getTags() != null ? getTags().hashCode() : 0;
-        result = 31 * result + resolveProject().hashCode();
-        result = 31 * result + resolveFileReference().hashCode();
-        return result;
+        return Objects.hash(resolveProject(),
+                resolveFileReference(),
+                resolveStructureDefinition(),
+                Util.betterListHash(getEditHistory()),
+                Util.betterListHash(getTagContainers()));
     }
 
     @Override

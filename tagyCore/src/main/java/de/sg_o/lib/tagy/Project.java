@@ -21,7 +21,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.data.DataManager_;
-import de.sg_o.lib.tagy.db.*;
+import de.sg_o.lib.tagy.db.DB;
+import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.StructureDefinition_;
 import de.sg_o.lib.tagy.util.MetaDataIterator;
@@ -35,16 +36,13 @@ import io.objectbox.annotation.Unique;
 import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @JsonIgnoreProperties({"user"})
-public class Project implements Serializable {
+public class Project {
     @Id
     Long id;
     @NotNull
@@ -171,13 +169,17 @@ public class Project implements Serializable {
         return new MetaDataIterator(this);
     }
 
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(getProjectName(), project.getProjectName()) && Objects.equals(resolveUser(), project.resolveUser());
     }
 
-    @SuppressWarnings("unused")
-    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-        throw new IOException("Deserialization not supported");
+    @Override
+    public int hashCode() {
+        return Objects.hash(getProjectName(), resolveUser());
     }
 
     @Override

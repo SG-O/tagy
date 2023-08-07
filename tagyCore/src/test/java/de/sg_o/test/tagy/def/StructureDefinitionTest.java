@@ -84,6 +84,19 @@ class StructureDefinitionTest {
         assertTrue(Util.betterListEquals(tags1, def1.getTagDefinitions()));
         assertTrue(Util.betterListEquals(tags0, def2.getTagDefinitions()));
         assertTrue(Util.betterListEquals(tags1, def3.getTagDefinitions()));
+
+
+        assertEquals(tags0.get(0), def0.getTagDefinitionForKey("tag0"));
+        assertEquals(tags0.get(1), def0.getTagDefinitionForKey("tag1"));
+
+        assertEquals(tags1.get(0), def1.getTagDefinitionForKey("tag2"));
+        assertEquals(tags1.get(1), def1.getTagDefinitionForKey("tag3"));
+
+        assertEquals(tags0.get(0), def2.getTagDefinitionForKey("tag0"));
+        assertEquals(tags0.get(1), def2.getTagDefinitionForKey("tag1"));
+
+        assertEquals(tags1.get(0), def3.getTagDefinitionForKey("tag2"));
+        assertEquals(tags1.get(1), def3.getTagDefinitionForKey("tag3"));
     }
 
     @Test

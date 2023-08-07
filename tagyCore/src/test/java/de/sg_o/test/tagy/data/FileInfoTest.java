@@ -32,6 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
@@ -162,6 +164,49 @@ class FileInfoTest {
         assertEquals(fi1, qr1);
         assertEquals(fi2, qr2);
         assertEquals(fi3, qr3);
+
+        assertEquals(fi0.hashCode(), qr0.hashCode());
+        assertEquals(fi1.hashCode(), qr1.hashCode());
+        assertEquals(fi2.hashCode(), qr2.hashCode());
+        assertEquals(fi3.hashCode(), qr3.hashCode());
+    }
+
+    @Test
+    void inputStream() {
+        InputStream in0 = null;
+        InputStream in1 = null;
+        InputStream in2 = null;
+        InputStream in3 = null;
+
+        try {
+            in0 = fi0.getInputStream();
+            in1 = fi1.getInputStream();
+            in2 = fi2.getInputStream();
+            in3 = fi3.getInputStream();
+        } catch (IOException e) {
+            fail(e);
+        }
+
+        assertNotNull(in0);
+        assertNotNull(in1);
+        assertNotNull(in2);
+        assertNotNull(in3);
+        try {
+            assertTrue(in0.read() > -1);
+            assertTrue(in1.read() > -1);
+            assertTrue(in2.read() > -1);
+            assertTrue(in3.read() > -1);
+        } catch (IOException e) {
+            fail(e);
+        }
+        try {
+            in0.close();
+            in1.close();
+            in2.close();
+            in3.close();
+        } catch (IOException e) {
+            fail(e);
+        }
     }
 
     @Test

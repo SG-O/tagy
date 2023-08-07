@@ -36,7 +36,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.AbstractTableModel;
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
@@ -47,7 +50,7 @@ public class DataManager extends AbstractTableModel {
     private static final HashMap<Long, Long> locks = new HashMap<>();
 
     @Id
-    Long id;
+    private Long id;
     private final ToMany<Directory> sourceDirectories = new ToMany<>(this, DataManager_.sourceDirectories);
 
     private final ToOne<Project> project = new ToOne<>(this, DataManager_.project);

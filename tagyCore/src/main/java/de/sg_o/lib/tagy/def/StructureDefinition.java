@@ -36,8 +36,8 @@ import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 public class StructureDefinition implements Serializable {
@@ -50,6 +50,9 @@ public class StructureDefinition implements Serializable {
 
     @Transient
     BoxStore __boxStore = null;
+
+    @Transient
+    private transient HashMap<String, TagDefinition> resolvedTagDefinitions = null;
 
     public StructureDefinition(Long id, long projectId) {
         this.id = id;
@@ -124,6 +127,7 @@ public class StructureDefinition implements Serializable {
             if (tagDefinition.getId() == 0L) continue;
             box.remove(tagDefinition.getId());
         }
+        resolvedTagDefinitions = null;
         tagDefinitions.clear();
         save();
     }
@@ -132,6 +136,16 @@ public class StructureDefinition implements Serializable {
     @JsonSerialize(using = TagDefinitionListSerializer.class)
     public List<TagDefinition> getTagDefinitions() {
         return tagDefinitions;
+    }
+
+    public TagDefinition getTagDefinitionForKey(String key) {
+        if (this.resolvedTagDefinitions == null) {
+            this.resolvedTagDefinitions = new HashMap<>(this.tagDefinitions.size());
+            for (TagDefinition tagDefinition : getTagDefinitions()) {
+                this.resolvedTagDefinitions.put(tagDefinition.getKey(), tagDefinition);
+            }
+        }
+        return this.resolvedTagDefinitions.get(key);
     }
 
     @SuppressWarnings("unused")
@@ -162,7 +176,7 @@ public class StructureDefinition implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTagDefinitions());
+        return Util.betterListHash(getTagDefinitions());
     }
 
     @Override

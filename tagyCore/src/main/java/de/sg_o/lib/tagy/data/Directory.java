@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 @Entity
 public class Directory {
     @Id
-    Long id;
+    private Long id;
     @NotNull
     private final String rootDirectory;
     private boolean recursive;
@@ -66,6 +66,14 @@ public class Directory {
         this.rootDirectory = locator.getAbsolutePath();
         this.recursive = recursive;
         this.fileExtensions = new ArrayList<>();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public @NotNull File resolveRootDirectory() {

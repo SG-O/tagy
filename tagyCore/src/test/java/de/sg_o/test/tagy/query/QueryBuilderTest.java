@@ -161,7 +161,7 @@ class QueryBuilderTest {
         assertEquals(0, result.size());
 
         qb = new MetaDataQueryBuilder(project0);
-        qb.addQueryElement(new QueryInternal(new Equals(tdl0, 5)));
+        qb.addQueryElement(new QueryInternal(td2, new Equals(tdl0, 5)));
         result = qb.query(0,0);
         assertEquals(1, result.size());
         assertEquals(md1, result.get(0));

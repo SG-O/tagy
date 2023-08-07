@@ -25,7 +25,10 @@ import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.util.UrlConverter;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
-import io.objectbox.annotation.*;
+import io.objectbox.annotation.Convert;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Index;
 import io.objectbox.relation.ToOne;
 import org.apache.tika.Tika;
 import org.jetbrains.annotations.NotNull;
@@ -177,7 +180,7 @@ public class FileInfo implements Serializable {
 
     public FileType getFileType() {
         FileType fileType = FileType.UNKNOWN;
-        String fileTypeString = "";
+        String fileTypeString = null;
         try {
             fileTypeString = tika.detect(absolutePath);
         } catch (IOException ignored) {

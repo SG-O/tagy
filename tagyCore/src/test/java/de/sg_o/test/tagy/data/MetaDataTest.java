@@ -58,6 +58,9 @@ class MetaDataTest {
     TagList tag2;
     Tag tag3;
 
+    List<Tag> tags0;
+    List<Tag> tags1;
+
     @BeforeEach
     void setUp() {
         DB.closeDb();
@@ -109,6 +112,14 @@ class MetaDataTest {
         tag2.addValue(internal1);
         tag3 = new TagEnum(td3, 0);
 
+        tags0 = new ArrayList<>();
+        tags1 = new ArrayList<>();
+
+        tags0.add(tag0);
+        tags0.add(tag1);
+        tags1.add(tag2);
+        tags1.add(tag3);
+
         MetaData.deleteAll(project0);
 
         md0 = MetaData.openOrCreate(fi0, project0);
@@ -129,9 +140,11 @@ class MetaDataTest {
 
         MetaData md2 = MetaData.queryFirst(fi0, project0);
         assertEquals(md0, md2);
+        assertEquals(md0.hashCode(), md2.hashCode());
 
         MetaData md3 = MetaData.queryFirst(fi1, project0);
         assertEquals(md1, md3);
+        assertEquals(md1.hashCode(), md3.hashCode());
     }
 
     @Test
@@ -188,6 +201,101 @@ class MetaDataTest {
                 "\t\t\t{\"id\": 1, \"name\": \"Local\"}\n" +
                 "\t\t]\n" +
                 "}", md1.toString());
+
+        md0.setTags(tags1);
+        md1.setTags(tags0);
+
+        assertEquals("{\n" +
+                "\t\"_id\": \n" +
+                "\t\t{\n" +
+                "\t\t\t\"file\": \"" + sampleMediaFile.toString() + "\",\n" +
+                "\t\t\t\"annotated\": true\n" +
+                "\t\t},\n" +
+                "\t\"key2\": [5, 500],\n" +
+                "\t\"key3\": \"Option 1\",\n" +
+                "\t\"_editHistory\": \n" +
+                "\t\t[\n" +
+                "\t\t\t{\"id\": 1, \"name\": \"Local\"}\n" +
+                "\t\t]\n" +
+                "}", md0.toString());
+        assertEquals("{\n" +
+                "\t\"_id\": \n" +
+                "\t\t{\n" +
+                "\t\t\t\"file\": \"" + sampleMixedFile.toString() + "\",\n" +
+                "\t\t\t\"annotated\": true\n" +
+                "\t\t},\n" +
+                "\t\"key0\": \"Test String 0\",\n" +
+                "\t\"key1\": \"Test String 1\",\n" +
+                "\t\"_editHistory\": \n" +
+                "\t\t[\n" +
+                "\t\t\t{\"id\": 1, \"name\": \"Local\"}\n" +
+                "\t\t]\n" +
+                "}", md1.toString());
+
+        assertTrue(md0.save());
+        assertTrue(md1.save());
+
+        MetaData md2 = MetaData.queryFirst(fi0, project0);
+        MetaData md3 = MetaData.queryFirst(fi1, project0);
+
+        assertEquals("{\n" +
+                "\t\"_id\": \n" +
+                "\t\t{\n" +
+                "\t\t\t\"file\": \"" + sampleMediaFile.toString() + "\",\n" +
+                "\t\t\t\"annotated\": true\n" +
+                "\t\t},\n" +
+                "\t\"key2\": [5, 500],\n" +
+                "\t\"key3\": \"Option 1\",\n" +
+                "\t\"_editHistory\": \n" +
+                "\t\t[\n" +
+                "\t\t\t{\"id\": 1, \"name\": \"Local\"}\n" +
+                "\t\t]\n" +
+                "}", md2.toString());
+        assertEquals("{\n" +
+                "\t\"_id\": \n" +
+                "\t\t{\n" +
+                "\t\t\t\"file\": \"" + sampleMixedFile.toString() + "\",\n" +
+                "\t\t\t\"annotated\": true\n" +
+                "\t\t},\n" +
+                "\t\"key0\": \"Test String 0\",\n" +
+                "\t\"key1\": \"Test String 1\",\n" +
+                "\t\"_editHistory\": \n" +
+                "\t\t[\n" +
+                "\t\t\t{\"id\": 1, \"name\": \"Local\"}\n" +
+                "\t\t]\n" +
+                "}", md3.toString());
+
+        md2.setTags(tags0);
+        md3.setTags(tags1);
+
+        assertEquals("{\n" +
+                "\t\"_id\": \n" +
+                "\t\t{\n" +
+                "\t\t\t\"file\": \"" + sampleMediaFile.toString() + "\",\n" +
+                "\t\t\t\"annotated\": true\n" +
+                "\t\t},\n" +
+                "\t\"key0\": \"Test String 0\",\n" +
+                "\t\"key1\": \"Test String 1\",\n" +
+                "\t\"_editHistory\": \n" +
+                "\t\t[\n" +
+                "\t\t\t{\"id\": 1, \"name\": \"Local\"},\n" +
+                "\t\t\t{\"id\": 1, \"name\": \"Local\"}\n" +
+                "\t\t]\n" +
+                "}", md2.toString());
+        assertEquals("{\n" +
+                "\t\"_id\": \n" +
+                "\t\t{\n" +
+                "\t\t\t\"file\": \"" + sampleMixedFile.toString() + "\",\n" +
+                "\t\t\t\"annotated\": true\n" +
+                "\t\t},\n" +
+                "\t\"key2\": [5, 500],\n" +
+                "\t\"key3\": \"Option 1\",\n" +
+                "\t\"_editHistory\": \n" +
+                "\t\t[\n" +
+                "\t\t\t{\"id\": 1, \"name\": \"Local\"},\n" +
+                "\t\t\t{\"id\": 1, \"name\": \"Local\"}\n" +
+                "\t\t]\n" +
+                "}", md3.toString());
     }
 
     @AfterEach
