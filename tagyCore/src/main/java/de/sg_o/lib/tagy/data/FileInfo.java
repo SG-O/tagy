@@ -25,10 +25,7 @@ import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.util.UrlConverter;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
-import io.objectbox.annotation.Convert;
-import io.objectbox.annotation.Entity;
-import io.objectbox.annotation.Id;
-import io.objectbox.annotation.Index;
+import io.objectbox.annotation.*;
 import io.objectbox.relation.ToOne;
 import org.apache.tika.Tika;
 import org.jetbrains.annotations.NotNull;
@@ -69,52 +66,52 @@ public class FileInfo implements Serializable {
         annotated = false;
     }
 
-    public static FileInfo queryOrCreate(@NotNull URL file, Project project) {
-        String absolutePathSearch = file.toString();
-        QueryBoxSpec<FileInfo> qbs = qb -> {
-            qb = qb.equal(FileInfo_.absolutePath, absolutePathSearch, io.objectbox.query.QueryBuilder.StringOrder.CASE_SENSITIVE)
-                    .equal(FileInfo_.projectId, project.getId());
-            return qb;
-        };
-        FileInfo found = queryFirst(qbs);
+    public static @NotNull FileInfo openOrCreate(@NotNull URL url, @NotNull Project project) {
+        UrlConverter urlConverter = new UrlConverter();
+        String urlString = urlConverter.convertToDatabaseValue(url);
+        QueryBoxSpec<FileInfo> qbs = qb -> qb
+                .apply(FileInfo_.absolutePath.equal(urlString, io.objectbox.query.QueryBuilder.StringOrder.CASE_SENSITIVE));
+        FileInfo found = queryFirst(project, qbs);
         if (found == null) {
-            found = new FileInfo(file, project);
+            found = new FileInfo(url, project);
+            found.save();
         }
         return found;
     }
 
-    public static List<FileInfo> query(Project project, boolean nonAnnotatedOnly, int length, int offset) {
-        QueryBoxSpec<FileInfo> qbs = qb -> {
-            if (nonAnnotatedOnly) {
-                qb = qb.equal(FileInfo_.annotated, false);
-            }
-            qb = qb.equal(FileInfo_.projectId, project.getId());
-            return qb;
-        };
-        return DB.query(FileInfo.class, qbs, length, offset);
+    public static List<FileInfo> query(@NotNull Project project, @NotNull QueryBoxSpec<FileInfo> queryBoxSpec, int count, int offset) {
+        QueryBoxSpec<FileInfo> qbs = qb -> queryBoxSpec.buildQuery(qb)
+                .apply(FileInfo_.projectId.equal(project.getId()));
+        return DB.query(FileInfo.class, qbs, count, offset);
     }
 
-    public static FileInfo queryFirst(QueryBoxSpec<FileInfo> queryBoxSpec) {
-        return DB.queryFirst(FileInfo.class, queryBoxSpec);
-    }
-
-    public static FileInfo queryFirst(Project project, boolean nonAnnotatedOnly) {
+    public static List<FileInfo> query(@NotNull Project project, boolean nonAnnotatedOnly, int count, int offset) {
         QueryBoxSpec<FileInfo> qbs = qb -> {
             if (nonAnnotatedOnly) {
-                qb = qb.equal(FileInfo_.annotated, false);
+                qb = qb.apply(FileInfo_.annotated.equal(false));
             }
-            qb = qb.equal(FileInfo_.projectId, project.getId());
             return qb;
         };
+        return query(project, qbs, count, offset);
+    }
+
+    public static FileInfo queryFirst(@NotNull Project project, @NotNull QueryBoxSpec<FileInfo> queryBoxSpec) {
+        QueryBoxSpec<FileInfo> qbs = qb -> queryBoxSpec.buildQuery(qb)
+                .apply(FileInfo_.projectId.equal(project.getId()));
         return DB.queryFirst(FileInfo.class, qbs);
     }
 
-    public static boolean deleteAll(Project project, boolean nonAnnotatedOnly) {
+    public static FileInfo queryFirst(@NotNull Project project) {
+        QueryBoxSpec<FileInfo> qbs = qb -> qb.apply(FileInfo_.annotated.equal(false));
+        return queryFirst(project, qbs);
+    }
+
+    public static boolean deleteAll(@NotNull Project project, boolean nonAnnotatedOnly) {
         QueryBoxSpec<FileInfo> qbs = qb -> {
             if (nonAnnotatedOnly) {
-                qb = qb.equal(FileInfo_.annotated, false);
+                qb = qb.apply(FileInfo_.annotated.equal(false));
             }
-            qb = qb.equal(FileInfo_.projectId, project.getId());
+            qb = qb.apply(FileInfo_.projectId.equal(project.getId()));
             return qb;
         };
         return DB.delete(FileInfo.class, qbs);
@@ -157,9 +154,15 @@ public class FileInfo implements Serializable {
         return true;
     }
 
+    public boolean checkIn() {
+        if (!isCheckedOut()) return false;
+        checkedOutUntil = null;
+        return true;
+    }
+
     public Date getCheckedOutUntil() {
         if (checkedOutUntil == null) return null;
-        if (checkedOutUntil.after(new Date())) return null;
+        if (checkedOutUntil.before(new Date())) return null;
         return checkedOutUntil;
     }
 

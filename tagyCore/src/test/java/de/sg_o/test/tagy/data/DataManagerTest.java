@@ -20,6 +20,7 @@ package de.sg_o.test.tagy.data;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.data.Directory;
+import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.values.User;
 import de.sg_o.test.tagy.testDb.TestDb;
@@ -199,5 +200,53 @@ class DataManagerTest {
         assertEquals(8, manager0.getFiles(false, 100, 0).size());
         assertEquals(10, manager1.getFiles(false, 100, 0).size());
         assertEquals(3, manager2.getFiles(false, 100, 0).size());
+    }
+
+    @Test
+    void checkOutFiles() {
+        assertTrue(manager0.clear());
+        assertTrue(manager1.clear());
+        assertTrue(manager2.clear());
+
+        assertEquals(0, manager0.getFiles(false, 100, 0).size());
+        assertEquals(0, manager1.getFiles(false, 100, 0).size());
+        assertEquals(0, manager2.getFiles(false, 100, 0).size());
+
+        manager0.setSourceDirectories(directories0);
+        manager1.setSourceDirectories(directories1);
+        manager2.setSourceDirectories(directories2);
+
+        assertTrue(manager0.save());
+        assertTrue(manager1.save());
+        assertTrue(manager2.save());
+
+        DataManager manager3 = project0.resolveDataManager();
+        DataManager manager4 = project1.resolveDataManager();
+        DataManager manager5 = project2.resolveDataManager();
+
+
+        assertTrue(manager3.ingest());
+        assertTrue(manager4.ingest());
+        assertTrue(manager5.ingest());
+
+        assertEquals(8, manager3.getFiles(false, 100, 0).size());
+        assertEquals(10, manager4.getFiles(false, 100, 0).size());
+        assertEquals(3, manager5.getFiles(false, 100, 0).size());
+
+        List<FileInfo> checked0 = manager0.checkOutFiles(true, 100, 60000);
+        List<FileInfo> checked1 = manager1.checkOutFiles(false, 100, 60000);
+        List<FileInfo> checked2 = manager2.checkOutFiles(false, 100, 60000);
+
+        assertEquals(8, checked0.size());
+        assertEquals(10, checked1.size());
+        assertEquals(3, checked2.size());
+
+        checked0 = manager0.checkOutFiles(true, 100, 60000);
+        checked1 = manager1.checkOutFiles(false, 100, 60000);
+        checked2 = manager2.checkOutFiles(false, 100, 60000);
+
+        assertEquals(0, checked0.size());
+        assertEquals(0, checked1.size());
+        assertEquals(0, checked2.size());
     }
 }

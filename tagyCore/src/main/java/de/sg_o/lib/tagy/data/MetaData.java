@@ -104,7 +104,7 @@ public class MetaData implements Serializable {
         return queryFirst(qbs);
     }
 
-    public static MetaData queryOrCreate(FileInfo reference, Project project) {
+    public static MetaData openOrCreate(FileInfo reference, Project project) {
         QueryBoxSpec<MetaData> qbs = qb -> {
             qb = qb.equal(MetaData_.referenceId, reference.getId())
                     .equal(MetaData_.projectId, project.getId());
@@ -113,6 +113,7 @@ public class MetaData implements Serializable {
         MetaData found = queryFirst(qbs);
         if (found == null) {
             found = new MetaData(reference, project);
+            found.save();
         }
         return found;
     }

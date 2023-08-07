@@ -92,6 +92,7 @@ public class Project implements Serializable {
         Project found = queryFirst(qbs);
         if (found == null) {
             found = new Project(name, user);
+            found.save();
         }
         return found;
     }

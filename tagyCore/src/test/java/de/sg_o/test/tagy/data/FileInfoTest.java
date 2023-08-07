@@ -18,7 +18,6 @@
 package de.sg_o.test.tagy.data;
 
 import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.Project_;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.data.FileInfo_;
 import de.sg_o.lib.tagy.data.FileType;
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,15 +63,15 @@ class FileInfoTest {
         p0 = Project.openOrCreate("testProject", User.getLocalUser());
         p0.save();
 
-        fi0 = new FileInfo(sampleMediaFile, p0);
-        fi1 = new FileInfo(sampleMixedFile, p0);
-        fi2 = new FileInfo(sampleTextFile, p0);
+        fi0 = FileInfo.openOrCreate(sampleMediaFile, p0);
+        fi1 = FileInfo.openOrCreate(sampleMixedFile, p0);
+        fi2 = FileInfo.openOrCreate(sampleTextFile, p0);
 
         File file = new File(sampleMediaFile.toURI());
         UrlConverter  uc = new UrlConverter();
         URL converted = uc.convertToEntityProperty(file.getAbsolutePath());
 
-        fi3 = new FileInfo(converted, p0);
+        fi3 = FileInfo.openOrCreate(converted, p0);
 
         DB.closeDb();
         new TestDb();
@@ -95,6 +95,11 @@ class FileInfoTest {
 
     @Test
     void isAnnotated() {
+        fi0.setAnnotated(false);
+        fi1.setAnnotated(false);
+        fi2.setAnnotated(false);
+        fi3.setAnnotated(false);
+
         assertFalse(fi0.isAnnotated());
         assertFalse(fi1.isAnnotated());
         assertFalse(fi2.isAnnotated());
@@ -137,31 +142,19 @@ class FileInfoTest {
         assertTrue(fi2.save());
         assertTrue(fi3.save());
 
-        assertEquals(4L, box.count());
+        assertEquals(3L, box.count());
 
         List<FileInfo> fileInfos = FileInfo.query(p0, false, 0,0);
-        assertEquals(4, fileInfos.size());
+        assertEquals(3, fileInfos.size());
 
-        FileInfo qr0 = FileInfo.queryFirst(qb -> {
-            qb = qb.endsWith(FileInfo_.absolutePath, "sample04.mkv", QueryBuilder.StringOrder.CASE_SENSITIVE);
-            qb.link(FileInfo_.project).apply(Project_.projectName.equal("testProject"));
-            return qb;
-        });
-        FileInfo qr1 = FileInfo.queryFirst(qb -> {
-            qb = qb.endsWith(FileInfo_.absolutePath, "sample07.webp", QueryBuilder.StringOrder.CASE_SENSITIVE);
-            qb.link(FileInfo_.project).apply(Project_.projectName.equal("testProject"));
-            return qb;
-        });
-        FileInfo qr2 = FileInfo.queryFirst(qb -> {
-            qb = qb.endsWith(FileInfo_.absolutePath, "sample0.txt", QueryBuilder.StringOrder.CASE_SENSITIVE);
-            qb.link(FileInfo_.project).apply(Project_.projectName.equal("testProject"));
-            return qb;
-        });
-        FileInfo qr3 = FileInfo.queryFirst(qb -> {
-            qb = qb.endsWith(FileInfo_.absolutePath, "sample04.mkv", QueryBuilder.StringOrder.CASE_SENSITIVE);
-            qb.link(FileInfo_.project).apply(Project_.projectName.equal("testProject"));
-            return qb;
-        });
+        FileInfo qr0 = FileInfo.queryFirst(p0, qb -> qb
+                .endsWith(FileInfo_.absolutePath, "sample04.mkv", QueryBuilder.StringOrder.CASE_SENSITIVE));
+        FileInfo qr1 = FileInfo.queryFirst(p0, qb -> qb
+                .endsWith(FileInfo_.absolutePath, "sample07.webp", QueryBuilder.StringOrder.CASE_SENSITIVE));
+        FileInfo qr2 = FileInfo.queryFirst(p0, qb -> qb
+                .endsWith(FileInfo_.absolutePath, "sample0.txt", QueryBuilder.StringOrder.CASE_SENSITIVE));
+        FileInfo qr3 = FileInfo.queryFirst(p0, qb -> qb
+                .endsWith(FileInfo_.absolutePath, "sample04.mkv", QueryBuilder.StringOrder.CASE_SENSITIVE));
 
         assertEquals(qr0, qr3);
 
@@ -186,5 +179,87 @@ class FileInfoTest {
                 "\t\"annotated\": false\n" +
                 "}", fi2.toString());
         assertEquals(fi0.toString(), fi3.toString());
+    }
+
+    @Test
+    void checkOut() {
+        assertFalse(fi0.isAnnotated());
+        assertFalse(fi1.isAnnotated());
+        assertFalse(fi2.isAnnotated());
+        assertFalse(fi3.isAnnotated());
+
+        assertFalse(fi0.isCheckedOut());
+        assertFalse(fi1.isCheckedOut());
+        assertFalse(fi2.isCheckedOut());
+        assertFalse(fi3.isCheckedOut());
+
+        assertNull(fi0.getCheckedOutUntil());
+        assertNull(fi1.getCheckedOutUntil());
+        assertNull(fi2.getCheckedOutUntil());
+        assertNull(fi3.getCheckedOutUntil());
+
+        Date inTheFuture = new Date(new Date().getTime() + 10000);
+        Date inThePast = new Date(new Date().getTime() - 10000);
+
+        assertTrue(fi0.checkOut(inTheFuture));
+        assertTrue(fi1.checkOut(inTheFuture));
+        assertTrue(fi2.checkOut(inTheFuture));
+        assertTrue(fi3.checkOut(inTheFuture));
+
+        assertTrue(fi0.isCheckedOut());
+        assertTrue(fi1.isCheckedOut());
+        assertTrue(fi2.isCheckedOut());
+        assertTrue(fi3.isCheckedOut());
+
+        assertEquals(inTheFuture, fi0.getCheckedOutUntil());
+        assertEquals(inTheFuture, fi1.getCheckedOutUntil());
+        assertEquals(inTheFuture, fi2.getCheckedOutUntil());
+        assertEquals(inTheFuture, fi3.getCheckedOutUntil());
+
+        assertFalse(fi0.checkOut(inTheFuture));
+        assertFalse(fi1.checkOut(inTheFuture));
+        assertFalse(fi2.checkOut(inTheFuture));
+        assertFalse(fi3.checkOut(inTheFuture));
+
+        assertTrue(fi0.checkIn());
+        assertTrue(fi1.checkIn());
+        assertTrue(fi2.checkIn());
+        assertTrue(fi3.checkIn());
+
+        assertFalse(fi0.isCheckedOut());
+        assertFalse(fi1.isCheckedOut());
+        assertFalse(fi2.isCheckedOut());
+        assertFalse(fi3.isCheckedOut());
+
+        assertNull(fi0.getCheckedOutUntil());
+        assertNull(fi1.getCheckedOutUntil());
+        assertNull(fi2.getCheckedOutUntil());
+        assertNull(fi3.getCheckedOutUntil());
+
+        assertFalse(fi0.checkIn());
+        assertFalse(fi1.checkIn());
+        assertFalse(fi2.checkIn());
+        assertFalse(fi3.checkIn());
+
+
+        assertTrue(fi0.checkOut(inThePast));
+        assertTrue(fi1.checkOut(inThePast));
+        assertTrue(fi2.checkOut(inThePast));
+        assertTrue(fi3.checkOut(inThePast));
+
+        assertFalse(fi0.isCheckedOut());
+        assertFalse(fi1.isCheckedOut());
+        assertFalse(fi2.isCheckedOut());
+        assertFalse(fi3.isCheckedOut());
+
+        assertNull(fi0.getCheckedOutUntil());
+        assertNull(fi1.getCheckedOutUntil());
+        assertNull(fi2.getCheckedOutUntil());
+        assertNull(fi3.getCheckedOutUntil());
+
+        assertFalse(fi0.checkIn());
+        assertFalse(fi1.checkIn());
+        assertFalse(fi2.checkIn());
+        assertFalse(fi3.checkIn());
     }
 }

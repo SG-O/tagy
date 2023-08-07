@@ -20,6 +20,7 @@ package de.sg_o.lib.tagy.db;
 import de.sg_o.lib.tagy.MyObjectBox;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
+import io.objectbox.BoxStoreBuilder;
 import io.objectbox.query.Query;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +32,8 @@ public class DB {
     private static BoxStore database;
     private static @NotNull String name = "";
 
+    private static boolean debug = false;
+
 
     public static void initDb(File file, boolean allowCreate) {
         if (database != null) return;
@@ -40,7 +43,11 @@ public class DB {
             if (!file.exists()) return;
         }
         name = file.getName();
-        database = MyObjectBox.builder().directory(file).build();
+        BoxStoreBuilder dbBuilder = MyObjectBox.builder();
+        if (debug) {
+            dbBuilder = dbBuilder.debugFlags(511);
+        }
+        database = dbBuilder.directory(file).build();
         Runtime.getRuntime().addShutdownHook(new Thread(DB::cleanup));
     }
 
@@ -48,7 +55,12 @@ public class DB {
         return database;
     }
 
-    public static <T> List<T> query(Class<T> entityClass,  QueryBoxSpec<T> queryBoxSpec, int length, int offset) {
+    @SuppressWarnings("unused")
+    public static void setDebug(boolean debug) {
+        DB.debug = debug;
+    }
+
+    public static <T> List<T> query(Class<T> entityClass, QueryBoxSpec<T> queryBoxSpec, int length, int offset) {
         List<T> results = new ArrayList<>();
         BoxStore db = getDb();
         if (db == null) return results;

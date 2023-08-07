@@ -65,8 +65,8 @@ class MetaDataTest {
         sampleMixedFile = this.getClass().getResource("/sampleFiles/mixed/sample07.webp");
         assertNotNull(sampleMixedFile);
 
-        fi0 = new FileInfo(sampleMediaFile, project0);
-        fi1 = new FileInfo(sampleMixedFile, project0);
+        fi0 = FileInfo.openOrCreate(sampleMediaFile, project0);
+        fi1 = FileInfo.openOrCreate(sampleMixedFile, project0);
 
         fi0.save();
         fi1.save();

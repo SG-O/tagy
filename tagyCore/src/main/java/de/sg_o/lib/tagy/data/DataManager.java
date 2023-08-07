@@ -36,14 +36,16 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.AbstractTableModel;
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 @Entity
 @JsonIgnoreProperties({ "listenerList", "project"})
 public class DataManager extends AbstractTableModel {
+    private static final HashMap<Long, Long> locks = new HashMap<>();
+
     @Id
     Long id;
     private final ToMany<Directory> sourceDirectories = new ToMany<>(this, DataManager_.sourceDirectories);
@@ -113,17 +115,21 @@ public class DataManager extends AbstractTableModel {
     }
 
     public boolean ingest() {
-        for (Directory directory : sourceDirectories) {
-            ArrayList<URL> urls = directory.getFiles();
-            for (URL url : urls) {
-                if (url == null) continue;
-                FileInfo fileInfo;
-                fileInfo = FileInfo.queryOrCreate(url, resolveProject());
-                MetaData metaData = MetaData.queryFirst(fileInfo);
-                fileInfo.setAnnotated(metaData != null);
-                fileInfo.save();
+        BoxStore db = DB.getDb();
+        if (db == null) return false;
+        db.runInTx(() -> {
+            for (Directory directory : sourceDirectories) {
+                ArrayList<URL> urls = directory.getFiles();
+                for (URL url : urls) {
+                    if (url == null) continue;
+                    FileInfo fileInfo;
+                    fileInfo = FileInfo.openOrCreate(url, resolveProject());
+                    MetaData metaData = MetaData.queryFirst(fileInfo);
+                    fileInfo.setAnnotated(metaData != null);
+                    fileInfo.save();
+                }
             }
-        }
+        });
         return true;
     }
 
@@ -146,7 +152,34 @@ public class DataManager extends AbstractTableModel {
     }
 
     public FileInfo getNextFile() {
-        return FileInfo.queryFirst(project.getTarget(), true);
+        return FileInfo.queryFirst(project.getTarget());
+    }
+
+    public @NotNull List<FileInfo> checkOutFiles(boolean nonAnnotatedOnly, int count, long checkoutFor) {
+        Long lock = getLock(this.id);
+        QueryBoxSpec<FileInfo> qbs = qb -> {
+            if (nonAnnotatedOnly) {
+                qb = qb.apply(FileInfo_.annotated.equal(false));
+            }
+            return qb.apply(FileInfo_.checkedOutUntil.isNull().or(FileInfo_.checkedOutUntil.less(new Date())));
+        };
+        AtomicReference<List<FileInfo>> fileInfos = new AtomicReference<>(new ArrayList<>());
+        BoxStore db = DB.getDb();
+        if (db == null) return fileInfos.get();
+        synchronized (lock) {
+            Date endDate = new Date(new Date().getTime() + checkoutFor);
+            db.runInTx(() -> {
+                fileInfos.set(FileInfo.query(project.getTarget(), qbs, count, 0));
+                for (FileInfo fileInfo : fileInfos.get()) {
+                    if (!fileInfo.checkOut(endDate)) {
+                        fileInfos.get().remove(fileInfo);
+                        continue;
+                    }
+                    fileInfo.save();
+                }
+            });
+            return fileInfos.get();
+        }
     }
 
     public boolean save() {
@@ -162,6 +195,13 @@ public class DataManager extends AbstractTableModel {
     public String toString() {
         return "{\"directories\":" + sourceDirectories
                 + "}";
+    }
+
+    private static Long getLock(Long id) {
+        if (!locks.containsKey(id)) {
+            locks.put(id, id);
+        }
+        return locks.get(id);
     }
 
     @Override
