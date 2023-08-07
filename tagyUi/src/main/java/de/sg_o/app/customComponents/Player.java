@@ -25,6 +25,7 @@ import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
 import javax.swing.*;
+import javax.swing.JLabel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -32,6 +33,9 @@ import java.util.List;
 public class Player extends JPanel {
     private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
     private final PlayerControls playerControls;
+
+    private final KeyboardFocusManager manager;
+    private final KeyEventPostProcessor keyEventPostProcessor;
 
     public Player(List<Input> inputs) {
         mediaPlayerComponent = new EmbeddedMediaPlayerComponent("-vv");
@@ -53,8 +57,8 @@ public class Player extends JPanel {
         }
         playerControls = new PlayerControls(mediaPlayerComponent.mediaPlayer(), in, out);
 
-        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        manager.addKeyEventPostProcessor(e -> {
+        manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        keyEventPostProcessor = e -> {
             if (e.getID() != KeyEvent.KEY_PRESSED) return false;
             Point mousePos = MouseInfo.getPointerInfo().getLocation();
             Rectangle bounds = player.getBounds();
@@ -79,7 +83,8 @@ public class Player extends JPanel {
                 playerControls.out();
             }
             return false;
-        });
+        };
+        manager.addKeyEventPostProcessor(keyEventPostProcessor);
         add(mediaPlayerComponent, BorderLayout.CENTER);
 
         Input finalLength = length;
@@ -115,5 +120,6 @@ public class Player extends JPanel {
             playerControls.close();
         }
         mediaPlayerComponent.mediaPlayer().release();
+        manager.removeKeyEventPostProcessor(keyEventPostProcessor);
     }
 }

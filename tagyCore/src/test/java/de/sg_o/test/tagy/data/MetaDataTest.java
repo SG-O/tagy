@@ -53,6 +53,11 @@ class MetaDataTest {
     URL sampleMediaFile;
     URL sampleMixedFile;
 
+    Tag tag0;
+    Tag tag1;
+    TagList tag2;
+    Tag tag3;
+
     @BeforeEach
     void setUp() {
         DB.closeDb();
@@ -67,6 +72,9 @@ class MetaDataTest {
 
         fi0 = FileInfo.openOrCreate(sampleMediaFile, project0);
         fi1 = FileInfo.openOrCreate(sampleMixedFile, project0);
+
+        fi0.setAnnotated(false);
+        fi1.setAnnotated(false);
 
         fi0.save();
         fi1.save();
@@ -92,26 +100,24 @@ class MetaDataTest {
         structureDefinition.setTagDefinitions(tagDefinitions);
         structureDefinition.save();
 
-        Tag tag0 = new TagString(td0, "Test String 0");
-        Tag tag1 = new TagString(td1, "Test String 1");
-        TagList tag2 = new TagList(td2);
+        tag0 = new TagString(td0, "Test String 0");
+        tag1 = new TagString(td1, "Test String 1");
+        tag2 = new TagList(td2);
         Tag internal0 = new TagLong(tdl0, 5);
         Tag internal1 = new TagLong(tdl0, 500);
         tag2.addValue(internal0);
         tag2.addValue(internal1);
-        Tag tag3 = new TagEnum(td3, 0);
+        tag3 = new TagEnum(td3, 0);
 
-        md0 = new MetaData(fi0, project0);
-        md0.addTag(tag0);
-        md0.addTag(tag1);
+        MetaData.deleteAll(project0);
 
-        md1 = new MetaData(fi1, project0);
-        md1.addTag(tag2);
-        md1.addTag(tag3);
+        md0 = MetaData.openOrCreate(fi0, project0);
+        md1 = MetaData.openOrCreate(fi1, project0);
     }
 
     @Test
     void save() {
+        MetaData.deleteAll(project0);
         List<MetaData> metaDataList = MetaData.queryAll(project0, 0, 0);
         assertEquals(0, metaDataList.size());
 
@@ -121,10 +127,10 @@ class MetaDataTest {
         metaDataList = MetaData.queryAll(project0, 0, 0);
         assertEquals(2, metaDataList.size());
 
-        MetaData md2 = MetaData.queryFirst(fi0);
+        MetaData md2 = MetaData.queryFirst(fi0, project0);
         assertEquals(md0, md2);
 
-        MetaData md3 = MetaData.queryFirst(fi1);
+        MetaData md3 = MetaData.queryFirst(fi1, project0);
         assertEquals(md1, md3);
     }
 
@@ -135,6 +141,32 @@ class MetaDataTest {
                 "\t\t{\n" +
                 "\t\t\t\"file\": \"" + sampleMediaFile.toString() + "\",\n" +
                 "\t\t\t\"annotated\": false\n" +
+                "\t\t},\n" +
+                "\t\"_editHistory\": \n" +
+                "\t\t[\n" +
+                "\t\t]\n" +
+                "}", md0.toString());
+        assertEquals("{\n" +
+                "\t\"_id\": \n" +
+                "\t\t{\n" +
+                "\t\t\t\"file\": \"" + sampleMixedFile.toString() + "\",\n" +
+                "\t\t\t\"annotated\": false\n" +
+                "\t\t},\n" +
+                "\t\"_editHistory\": \n" +
+                "\t\t[\n" +
+                "\t\t]\n" +
+                "}", md1.toString());
+
+        md0.addTag(tag0);
+        md0.addTag(tag1);
+        md1.addTag(tag2);
+        md1.addTag(tag3);
+
+        assertEquals("{\n" +
+                "\t\"_id\": \n" +
+                "\t\t{\n" +
+                "\t\t\t\"file\": \"" + sampleMediaFile.toString() + "\",\n" +
+                "\t\t\t\"annotated\": true\n" +
                 "\t\t},\n" +
                 "\t\"key0\": \"Test String 0\",\n" +
                 "\t\"key1\": \"Test String 1\",\n" +
@@ -147,7 +179,7 @@ class MetaDataTest {
                 "\t\"_id\": \n" +
                 "\t\t{\n" +
                 "\t\t\t\"file\": \"" + sampleMixedFile.toString() + "\",\n" +
-                "\t\t\t\"annotated\": false\n" +
+                "\t\t\t\"annotated\": true\n" +
                 "\t\t},\n" +
                 "\t\"key2\": [5, 500],\n" +
                 "\t\"key3\": \"Option 1\",\n" +

@@ -17,6 +17,7 @@
 
 package de.sg_o.app.ui;
 
+import com.github.weisj.darklaf.theme.ColorPalette;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -44,6 +45,7 @@ public class IngestUI extends JDialog {
     private JPanel contentPane;
     private JButton saveButton;
     private JScrollPane directoriesScrollPane;
+    private JButton clear;
 
     private final DataManager dataManager;
 
@@ -82,6 +84,9 @@ public class IngestUI extends JDialog {
         cancelButton.addActionListener(e -> onCancel());
         cancelButton.setMnemonic(KeyEvent.VK_ESCAPE);
 
+        clear.setBackground(ColorPalette.RED);
+        clear.addActionListener(e -> clear());
+
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -103,6 +108,11 @@ public class IngestUI extends JDialog {
         dataManager.save();
         dataManager.ingest();
         dispose();
+    }
+
+    private void clear() {
+        dataManager.clear();
+        dataManager.save();
     }
 
     private void onCancel() {
@@ -144,13 +154,13 @@ public class IngestUI extends JDialog {
         contentPane = new JPanel();
         contentPane.setLayout(new GridLayoutManager(2, 1, new Insets(8, 8, 8, 8), -1, -1));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        panel1.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel1.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.add(panel2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(160, 34), null, 0, false));
+        panel1.add(panel2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(160, 34), null, 0, false));
         cancelButton = new JButton();
         this.$$$loadButtonText$$$(cancelButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.cancel"));
         cancelButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.tooltip.cancel"));
@@ -163,6 +173,9 @@ public class IngestUI extends JDialog {
         this.$$$loadButtonText$$$(ingestButton, this.$$$getMessageFromBundle$$$("translations/formText", "button.save.ingest"));
         ingestButton.setToolTipText(this.$$$getMessageFromBundle$$$("translations/formText", "button.tooltip.ingest"));
         panel2.add(ingestButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        clear = new JButton();
+        this.$$$loadButtonText$$$(clear, this.$$$getMessageFromBundle$$$("translations/formText", "butten.removeIngested"));
+        panel1.add(clear, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(800, -1), null, null, 0, false));

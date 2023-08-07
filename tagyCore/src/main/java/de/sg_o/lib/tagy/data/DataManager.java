@@ -116,7 +116,8 @@ public class DataManager extends AbstractTableModel {
 
     public boolean ingest() {
         BoxStore db = DB.getDb();
-        if (db == null) return false;
+        Project resolvedProject = resolveProject();
+        if (db == null || resolvedProject == null) return false;
         db.runInTx(() -> {
             for (Directory directory : sourceDirectories) {
                 ArrayList<URL> urls = directory.getFiles();
@@ -124,7 +125,7 @@ public class DataManager extends AbstractTableModel {
                     if (url == null) continue;
                     FileInfo fileInfo;
                     fileInfo = FileInfo.openOrCreate(url, resolveProject());
-                    MetaData metaData = MetaData.queryFirst(fileInfo);
+                    MetaData metaData = MetaData.queryFirst(fileInfo, resolvedProject);
                     fileInfo.setAnnotated(metaData != null);
                     fileInfo.save();
                 }

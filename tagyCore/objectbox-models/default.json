@@ -101,7 +101,7 @@
     },
     {
       "id": "4:131994956946247807",
-      "lastPropertyId": "5:3272220870457541729",
+      "lastPropertyId": "6:4669829739444121892",
       "name": "MetaData",
       "properties": [
         {
@@ -138,6 +138,13 @@
           "type": 11,
           "flags": 520,
           "relationTarget": "StructureDefinition"
+        },
+        {
+          "id": "6:4669829739444121892",
+          "name": "fileReference",
+          "indexId": "13:7331497969784895892",
+          "type": 9,
+          "flags": 2048
         }
       ],
       "relations": [
@@ -388,7 +395,7 @@
     }
   ],
   "lastEntityId": "10:7776181613872091814",
-  "lastIndexId": "12:4136000233353161236",
+  "lastIndexId": "13:7331497969784895892",
   "lastRelationId": "5:3870338667975086962",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

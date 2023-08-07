@@ -76,6 +76,19 @@ public class AnnotateUI extends JFrame {
         doneButton.setMnemonic(KeyEvent.VK_ENTER);
         doneButton.addActionListener(e -> doneAction());
 
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+
+        KeyEventPostProcessor keyEventPostProcessor = e -> {
+            if (e.getID() != KeyEvent.KEY_PRESSED) return false;
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                AnnotateUI.this.doneAction();
+                return true;
+            }
+            return false;
+        };
+
+        manager.addKeyEventPostProcessor(keyEventPostProcessor);
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
@@ -93,17 +106,8 @@ public class AnnotateUI extends JFrame {
             public void windowClosed(WindowEvent e) {
                 super.windowClosed(e);
                 viewer.close();
+                manager.removeKeyEventPostProcessor(keyEventPostProcessor);
             }
-        });
-
-        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        manager.addKeyEventPostProcessor(e -> {
-            if (e.getID() != KeyEvent.KEY_PRESSED) return false;
-            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                AnnotateUI.this.doneAction();
-                return true;
-            }
-            return false;
         });
 
         contentPane.addComponentListener(new ComponentAdapter() {
@@ -159,8 +163,8 @@ public class AnnotateUI extends JFrame {
             }
             metaData = MetaData.openOrCreate(fileInfo, project);
         }
-        fileName.setText(metaData.resolveReference().getUrlAsString());
-        viewer.display(metaData.resolveReference());
+        fileName.setText(metaData.getFileReference());
+        viewer.display(metaData.resolveFileReference());
 
         inputHolder.setData(metaData);
 

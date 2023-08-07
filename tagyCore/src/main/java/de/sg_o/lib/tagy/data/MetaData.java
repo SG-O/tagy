@@ -31,9 +31,8 @@ import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
-import io.objectbox.annotation.Entity;
-import io.objectbox.annotation.Id;
-import io.objectbox.annotation.Transient;
+import io.objectbox.annotation.*;
+import io.objectbox.query.QueryBuilder;
 import io.objectbox.relation.ToMany;
 import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
@@ -47,10 +46,10 @@ public class MetaData implements Serializable {
     @Id
     Long id;
     private Map<String, String> tags;
-
     private final ToOne<Project> project = new ToOne<>(this, MetaData_.project);
-
     private final ToOne<FileInfo> reference = new ToOne<>(this, MetaData_.reference);
+    @Index
+    private final String fileReference;
     private final ToOne<StructureDefinition> structureDefinition = new ToOne<>(this, MetaData_.structureDefinition);
     @NotNull
     private final ToMany<User> editHistory = new ToMany<>(this, MetaData_.editHistory);
@@ -61,18 +60,21 @@ public class MetaData implements Serializable {
     transient BoxStore __boxStore = null;
     @Transient
     private transient boolean updated = false;
+    @Transient
+    private transient FileInfo resolvedFileReference = null;
 
     @SuppressWarnings("unused")
-    public MetaData(Long id, Map<String, String> tags, long projectId, long referenceId, long structureDefinitionId) {
+    public MetaData(Long id, Map<String, String> tags, String fileReference, long projectId, long referenceId, long structureDefinitionId) {
         this.id = id;
         this.tags = tags;
+        this.fileReference = fileReference;
         this.project.setTargetId(projectId);
         this.reference.setTargetId(referenceId);
         this.structureDefinition.setTargetId(structureDefinitionId);
     }
 
     public MetaData(@NotNull FileInfo reference, @NotNull Project project) {
-        this.reference.setTarget(reference);
+        this.fileReference = reference.getUrlAsString();
         this.project.setTarget(project);
         this.structureDefinition.setTarget(project.resolveStructureDefinition());
         this.tags = null;
@@ -94,23 +96,17 @@ public class MetaData implements Serializable {
         return DB.queryFirst(MetaData.class, queryBoxSpec);
     }
 
-    public static MetaData queryFirst(FileInfo reference) {
+    public static MetaData queryFirst(FileInfo reference, Project project) {
         if (reference == null) return null;
         if (reference.getId() == null) return null;
-        QueryBoxSpec<MetaData> qbs = qb -> {
-            qb = qb.equal(MetaData_.referenceId, reference.getId());
-            return qb;
-        };
+        QueryBoxSpec<MetaData> qbs = qb -> qb.apply(MetaData_.fileReference
+                .equal(reference.getUrlAsString(), QueryBuilder.StringOrder.CASE_SENSITIVE)
+                .and(MetaData_.projectId.equal(project.getId())));
         return queryFirst(qbs);
     }
 
     public static MetaData openOrCreate(FileInfo reference, Project project) {
-        QueryBoxSpec<MetaData> qbs = qb -> {
-            qb = qb.equal(MetaData_.referenceId, reference.getId())
-                    .equal(MetaData_.projectId, project.getId());
-            return qb;
-        };
-        MetaData found = queryFirst(qbs);
+        MetaData found = queryFirst(reference, project);
         if (found == null) {
             found = new MetaData(reference, project);
             found.save();
@@ -118,10 +114,20 @@ public class MetaData implements Serializable {
         return found;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
+    public static boolean deleteAll(@NotNull Project project) {
+        QueryBoxSpec<MetaData> qbs = qb -> {
+            qb = qb.apply(MetaData_.projectId.equal(project.getId()));
+            return qb;
+        };
+        return DB.delete(MetaData.class, qbs);
+    }
+
     public void addTag(@NotNull Tag tag) {
         TagContainer container = new TagContainer(tag);
         container.save();
         tagContainers.add(container);
+        this.resolveFileReference().setAnnotated(true);
         if (!this.updated) {
             editHistory.add(resolveProject().resolveUser());
             this.updated = true;
@@ -131,7 +137,7 @@ public class MetaData implements Serializable {
     @SuppressWarnings("unused")
     @JsonProperty(value = "id", index = 0)
     public String getID() {
-        return resolveReference().getUrlAsString();
+        return resolveFileReference().getUrlAsString();
     }
 
     public void clearTags() {
@@ -183,12 +189,28 @@ public class MetaData implements Serializable {
         return project;
     }
 
-    public @NotNull FileInfo resolveReference() {
-        return reference.getTarget();
+    public ToOne<FileInfo> getReference() {
+        getFileReference();
+        return new ToOne<>(this, MetaData_.reference);
     }
 
-    public ToOne<FileInfo> getReference() {
-        return reference;
+    public FileInfo resolveFileReference() {
+        if (this.resolvedFileReference != null) return this.resolvedFileReference;
+        String fileRef = getFileReference();
+        QueryBoxSpec<FileInfo> qbs = qb -> qb.apply(FileInfo_.absolutePath
+                .equal(fileRef, QueryBuilder.StringOrder.CASE_SENSITIVE).and(FileInfo_.projectId
+                .equal(resolveProject().getId())));
+        this.resolvedFileReference = FileInfo.queryFirst(resolveProject(), qbs);
+        return this.resolvedFileReference;
+    }
+
+    public @NotNull String getFileReference() {
+        if (fileReference == null) {
+            FileInfo ref = reference.getTarget();
+            if (ref == null) return "";
+            return ref.getUrlAsString();
+        }
+        return fileReference;
     }
 
     public ToOne<StructureDefinition> getStructureDefinition() {
@@ -210,9 +232,8 @@ public class MetaData implements Serializable {
         Box<MetaData> box = db.boxFor(MetaData.class);
         if (box == null) return false;
         this.id = box.put(this);
-        FileInfo ref = this.resolveReference();
-        ref.setAnnotated(true);
-        ref.save();
+        FileInfo ref = this.resolveFileReference();
+        if (ref != null) ref.save();
         return true;
     }
 
@@ -241,7 +262,7 @@ public class MetaData implements Serializable {
     public int hashCode() {
         int result = getTags() != null ? getTags().hashCode() : 0;
         result = 31 * result + resolveProject().hashCode();
-        result = 31 * result + resolveReference().hashCode();
+        result = 31 * result + resolveFileReference().hashCode();
         return result;
     }
 
@@ -250,7 +271,11 @@ public class MetaData implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
         builder.append("\t\"_id\": \n");
-        builder.append(resolveReference().toString(2));
+        if (resolveFileReference() != null) {
+            builder.append(resolveFileReference().toString(2));
+        } else {
+            builder.append("\t\tnull");
+        }
         builder.append(",\n");
         List<TagContainer> tags = getTagContainers();
         for (TagContainer tag : tags) {
