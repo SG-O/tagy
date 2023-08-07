@@ -22,15 +22,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.data.MetaData;
-import de.sg_o.lib.tagy.data.MetaData_;
-import de.sg_o.lib.tagy.db.DB;
-import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class TagMigration {
 
@@ -72,29 +65,5 @@ public class TagMigration {
 
     public String getEncoded() {
         return encoded;
-    }
-
-    private static List<MetaData> needsMigration(Project project) {
-        QueryBoxSpec<MetaData> qbs = qb -> {
-            qb.apply(MetaData_.projectId.equal(project.getId())
-                    .and(MetaData_.tags.notNull().or(MetaData_.fileReference.isNull())));
-            return qb;
-        };
-        return DB.query(MetaData.class, qbs, 100, 0);
-    }
-
-    public static boolean projectNeedsMigration(Project project) {
-        return !needsMigration(project).isEmpty();
-    }
-
-    public static void migrate(Project project) {
-        List<MetaData> needsMigration = needsMigration(project);
-        System.out.println(needsMigration);
-        while (!needsMigration.isEmpty()) {
-            for (MetaData md : needsMigration) {
-                md.save();
-            }
-            needsMigration = needsMigration(project);
-        }
     }
 }

@@ -25,6 +25,7 @@ import io.objectbox.query.Query;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ProjectManager extends AbstractListModel<String>  {
     private final ArrayList<String> projects;
@@ -52,6 +53,15 @@ public class ProjectManager extends AbstractListModel<String>  {
             projects.addAll(Arrays.asList(projectsRaw));
         }
         return projects;
+    }
+
+    public List<Project> getAllProjects() {
+        ArrayList<Project> projects = new ArrayList<>();
+        BoxStore db = DB.getDb();
+        if (db == null) return projects;
+        Box<Project> box = db.boxFor(Project.class);
+        if (box == null) return projects;
+        return box.getAll();
     }
 
 

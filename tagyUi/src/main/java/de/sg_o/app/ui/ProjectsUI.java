@@ -25,7 +25,7 @@ import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.ProjectManager;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.db.DB;
-import de.sg_o.lib.tagy.tag.TagMigration;
+import de.sg_o.lib.tagy.util.MetaDataMigration;
 import de.sg_o.lib.tagy.values.User;
 import io.objectbox.BoxStore;
 
@@ -163,15 +163,9 @@ public class ProjectsUI extends JFrame {
         }
         if (projectManager.getSize() > 0) {
             projectList.setSelectedIndex(0);
-            boolean needsUpgrade = false;
-            for (String project : projectManager.listProjects()) {
-                if (TagMigration.projectNeedsMigration(Project.openOrCreate(project, User.getLocalUser()))) {
-                    needsUpgrade = true;
-                    break;
-                }
-            }
-            if (needsUpgrade) {
-                DataUpgradeUI upgradeUI = new DataUpgradeUI(projectManager);
+            MetaDataMigration metaDataMigration = new MetaDataMigration(projectManager);
+            if (metaDataMigration.needsMigration()) {
+                DataUpgradeUI upgradeUI = new DataUpgradeUI(metaDataMigration);
                 upgradeUI.setVisible(true);
             }
         }

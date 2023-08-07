@@ -20,46 +20,39 @@ package de.sg_o.app.ui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import de.sg_o.lib.tagy.Project;
-import de.sg_o.lib.tagy.ProjectManager;
-import de.sg_o.lib.tagy.tag.TagMigration;
-import de.sg_o.lib.tagy.values.User;
+import de.sg_o.lib.tagy.util.MetaDataMigration;
+import de.sg_o.lib.tagy.util.MigrationCallBack;
 
 import javax.swing.*;
-import javax.swing.WindowConstants;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class DataUpgradeUI extends JDialog {
     private JPanel contentPane;
-    private final ProjectManager projectManager;
-    DataUpgradeUI ui = this;
+    private JProgressBar progressBar;
 
-    Executor singleThread = Executors.newSingleThreadExecutor();
-
-    public DataUpgradeUI(ProjectManager projectManager) {
-        this.projectManager = projectManager;
+    public DataUpgradeUI(MetaDataMigration metaDataMigration) {
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(1000);
         setContentPane(contentPane);
         setModal(true);
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setMinimumSize(new Dimension(400, 200));
         setLocationRelativeTo(null);
         pack();
-        singleThread.execute(new Upgrade());
-    }
-
-    private class Upgrade implements Runnable {
-
-        @Override
-        public void run() {
-            for (String project : projectManager.listProjects()) {
-                TagMigration.migrate(Project.openOrCreate(project, User.getLocalUser()));
+        metaDataMigration.setCallBack(new MigrationCallBack() {
+            @Override
+            public void onMigrationFinished() {
+                dispose();
             }
-            ui.dispose();
-        }
+
+            @Override
+            public void onProgressChanged(float progress) {
+                progressBar.setValue((int) (progress * 1000));
+            }
+        });
+        metaDataMigration.migrate();
     }
 
     {
@@ -80,7 +73,7 @@ public class DataUpgradeUI extends JDialog {
         contentPane = new JPanel();
         contentPane.setLayout(new GridLayoutManager(1, 1, new Insets(10, 10, 10, 10), -1, -1));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("translations/formText", "label.upgrade"));
@@ -88,11 +81,13 @@ public class DataUpgradeUI extends JDialog {
         final Spacer spacer1 = new Spacer();
         panel1.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
-        panel1.add(spacer2, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel1.add(spacer2, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
         panel1.add(spacer3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final Spacer spacer4 = new Spacer();
         panel1.add(spacer4, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        progressBar = new JProgressBar();
+        panel1.add(progressBar, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
