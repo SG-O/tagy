@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "values/user.proto";
+import "tag/tagContainer.proto";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "MetaDataProto";
+
+//SpecVersion: 1
+
+message MetaData {
+  string fileReference = 1;
+  repeated TagContainer tagContainers = 2;
+  repeated User editHistory = 3;
+}

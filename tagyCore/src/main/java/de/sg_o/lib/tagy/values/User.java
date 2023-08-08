@@ -22,6 +22,7 @@ import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.Project_;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import de.sg_o.proto.tagy.UserProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.Convert;
@@ -34,30 +35,38 @@ import java.util.Objects;
 
 @Entity
 public class User implements Serializable {
+    private static final UserTypeConverter userTypeConverter = new UserTypeConverter();
+
     @Id
     Long id;
-    @Convert(converter = UserType.UserTypeConverter.class, dbType = Integer.class)
-    private final UserType userType;
+    @Convert(converter = UserTypeConverter.class, dbType = Integer.class)
+    private final UserProto.UserType userType;
     @NotNull
     private final String name;
 
     public static User getLocalUser() {
-        User localUser = DB.queryFirst(User.class, qb -> qb.equal(User_.userType, UserType.LOCAL.getId()));
+        User localUser = DB.queryFirst(User.class,
+                qb -> qb.equal(User_.userType, userTypeConverter.convertToDatabaseValue(UserProto.UserType.LOCAL)));
         if (localUser != null) return localUser;
-        localUser = new User("Local", UserType.LOCAL);
+        localUser = new User("Local", UserProto.UserType.LOCAL);
         localUser.save();
         return localUser;
     }
 
-    public User(Long id, UserType userType, @NotNull String name) {
+    public User(Long id, UserProto.UserType userType, @NotNull String name) {
         this.id = id;
         this.userType = userType;
         this.name = name;
     }
 
-    public User(@NotNull String name, UserType userType) {
+    public User(@NotNull String name, UserProto.UserType userType) {
         this.userType = userType;
         this.name = name;
+    }
+
+    public User (@NotNull UserProto.User proto) {
+        this.name = proto.getName();
+        this.userType = proto.getUserType();
     }
 
     public void setId(Long id) {
@@ -69,7 +78,7 @@ public class User implements Serializable {
     }
 
     @JsonProperty(value = "user", index = 0)
-    public UserType getUserType() {
+    public UserProto.UserType getUserType() {
         return userType;
     }
 
@@ -89,7 +98,7 @@ public class User implements Serializable {
 
     @SuppressWarnings("unused")
     public boolean delete() {
-        if (this.userType == UserType.LOCAL) return false;
+        if (this.userType == UserProto.UserType.LOCAL) return false;
         QueryBoxSpec<Project> qbs = qb -> {
             qb = qb.equal(Project_.id, getId());
             return qb;
@@ -98,17 +107,24 @@ public class User implements Serializable {
         return DB.delete(Project.class, qbs);
     }
 
+    public @NotNull UserProto.User getAsProto() {
+        UserProto.User.Builder builder = UserProto.User.newBuilder();
+        builder.setName(this.name);
+        builder.setUserType(this.userType);
+        return builder.build();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(getId(), user.getId()) && getUserType() == user.getUserType() && Objects.equals(getName(), user.getName());
+        return getUserType() == user.getUserType() && Objects.equals(getName(), user.getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getUserType(), getName());
+        return Objects.hash(getUserType(), getName());
     }
 
     @Override

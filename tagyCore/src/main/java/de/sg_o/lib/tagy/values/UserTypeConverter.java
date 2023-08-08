@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.def;
+package de.sg_o.lib.tagy.values;
 
-import de.sg_o.proto.tagy.TagDefinitionProto;
+import de.sg_o.proto.tagy.UserProto;
 import io.objectbox.converter.PropertyConverter;
 import org.jetbrains.annotations.NotNull;
 
-public class TypeConverter implements PropertyConverter<TagDefinitionProto.Type, Integer> {
+public class UserTypeConverter implements PropertyConverter<UserProto.UserType, Integer> {
     @Override
     @NotNull
-    public TagDefinitionProto.Type convertToEntityProperty(Integer databaseValue) {
+    public UserProto.UserType convertToEntityProperty(Integer databaseValue) {
         if (databaseValue == null) {
-            return TagDefinitionProto.Type.UNKNOWN;
+            return UserProto.UserType.INVALID;
         }
-        TagDefinitionProto.Type type = TagDefinitionProto.Type.forNumber(databaseValue + 1);
-        if (type == null) return TagDefinitionProto.Type.UNKNOWN;
-        return type;
+        UserProto.UserType userType = UserProto.UserType.forNumber(databaseValue);
+        if (userType == null) userType = UserProto.UserType.INVALID;
+        return userType;
     }
 
     @Override
-    public Integer convertToDatabaseValue(TagDefinitionProto.Type type) {
-        return type == null ? -1 : (type.getNumber() - 1);
+    public Integer convertToDatabaseValue(UserProto.UserType userType) {
+        return userType == null ? 0 : userType.getNumber();
     }
 }

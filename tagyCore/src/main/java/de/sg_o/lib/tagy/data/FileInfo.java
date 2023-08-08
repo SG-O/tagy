@@ -230,7 +230,7 @@ public class FileInfo {
         return true;
     }
 
-    public FileInfoProto.FileInfo getAsProto() {
+    public @NotNull FileInfoProto.FileInfo getAsProto() {
         FileInfoProto.FileInfo.Builder builder = FileInfoProto.FileInfo.newBuilder();
         builder.setAbsolutePath(getUrlAsString());
         builder.setAnnotated(isAnnotated());

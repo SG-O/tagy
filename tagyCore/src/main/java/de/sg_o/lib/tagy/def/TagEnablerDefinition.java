@@ -111,7 +111,7 @@ public class TagEnablerDefinition extends JsonPrintable implements Serializable 
         return enumString;
     }
 
-    public TagEnablerDefinitionProto.TagEnablerDefinition getAsProto() {
+    public @NotNull TagEnablerDefinitionProto.TagEnablerDefinition getAsProto() {
         TagEnablerDefinitionProto.TagEnablerDefinition.Builder builder = TagEnablerDefinitionProto.TagEnablerDefinition.newBuilder();
         builder.setSelectorKey(selectorKey);
         if (enumIndex > -1) {

@@ -34,7 +34,7 @@ public class ParameterConverter implements PropertyConverter<TagDefinitionProto.
     }
 
     @Override
-    public Integer convertToDatabaseValue(TagDefinitionProto.Parameter entityProperty) {
-        return entityProperty == null ? null : entityProperty.getNumber();
+    public Integer convertToDatabaseValue(TagDefinitionProto.Parameter parameter) {
+        return parameter == null ? 0 : parameter.getNumber();
     }
 }

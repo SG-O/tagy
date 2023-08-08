@@ -26,6 +26,7 @@ import de.sg_o.lib.tagy.tag.floating.TagDouble;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
 import de.sg_o.lib.tagy.tag.list.TagList;
 import de.sg_o.lib.tagy.tag.string.TagString;
+import de.sg_o.proto.tagy.TagContainerProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.Entity;
@@ -35,6 +36,7 @@ import io.objectbox.relation.ToMany;
 import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -91,6 +93,24 @@ public class TagContainer {
             this.stringValue = value.toString();
         }
         validate();
+    }
+
+    public TagContainer(@NotNull TagContainerProto.TagContainer proto) {
+        this.tagDefinition.setTarget(new TagDefinition(proto.getTagDefinition()));
+        if (proto.hasBooleanValue()) {
+            this.booleanValue = proto.getBooleanValue();
+        } else if (proto.hasLongValue()) {
+            this.longValue = proto.getLongValue();
+        } else if (proto.hasDoubleValue()) {
+            this.doubleValue = proto.getDoubleValue();
+        } else if (proto.hasStringValue()) {
+            this.stringValue = proto.getStringValue();
+        } else {
+            for (TagContainerProto.TagContainer tc : proto.getListValuesList()) {
+                TagContainer t = new TagContainer(tc);
+                this.listValues.add(t);
+            }
+        }
     }
 
     public void validate() {
@@ -157,6 +177,10 @@ public class TagContainer {
         this.id = id;
     }
 
+    public TagDefinition resolveTagDefinition() {
+        return this.tagDefinition.getTarget();
+    }
+
     public ToOne<TagDefinition> getTagDefinition() {
         return tagDefinition;
     }
@@ -191,6 +215,28 @@ public class TagContainer {
         if (box == null) return false;
         this.id = box.put(this);
         return true;
+    }
+
+    public @NotNull TagContainerProto.TagContainer getAsProto() {
+        TagContainerProto.TagContainer.Builder builder = TagContainerProto.TagContainer.newBuilder();
+        builder.setTagDefinition(resolveTagDefinition().getAsProto());
+        if (this.booleanValue != null) {
+            builder.setBooleanValue(this.booleanValue);
+        } else if (this.longValue != null) {
+            builder.setLongValue(this.longValue);
+        } else if (this.doubleValue != null) {
+            builder.setDoubleValue(this.doubleValue);
+        } else if (this.stringValue != null) {
+            builder.setStringValue(this.stringValue);
+        } else {
+            ArrayList<TagContainerProto.TagContainer> listValues = new ArrayList<>();
+            for (TagContainer tc : this.listValues) {
+                listValues.add(tc.getAsProto());
+            }
+            builder.addAllListValues(listValues);
+            builder.setIsList(true);
+        }
+        return builder.build();
     }
 
     @Override

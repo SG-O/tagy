@@ -1,0 +1,18 @@
+syntax = "proto3";
+import "def/tagDefinition.proto";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "TagContainerProto";
+
+//SpecVersion: 1
+
+message TagContainer {
+  TagDefinition tagDefinition = 1;
+  oneof value {
+    bool booleanValue = 2;
+    int64 longValue = 3;
+    double doubleValue = 4;
+    string stringValue = 5;
+    bool isList = 6;
+  }
+  repeated TagContainer listValues = 7;
+}

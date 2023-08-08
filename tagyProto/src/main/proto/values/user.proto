@@ -1,0 +1,16 @@
+syntax = "proto3";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "UserProto";
+
+//SpecVersion: 1
+
+message User {
+  string name = 1;
+  UserType userType = 2;
+}
+
+enum UserType {
+  INVALID = 0;
+  LOCAL = 1;
+  NETWORKED = 2;
+}

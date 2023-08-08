@@ -179,7 +179,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         }
     }
 
-    public TagDefinition(TagDefinitionProto.TagDefinition proto) {
+    public TagDefinition(@NotNull TagDefinitionProto.TagDefinition proto) {
         String key = Util.sanitize(proto.getKey(), new char[]{'_', '-'}, false, true, 64);
         if (key == null) {
             throw new IllegalArgumentException("Invalid encoded TagDefinition");
@@ -372,7 +372,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         }
     }
 
-    public TagDefinitionProto.TagDefinition getAsProto() {
+    public @NotNull TagDefinitionProto.TagDefinition getAsProto() {
         TagDefinitionProto.TagDefinition.Builder builder = TagDefinitionProto.TagDefinition.newBuilder();
         builder.setKey(this.key);
         builder.setType(this.type);

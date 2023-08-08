@@ -29,24 +29,23 @@ import de.sg_o.lib.tagy.tag.TagContainer;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
+import de.sg_o.proto.tagy.MetaDataProto;
+import de.sg_o.proto.tagy.TagContainerProto;
+import de.sg_o.proto.tagy.UserProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
-import io.objectbox.annotation.Entity;
-import io.objectbox.annotation.Id;
-import io.objectbox.annotation.Index;
-import io.objectbox.annotation.Transient;
+import io.objectbox.annotation.*;
 import io.objectbox.query.QueryBuilder;
 import io.objectbox.relation.ToMany;
 import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.*;
+import java.util.*;
 
 @Entity
-public class MetaData {
+public class MetaData implements Serializable {
     @Id
     Long id;
 
@@ -87,6 +86,20 @@ public class MetaData {
         this.fileReference = reference.getUrlAsString();
         this.project.setTarget(project);
         this.structureDefinition.setTarget(project.resolveStructureDefinition());
+        this.tags = null;
+    }
+
+    public MetaData(@NotNull MetaDataProto.MetaData proto, @NotNull Project project) {
+        this.fileReference = proto.getFileReference();
+        for (UserProto.User user : proto.getEditHistoryList()) {
+            User u = new User(user);
+            this.editHistory.add(u);
+        }
+        for (TagContainerProto.TagContainer tc : proto.getTagContainersList()) {
+            TagContainer t = new TagContainer(tc);
+            this.tagContainers.add(t);
+        }
+        this.project.setTarget(project);
         this.tags = null;
     }
 
@@ -223,10 +236,6 @@ public class MetaData {
         return fileReference;
     }
 
-    public StructureDefinition resolveStructureDefinition() {
-        return structureDefinition.getTarget();
-    }
-
     public ToOne<StructureDefinition> getStructureDefinition() {
         return structureDefinition;
     }
@@ -249,6 +258,18 @@ public class MetaData {
         FileInfo ref = this.resolveFileReference();
         if (ref != null) ref.save();
         return true;
+    }
+
+    public @NotNull MetaDataProto.MetaData getAsProto() {
+        MetaDataProto.MetaData.Builder builder = MetaDataProto.MetaData.newBuilder();
+        builder.setFileReference(this.fileReference);
+        for (User user : this.editHistory) {
+            builder.addEditHistory(user.getAsProto());
+        }
+        for (TagContainer container : this.tagContainers) {
+            builder.addTagContainers(container.getAsProto());
+        }
+        return builder.build();
     }
 
     @Override
