@@ -145,6 +145,14 @@ class MetaDataTest {
         MetaData md3 = MetaData.queryFirst(fi1, project0);
         assertEquals(md1, md3);
         assertEquals(md1.hashCode(), md3.hashCode());
+
+        md2 = new MetaData(md0.getAsProto(), project0);
+        assertEquals(md0, md2);
+        assertEquals(md0.hashCode(), md2.hashCode());
+
+        md3 = new MetaData(md1.getAsProto(), project0);
+        assertEquals(md1, md3);
+        assertEquals(md1.hashCode(), md3.hashCode());
     }
 
     @Test

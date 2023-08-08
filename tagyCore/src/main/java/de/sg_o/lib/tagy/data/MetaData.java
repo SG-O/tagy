@@ -44,12 +44,10 @@ import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Entity
 public class MetaData implements Serializable {
@@ -280,7 +278,6 @@ public class MetaData implements Serializable {
         MetaData metaData = (MetaData) o;
         return Objects.equals(resolveProject(), metaData.resolveProject()) &&
                 Objects.equals(resolveFileReference(), metaData.resolveFileReference()) &&
-                Objects.equals(resolveStructureDefinition(), metaData.resolveStructureDefinition()) &&
                 Util.betterListEquals(getEditHistory(), metaData.getEditHistory()) &&
                 Util.betterListEquals(getTagContainers(), metaData.getTagContainers());
     }
@@ -289,7 +286,6 @@ public class MetaData implements Serializable {
     public int hashCode() {
         return Objects.hash(resolveProject(),
                 resolveFileReference(),
-                resolveStructureDefinition(),
                 Util.betterListHash(getEditHistory()),
                 Util.betterListHash(getTagContainers()));
     }
