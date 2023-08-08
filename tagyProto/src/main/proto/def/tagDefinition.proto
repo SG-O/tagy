@@ -10,13 +10,13 @@ message TagDefinition {
   optional string name = 2;
   optional string description = 3;
   Type type = 4;
-  double min = 5;
-  double max = 6;
+  optional double min = 5;
+  optional double max = 6;
   bool required = 7;
   repeated string enumerators = 8;
-  Parameter parameter = 9;
-  repeated TagDefinition internal = 10;
-  TagEnablerDefinition tagEnabler = 11;
+  optional Parameter parameter = 9;
+  optional TagDefinition internal = 10;
+  optional TagEnablerDefinition tagEnabler = 11;
 }
 
 enum Type {

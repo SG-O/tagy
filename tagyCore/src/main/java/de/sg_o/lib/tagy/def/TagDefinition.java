@@ -23,7 +23,10 @@ import de.sg_o.lib.tagy.util.JsonPrintable;
 import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.proto.tagy.TagDefinitionProto;
 import io.objectbox.BoxStore;
-import io.objectbox.annotation.*;
+import io.objectbox.annotation.Convert;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Transient;
 import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +49,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     private double min = Double.NEGATIVE_INFINITY;
     private double max = Double.POSITIVE_INFINITY;
     private boolean required = false;
+    @NotNull
     private final List<String> enumerators;
     @Convert(converter = ParameterConverter.class, dbType = Integer.class)
     private TagDefinitionProto.Parameter parameter = TagDefinitionProto.Parameter.NONE;
@@ -59,6 +63,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     @Transient
     private static final ParameterConverter parameterConverter = new ParameterConverter();
 
+    @SuppressWarnings("NullableProblems")
     public TagDefinition(Long id, @NotNull String key, String name, String description,
                          TagDefinitionProto.Type type, double min, double max, boolean required, List<String> enumerators,
                          TagDefinitionProto.Parameter parameter, long internalId, long tagEnablerId) {
@@ -70,6 +75,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         this.min = min;
         this.max = max;
         this.required = required;
+        if (enumerators == null) enumerators = new ArrayList<>();
         this.enumerators = enumerators;
         this.parameter = parameter;
         this.internal.setTargetId(internalId);
@@ -105,6 +111,9 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         String typeString = typeNode.textValue();
         if (typeString != null) {
             type = TagDefinitionProto.Type.valueOf(typeString);
+        }
+        if (type == TagDefinitionProto.Type.UNKNOWN){
+            throw new IllegalArgumentException("Invalid encoded TagDefinition");
         }
 
         this.key = key;
@@ -168,6 +177,34 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         if (tagEnablerNode != null) {
             this.tagEnabler.setTarget(new TagEnablerDefinition(tagEnablerNode));
         }
+    }
+
+    public TagDefinition(TagDefinitionProto.TagDefinition proto) {
+        String key = Util.sanitize(proto.getKey(), new char[]{'_', '-'}, false, true, 64);
+        if (key == null) {
+            throw new IllegalArgumentException("Invalid encoded TagDefinition");
+        }
+        this.key = key;
+        this.type = proto.getType();
+        if (this.type == TagDefinitionProto.Type.UNKNOWN){
+            throw new IllegalArgumentException("Invalid encoded TagDefinition");
+        }
+        if (proto.hasName()) this.name = proto.getName();
+        if (proto.hasDescription()) this.description = proto.getDescription();
+        if (proto.hasMin()) this.min = proto.getMin();
+        if (proto.hasMax()) this.max = proto.getMax();
+        this.required = proto.getRequired();
+        this.enumerators = new ArrayList<>();
+        this.enumerators.addAll(proto.getEnumeratorsList());
+        if (proto.hasParameter()) this.parameter = proto.getParameter();
+        if (this.type == TagDefinitionProto.Type.LIST) {
+            if (proto.hasInternal()) {
+                this.internal.setTarget(new TagDefinition(proto.getInternal()));
+            } else {
+                throw new IllegalArgumentException("Invalid encoded TagDefinition");
+            }
+        }
+        if (proto.hasTagEnabler()) this.tagEnabler.setTarget(new TagEnablerDefinition(proto.getTagEnabler()));
     }
 
     public Long getId() {
@@ -335,6 +372,22 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         }
     }
 
+    public TagDefinitionProto.TagDefinition getAsProto() {
+        TagDefinitionProto.TagDefinition.Builder builder = TagDefinitionProto.TagDefinition.newBuilder();
+        builder.setKey(this.key);
+        builder.setType(this.type);
+        if (this.name != null) builder.setName(this.name);
+        if (this.description != null) builder.setDescription(this.description);
+        if (this.min != Double.NEGATIVE_INFINITY && this.min != Double.POSITIVE_INFINITY) builder.setMin(this.min);
+        if (this.max != Double.NEGATIVE_INFINITY && this.max != Double.POSITIVE_INFINITY) builder.setMax(this.max);
+        builder.setRequired(this.required);
+        builder.addAllEnumerators(this.enumerators);
+        if (resolveInternal() != null) builder.setInternal(resolveInternal().getAsProto());
+        if (this.parameter != TagDefinitionProto.Parameter.NONE) builder.setParameter(this.parameter);
+        if (resolveTagEnabler() != null) builder.setTagEnabler(resolveTagEnabler().getAsProto());
+        return builder.build();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -382,8 +435,8 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         builder.append(",\n").append(generateEntity(StructureConstants.REQUIRED_KEY, required, false, indent));
         StringBuilder enumeratorsString = enumeratorToString(indent);
         builder.append(",\n").append(generateEntity(StructureConstants.ENUMERATORS_KEY, enumeratorsString, false, indent));
-        if (internal.getTarget() != null) {
-            builder.append(",\n").append(generateEntity(StructureConstants.INTERNAL_KEY, "\n" + internal.getTarget().toString(indent + 2), false, indent));
+        if (resolveInternal() != null) {
+            builder.append(",\n").append(generateEntity(StructureConstants.INTERNAL_KEY, "\n" + resolveInternal().toString(indent + 2), false, indent));
         }
         if (parameter != TagDefinitionProto.Parameter.NONE) {
             builder.append(",\n").append(generateEntity(StructureConstants.PARAMETER_KEY, parameter, true, indent));
@@ -400,9 +453,6 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     @NotNull
     private StringBuilder enumeratorToString(int indent) {
         StringBuilder enumeratorsString = new StringBuilder();
-        if (enumerators == null) {
-            return enumeratorsString.append("[]");
-        }
         if (!enumerators.isEmpty()) {
             enumeratorsString.append("\n");
             enumeratorsString.append(generateIndent(indent + 2));

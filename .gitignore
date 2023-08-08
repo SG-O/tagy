@@ -45,3 +45,4 @@ build/
 /tagyUi/dependency-reduced-pom.xml
 /tagyCore/objectbox-models/default.json.bak
 libobjectbox-jni**
+/.mvn/

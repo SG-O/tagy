@@ -24,6 +24,7 @@ import de.sg_o.lib.tagy.data.FileType;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.util.UrlConverter;
 import de.sg_o.lib.tagy.values.User;
+import de.sg_o.proto.tagy.FileInfoProto;
 import de.sg_o.test.tagy.testDb.TestDb;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -55,6 +56,9 @@ class FileInfoTest {
 
     @BeforeEach
     void setUp() throws URISyntaxException {
+        DB.closeDb();
+        new TestDb();
+
         sampleMediaFile = this.getClass().getResource("/sampleFiles/media/video/sample04.mkv");
         assertNotNull(sampleMediaFile);
         sampleMixedFile = this.getClass().getResource("/sampleFiles/mixed/sample07.webp");
@@ -74,9 +78,6 @@ class FileInfoTest {
         URL converted = uc.convertToEntityProperty(file.getAbsolutePath());
 
         fi3 = FileInfo.openOrCreate(converted, p0);
-
-        DB.closeDb();
-        new TestDb();
     }
 
     @Test
@@ -306,5 +307,23 @@ class FileInfoTest {
         assertFalse(fi1.checkIn());
         assertFalse(fi2.checkIn());
         assertFalse(fi3.checkIn());
+    }
+
+    @Test
+    void proto() {
+        FileInfoProto.FileInfo proto0 = fi0.getAsProto();
+        FileInfoProto.FileInfo proto1 = fi1.getAsProto();
+        FileInfoProto.FileInfo proto2 = fi2.getAsProto();
+        FileInfoProto.FileInfo proto3 = fi3.getAsProto();
+
+        FileInfo pr0 = new FileInfo(proto0, p0);
+        FileInfo pr1 = new FileInfo(proto1, p0);
+        FileInfo pr2 = new FileInfo(proto2, p0);
+        FileInfo pr3 = new FileInfo(proto3, p0);
+
+        assertEquals(fi0, pr0);
+        assertEquals(fi1, pr1);
+        assertEquals(fi2, pr2);
+        assertEquals(fi3, pr3);
     }
 }

@@ -609,4 +609,88 @@ class TagDefinitionTest {
         assertEquals(TagDefinitionProto.Parameter.OUT, td4.getParameter());
         assertEquals(TagDefinitionProto.Parameter.IN, td5.getParameter());
     }
+
+    @Test
+    void proto() {
+        td0.setInternal(new TagDefinition("Key", TagDefinitionProto.Type.LONG));
+
+        TagDefinition td7 = new TagDefinition(td0.getAsProto());
+        TagDefinition td8 = new TagDefinition(td1.getAsProto());
+        TagDefinition td9 = new TagDefinition(td2.getAsProto());
+        TagDefinition td10 = new TagDefinition(td3.getAsProto());
+        TagDefinition td11 = new TagDefinition(td4.getAsProto());
+        TagDefinition td12 = new TagDefinition(td5.getAsProto());
+
+        assertEquals(td0, td7);
+        assertEquals(td1, td8);
+        assertEquals(td2, td9);
+        assertEquals(td3, td10);
+        assertEquals(td4, td11);
+        assertEquals(td5, td12);
+
+        td0.setName("Name 0");
+        td1.setName("Name 1");
+        td2.setName("Name 2");
+        td3.setName("Name 3");
+        td4.setName("Name 4");
+        td5.setName("Name 5");
+
+        td0.setDescription("Description 0");
+        td1.setDescription("Description 1");
+        td2.setDescription("Description 2");
+        td3.setDescription("Description 3");
+        td4.setDescription("Description 4");
+        td5.setDescription("Description 5");
+
+        td0.setParameter(TagDefinitionProto.Parameter.IN);
+        td1.setParameter(TagDefinitionProto.Parameter.OUT);
+        td2.setParameter(TagDefinitionProto.Parameter.LENGTH);
+        td3.setParameter(TagDefinitionProto.Parameter.LENGTH);
+        td4.setParameter(TagDefinitionProto.Parameter.OUT);
+        td5.setParameter(TagDefinitionProto.Parameter.IN);
+
+        td0.setMin(1);
+        td1.setMin(2);
+        td2.setMin(3);
+        td3.setMin(4);
+        td4.setMin(5);
+        td5.setMin(6);
+
+        td0.setMax(10);
+        td1.setMax(20);
+        td2.setMax(30);
+        td3.setMax(40);
+        td4.setMax(50);
+        td5.setMax(60);
+
+        td0.setRequired(true);
+        td1.setRequired(true);
+        td2.setRequired(true);
+        td3.setRequired(true);
+        td4.setRequired(true);
+        td5.setRequired(true);
+
+        assertTrue(td3.addEnumerator("TEST"));
+        assertTrue(td3.addEnumerator("TEST1"));
+
+        td0.setTagEnabler(new TagEnablerDefinition("test3", 0));
+        td1.setTagEnabler(new TagEnablerDefinition("test3", "TEST"));
+        td2.setTagEnabler(new TagEnablerDefinition("test3", 1));
+        td4.setTagEnabler(new TagEnablerDefinition("test3", "TEST1"));
+        td5.setTagEnabler(new TagEnablerDefinition("test3", 0));
+
+        td7 = new TagDefinition(td0.getAsProto());
+        td8 = new TagDefinition(td1.getAsProto());
+        td9 = new TagDefinition(td2.getAsProto());
+        td10 = new TagDefinition(td3.getAsProto());
+        td11 = new TagDefinition(td4.getAsProto());
+        td12 = new TagDefinition(td5.getAsProto());
+
+        assertEquals(td0, td7);
+        assertEquals(td1, td8);
+        assertEquals(td2, td9);
+        assertEquals(td3, td10);
+        assertEquals(td4, td11);
+        assertEquals(td5, td12);
+    }
 }

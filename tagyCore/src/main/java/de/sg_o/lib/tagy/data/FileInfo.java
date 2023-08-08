@@ -23,6 +23,7 @@ import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.util.UrlConverter;
+import de.sg_o.proto.tagy.FileInfoProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.Convert;
@@ -35,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -43,8 +43,9 @@ import java.util.Objects;
 
 @JsonIgnoreProperties({"checkedOut"})
 @Entity
-public class FileInfo implements Serializable {
+public class FileInfo {
     private static final Tika tika = new Tika();
+    private static final UrlConverter urlConverter = new UrlConverter();
 
     @Id
     private Long id;
@@ -54,6 +55,9 @@ public class FileInfo implements Serializable {
     private boolean annotated;
     private Date checkedOutUntil;
     private final ToOne<Project> project = new ToOne<>(this, FileInfo_.project);
+
+    @Transient
+    transient BoxStore __boxStore = null;
 
     public FileInfo(Long id, @NotNull URL absolutePath, boolean annotated, Date checkedOutUntil, long projectId) {
         this.id = id;
@@ -67,6 +71,18 @@ public class FileInfo implements Serializable {
         this.absolutePath = fileReference;
         this.project.setTarget(project);
         annotated = false;
+    }
+
+    public FileInfo(@NotNull FileInfoProto.FileInfo proto, @NotNull Project project) {
+        this.absolutePath = urlConverter.convertToEntityProperty(proto.getAbsolutePath());
+        this.annotated = proto.getAnnotated();
+        if (proto.hasCheckedOutUntil()) {
+            this.checkedOutUntil = new Date(proto.getCheckedOutUntil());
+        }
+        if (!project.getProjectName().equals(proto.getProjectName())){
+            throw new IllegalArgumentException("Invalid encoded TagDefinition");
+        }
+        this.project.setTarget(project);
     }
 
     public static @NotNull FileInfo openOrCreate(@NotNull URL url, @NotNull Project project) {
@@ -130,7 +146,7 @@ public class FileInfo implements Serializable {
 
     @JsonProperty(value = "url", index = 0)
     public @NotNull String getUrlAsString() {
-        return absolutePath.toString();
+        return urlConverter.convertToDatabaseValue(absolutePath);
     }
 
     public InputStream getInputStream() throws IOException {
@@ -212,6 +228,17 @@ public class FileInfo implements Serializable {
         if (box == null) return false;
         this.id = box.put(this);
         return true;
+    }
+
+    public FileInfoProto.FileInfo getAsProto() {
+        FileInfoProto.FileInfo.Builder builder = FileInfoProto.FileInfo.newBuilder();
+        builder.setAbsolutePath(getUrlAsString());
+        builder.setAnnotated(isAnnotated());
+        if (checkedOutUntil != null) {
+            builder.setCheckedOutUntil(checkedOutUntil.getTime());
+        }
+        builder.setProjectName(getProject().getTarget().getProjectName());
+        return builder.build();
     }
 
     @Override

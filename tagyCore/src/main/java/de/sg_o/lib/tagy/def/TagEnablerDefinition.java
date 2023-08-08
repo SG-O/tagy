@@ -19,6 +19,7 @@ package de.sg_o.lib.tagy.def;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.util.JsonPrintable;
+import de.sg_o.proto.tagy.TagEnablerDefinitionProto;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
 import org.jetbrains.annotations.NotNull;
@@ -77,6 +78,19 @@ public class TagEnablerDefinition extends JsonPrintable implements Serializable 
         }
     }
 
+    public TagEnablerDefinition(@NotNull TagEnablerDefinitionProto.TagEnablerDefinition proto) {
+        this.selectorKey = proto.getSelectorKey();
+        if (proto.hasEnumIndex()) {
+            this.enumIndex = proto.getEnumIndex();
+            this.enumString = null;
+        } else if (proto.hasEnumString()) {
+            this.enumString = proto.getEnumString();
+            this.enumIndex = -1;
+        } else {
+            throw new IllegalArgumentException("Invalid encoded TagDefinition");
+        }
+    }
+
     public Long getId() {
         return id;
     }
@@ -95,6 +109,17 @@ public class TagEnablerDefinition extends JsonPrintable implements Serializable 
 
     public String getEnumString() {
         return enumString;
+    }
+
+    public TagEnablerDefinitionProto.TagEnablerDefinition getAsProto() {
+        TagEnablerDefinitionProto.TagEnablerDefinition.Builder builder = TagEnablerDefinitionProto.TagEnablerDefinition.newBuilder();
+        builder.setSelectorKey(selectorKey);
+        if (enumIndex > -1) {
+            builder.setEnumIndex(enumIndex);
+        } else if (enumString != null) {
+            builder.setEnumString(enumString);
+        }
+        return builder.build();
     }
 
     @Override

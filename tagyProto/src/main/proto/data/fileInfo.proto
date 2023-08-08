@@ -7,6 +7,6 @@ option java_outer_classname = "FileInfoProto";
 message FileInfo {
   string absolutePath = 1;
   bool annotated = 2;
-  int64 checkedOutUntil = 3;
+  optional int64 checkedOutUntil = 3;
   string projectName = 4;
 }
