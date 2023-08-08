@@ -34,15 +34,22 @@ import de.sg_o.proto.tagy.TagContainerProto;
 import de.sg_o.proto.tagy.UserProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
-import io.objectbox.annotation.*;
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Index;
+import io.objectbox.annotation.Transient;
 import io.objectbox.query.QueryBuilder;
 import io.objectbox.relation.ToMany;
 import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 public class MetaData implements Serializable {
@@ -59,7 +66,6 @@ public class MetaData implements Serializable {
     private final ToOne<FileInfo> reference = new ToOne<>(this, MetaData_.reference);
     @Index
     private final String fileReference;
-    private final ToOne<StructureDefinition> structureDefinition = new ToOne<>(this, MetaData_.structureDefinition);
     @NotNull
     private final ToMany<User> editHistory = new ToMany<>(this, MetaData_.editHistory);
     @NotNull
@@ -73,19 +79,17 @@ public class MetaData implements Serializable {
     private transient FileInfo resolvedFileReference = null;
 
     @SuppressWarnings("unused")
-    public MetaData(Long id, Map<String, String> tags, String fileReference, long projectId, long referenceId, long structureDefinitionId) {
+    public MetaData(Long id, Map<String, String> tags, String fileReference, long projectId, long referenceId) {
         this.id = id;
         this.tags = tags;
         this.fileReference = fileReference;
         this.project.setTargetId(projectId);
         this.reference.setTargetId(referenceId);
-        this.structureDefinition.setTargetId(structureDefinitionId);
     }
 
     public MetaData(@NotNull FileInfo reference, @NotNull Project project) {
         this.fileReference = reference.getUrlAsString();
         this.project.setTarget(project);
-        this.structureDefinition.setTarget(project.resolveStructureDefinition());
         this.tags = null;
     }
 
@@ -183,7 +187,8 @@ public class MetaData implements Serializable {
 
     private void migrateTags() {
         if (tags == null) return;
-        for (TagDefinition definition : structureDefinition.getTarget().getTagDefinitions()) {
+        StructureDefinition structureDefinition = resolveProject().resolveStructureDefinition();
+        for (TagDefinition definition : structureDefinition.getTagDefinitions()) {
             String encoded = tags.get(definition.getKey());
             if (encoded == null) continue;
             TagMigration tagMigration = new TagMigration(definition, encoded);
@@ -234,10 +239,6 @@ public class MetaData implements Serializable {
             return ref.getUrlAsString();
         }
         return fileReference;
-    }
-
-    public ToOne<StructureDefinition> getStructureDefinition() {
-        return structureDefinition;
     }
 
     public List<User> getEditHistory() {

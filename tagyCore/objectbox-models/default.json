@@ -132,14 +132,6 @@
           "relationTarget": "FileInfo"
         },
         {
-          "id": "5:3272220870457541729",
-          "name": "structureDefinitionId",
-          "indexId": "6:9207352378129827190",
-          "type": 11,
-          "flags": 520,
-          "relationTarget": "StructureDefinition"
-        },
-        {
           "id": "6:4669829739444121892",
           "name": "fileReference",
           "indexId": "13:7331497969784895892",
@@ -401,9 +393,12 @@
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
-  "retiredIndexUids": [],
+  "retiredIndexUids": [
+    9207352378129827190
+  ],
   "retiredPropertyUids": [
-    8698158600366419708
+    8698158600366419708,
+    3272220870457541729
   ],
   "retiredRelationUids": [],
   "version": 1
