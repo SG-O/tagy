@@ -46,3 +46,4 @@ build/
 /tagyCore/objectbox-models/default.json.bak
 libobjectbox-jni**
 /.mvn/
+/tagyProto/.flattened-pom.xml
