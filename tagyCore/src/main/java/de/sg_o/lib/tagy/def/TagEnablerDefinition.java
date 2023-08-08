@@ -33,7 +33,6 @@ public class TagEnablerDefinition extends JsonPrintable implements Serializable 
     @NotNull
     private final String selectorKey;
     private final int enumIndex;
-
     private final String enumString;
 
     @SuppressWarnings("unused")

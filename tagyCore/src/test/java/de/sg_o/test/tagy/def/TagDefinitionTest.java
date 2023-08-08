@@ -18,11 +18,10 @@
 package de.sg_o.test.tagy.def;
 
 import de.sg_o.lib.tagy.db.DB;
-import de.sg_o.lib.tagy.def.Parameter;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition_;
 import de.sg_o.lib.tagy.def.TagEnablerDefinition;
-import de.sg_o.lib.tagy.def.Type;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import de.sg_o.test.tagy.testDb.TestDb;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -45,12 +44,12 @@ class TagDefinitionTest {
         DB.closeDb();
         new TestDb();
 
-        td0 = new TagDefinition("test0", Type.LIST);
-        td1 = new TagDefinition("test1", Type.LONG);
-        td2 = new TagDefinition("test2", Type.DOUBLE);
-        td3 = new TagDefinition("test3", Type.ENUM);
-        td4 = new TagDefinition("test4", Type.STRING);
-        td5 = new TagDefinition("test5", Type.DATE);
+        td0 = new TagDefinition("test0", TagDefinitionProto.Type.LIST);
+        td1 = new TagDefinition("test1", TagDefinitionProto.Type.LONG);
+        td2 = new TagDefinition("test2", TagDefinitionProto.Type.DOUBLE);
+        td3 = new TagDefinition("test3", TagDefinitionProto.Type.ENUM);
+        td4 = new TagDefinition("test4", TagDefinitionProto.Type.STRING);
+        td5 = new TagDefinition("test5", TagDefinitionProto.Type.DATE);
     }
 
     @Test
@@ -65,12 +64,12 @@ class TagDefinitionTest {
 
     @Test
     void getType() {
-        assertEquals(Type.LIST, td0.getType());
-        assertEquals(Type.LONG, td1.getType());
-        assertEquals(Type.DOUBLE, td2.getType());
-        assertEquals(Type.ENUM, td3.getType());
-        assertEquals(Type.STRING, td4.getType());
-        assertEquals(Type.DATE, td5.getType());
+        assertEquals(TagDefinitionProto.Type.LIST, td0.getType());
+        assertEquals(TagDefinitionProto.Type.LONG, td1.getType());
+        assertEquals(TagDefinitionProto.Type.DOUBLE, td2.getType());
+        assertEquals(TagDefinitionProto.Type.ENUM, td3.getType());
+        assertEquals(TagDefinitionProto.Type.STRING, td4.getType());
+        assertEquals(TagDefinitionProto.Type.DATE, td5.getType());
     }
 
     @Test
@@ -181,7 +180,7 @@ class TagDefinitionTest {
         assertNull(td4.resolveInternal());
         assertNull(td5.resolveInternal());
 
-        td0.setInternal(new TagDefinition("Key", Type.LONG));
+        td0.setInternal(new TagDefinition("Key", TagDefinitionProto.Type.LONG));
 
         assertEquals("{\n" +
                         "\t\"key\": \"Key\",\n" +
@@ -195,7 +194,7 @@ class TagDefinitionTest {
     @SuppressWarnings({"EqualsWithItself", "resource"})
     @Test
     void testEquals() {
-        TagDefinition td6 = new TagDefinition("test0", Type.LIST);
+        TagDefinition td6 = new TagDefinition("test0", TagDefinitionProto.Type.LIST);
 
         assertEquals(td0, td0);
         assertEquals(td2, td2);
@@ -238,7 +237,7 @@ class TagDefinitionTest {
         assertTrue(td3.addEnumerator("TEST"));
         assertTrue(td3.addEnumerator("TEST1"));
 
-        td0.setInternal(new TagDefinition("Key", Type.LONG));
+        td0.setInternal(new TagDefinition("Key", TagDefinitionProto.Type.LONG));
 
         td0.setTagEnabler(new TagEnablerDefinition("test3", 0));
         td1.setTagEnabler(new TagEnablerDefinition("test3", "TEST"));
@@ -295,12 +294,12 @@ class TagDefinitionTest {
         td4.setDescription("Description 4");
         td5.setDescription("Description 5");
 
-        td0.setParameter(Parameter.IN);
-        td1.setParameter(Parameter.OUT);
-        td2.setParameter(Parameter.LENGTH);
-        td3.setParameter(Parameter.LENGTH);
-        td4.setParameter(Parameter.OUT);
-        td5.setParameter(Parameter.IN);
+        td0.setParameter(TagDefinitionProto.Parameter.IN);
+        td1.setParameter(TagDefinitionProto.Parameter.OUT);
+        td2.setParameter(TagDefinitionProto.Parameter.LENGTH);
+        td3.setParameter(TagDefinitionProto.Parameter.LENGTH);
+        td4.setParameter(TagDefinitionProto.Parameter.OUT);
+        td5.setParameter(TagDefinitionProto.Parameter.IN);
 
         box.put(td0);
         box.put(td1);
@@ -404,17 +403,17 @@ class TagDefinitionTest {
         td4.setRequired(true);
         td5.setRequired(true);
 
-        td0.setParameter(Parameter.IN);
-        td1.setParameter(Parameter.OUT);
-        td2.setParameter(Parameter.LENGTH);
-        td3.setParameter(Parameter.LENGTH);
-        td4.setParameter(Parameter.OUT);
-        td5.setParameter(Parameter.IN);
+        td0.setParameter(TagDefinitionProto.Parameter.IN);
+        td1.setParameter(TagDefinitionProto.Parameter.OUT);
+        td2.setParameter(TagDefinitionProto.Parameter.LENGTH);
+        td3.setParameter(TagDefinitionProto.Parameter.LENGTH);
+        td4.setParameter(TagDefinitionProto.Parameter.OUT);
+        td5.setParameter(TagDefinitionProto.Parameter.IN);
 
         assertTrue(td3.addEnumerator("TEST"));
         assertTrue(td3.addEnumerator("TEST1"));
 
-        td0.setInternal(new TagDefinition("Key", Type.LONG));
+        td0.setInternal(new TagDefinition("Key", TagDefinitionProto.Type.LONG));
 
         td0.setTagEnabler(new TagEnablerDefinition("test3", 0));
         td1.setTagEnabler(new TagEnablerDefinition("test3", "TEST"));
@@ -589,25 +588,25 @@ class TagDefinitionTest {
 
     @Test
     void getParameter() {
-        assertEquals(Parameter.NONE, td0.getParameter());
-        assertEquals(Parameter.NONE, td1.getParameter());
-        assertEquals(Parameter.NONE, td2.getParameter());
-        assertEquals(Parameter.NONE, td3.getParameter());
-        assertEquals(Parameter.NONE, td4.getParameter());
-        assertEquals(Parameter.NONE, td5.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.NONE, td0.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.NONE, td1.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.NONE, td2.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.NONE, td3.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.NONE, td4.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.NONE, td5.getParameter());
 
-        td0.setParameter(Parameter.IN);
-        td1.setParameter(Parameter.OUT);
-        td2.setParameter(Parameter.LENGTH);
-        td3.setParameter(Parameter.LENGTH);
-        td4.setParameter(Parameter.OUT);
-        td5.setParameter(Parameter.IN);
+        td0.setParameter(TagDefinitionProto.Parameter.IN);
+        td1.setParameter(TagDefinitionProto.Parameter.OUT);
+        td2.setParameter(TagDefinitionProto.Parameter.LENGTH);
+        td3.setParameter(TagDefinitionProto.Parameter.LENGTH);
+        td4.setParameter(TagDefinitionProto.Parameter.OUT);
+        td5.setParameter(TagDefinitionProto.Parameter.IN);
 
-        assertEquals(Parameter.IN, td0.getParameter());
-        assertEquals(Parameter.OUT, td1.getParameter());
-        assertEquals(Parameter.LENGTH, td2.getParameter());
-        assertEquals(Parameter.LENGTH, td3.getParameter());
-        assertEquals(Parameter.OUT, td4.getParameter());
-        assertEquals(Parameter.IN, td5.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.IN, td0.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.OUT, td1.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.LENGTH, td2.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.LENGTH, td3.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.OUT, td4.getParameter());
+        assertEquals(TagDefinitionProto.Parameter.IN, td5.getParameter());
     }
 }

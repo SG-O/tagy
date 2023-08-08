@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.util.JsonPrintable;
 import de.sg_o.lib.tagy.util.Util;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.*;
 import io.objectbox.relation.ToOne;
@@ -40,23 +41,27 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     private final String key;
     private String name;
     private String description;
-    @Convert(converter = Type.TypeConverter.class, dbType = Integer.class)
-    private final Type type;
+    @Convert(converter = TypeConverter.class, dbType = Integer.class)
+    private final TagDefinitionProto.Type type;
     private double min = Double.NEGATIVE_INFINITY;
-    private double max= Double.POSITIVE_INFINITY;
+    private double max = Double.POSITIVE_INFINITY;
     private boolean required = false;
     private final List<String> enumerators;
-    @Convert(converter = Parameter.ParameterConverter.class, dbType = Integer.class)
-    private Parameter parameter = Parameter.NONE;
+    @Convert(converter = ParameterConverter.class, dbType = Integer.class)
+    private TagDefinitionProto.Parameter parameter = TagDefinitionProto.Parameter.NONE;
     private final ToOne<TagDefinition> internal = new ToOne<>(this, TagDefinition_.internal);
     private final ToOne<TagEnablerDefinition> tagEnabler = new ToOne<>(this, TagDefinition_.tagEnabler);
 
     @Transient
     transient BoxStore __boxStore = null;
+    @Transient
+    private static final TypeConverter typeConverter = new TypeConverter();
+    @Transient
+    private static final ParameterConverter parameterConverter = new ParameterConverter();
 
     public TagDefinition(Long id, @NotNull String key, String name, String description,
-                         Type type, double min, double max, boolean required, List<String> enumerators,
-                         Parameter parameter, long internalId, long tagEnablerId) {
+                         TagDefinitionProto.Type type, double min, double max, boolean required, List<String> enumerators,
+                         TagDefinitionProto.Parameter parameter, long internalId, long tagEnablerId) {
         this.id = id;
         this.key = key;
         this.name = name;
@@ -71,7 +76,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         this.tagEnabler.setTargetId(tagEnablerId);
     }
 
-    public TagDefinition(@Nullable String key, @NotNull Type type) {
+    public TagDefinition(@Nullable String key, @NotNull TagDefinitionProto.Type type) {
         if (key == null) key = "";
         key = Util.sanitize(key, new char[]{'_', '-'}, false, true, 64);
         this.key = key;
@@ -95,13 +100,11 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         if (typeNode == null) {
             throw new IllegalArgumentException("Invalid encoded TagDefinition");
         }
-        Type type = Type.getType(typeNode.intValue());
+
+        TagDefinitionProto.Type type = typeConverter.convertToEntityProperty(typeNode.intValue());
         String typeString = typeNode.textValue();
         if (typeString != null) {
-            type = Type.valueOf(typeString);
-        }
-        if (type == null) {
-            throw new IllegalArgumentException("Invalid encoded TagDefinition");
+            type = TagDefinitionProto.Type.valueOf(typeString);
         }
 
         this.key = key;
@@ -144,16 +147,15 @@ public class TagDefinition extends JsonPrintable implements Serializable {
 
         JsonNode parameterNode = encoded.get(StructureConstants.PARAMETER_KEY);
         if (parameterNode != null) {
-            Parameter parameter = Parameter.getParameter(parameterNode.intValue());
+            TagDefinitionProto.Parameter parameter = parameterConverter.convertToEntityProperty(parameterNode.intValue());
             String parameterString = parameterNode.textValue();
             if (parameterString != null) {
-                parameter = Parameter.valueOf(parameterString);
+                parameter = TagDefinitionProto.Parameter.valueOf(parameterString);
             }
-            if (parameter == null) parameter = Parameter.NONE;
             this.parameter = parameter;
         }
 
-        if (this.type == Type.LIST) {
+        if (this.type == TagDefinitionProto.Type.LIST) {
             JsonNode internalNode = encoded.get(StructureConstants.INTERNAL_KEY);
             if (internalNode != null) {
                 this.internal.setTarget(new TagDefinition(internalNode));
@@ -207,7 +209,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     }
 
     @JsonProperty(index = 3)
-    public @NotNull Type getType() {
+    public @NotNull TagDefinitionProto.Type getType() {
         return type;
     }
 
@@ -239,65 +241,65 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     }
 
     public boolean addEnumerator(String enumerator) {
-        if (type !=  Type.ENUM) return false;
+        if (type !=  TagDefinitionProto.Type.ENUM) return false;
         return enumerators.add(enumerator);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean addAllEnumerators(List<String> enumerator) {
-        if (type != Type.ENUM) return false;
+        if (type != TagDefinitionProto.Type.ENUM) return false;
         return enumerators.addAll(enumerator);
     }
 
     public boolean removeEnumerator(String enumerator) {
-        if (type != Type.ENUM) return false;
+        if (type != TagDefinitionProto.Type.ENUM) return false;
         return enumerators.remove(enumerator);
     }
 
     public boolean removeEnumerator(int index) {
-        if (type != Type.ENUM) return false;
+        if (type != TagDefinitionProto.Type.ENUM) return false;
         if (index < 0 || index >= enumerators.size()) return false;
         return enumerators.remove(index) != null;
     }
 
     @SuppressWarnings("unused")
     public boolean clearEnumerators() {
-        if (type != Type.ENUM) return false;
+        if (type != TagDefinitionProto.Type.ENUM) return false;
         enumerators.clear();
         return true;
     }
 
     @JsonProperty(index = 7)
     public ArrayList<String> getEnumerators() {
-        if (type != Type.ENUM) return null;
+        if (type != TagDefinitionProto.Type.ENUM) return null;
         return new ArrayList<>(enumerators);
     }
 
     @JsonProperty(value = StructureConstants.INTERNAL_KEY, index = 8)
     public TagDefinition resolveInternal() {
-        if (type != Type.LIST) return null;
+        if (type != TagDefinitionProto.Type.LIST) return null;
         return internal.getTarget();
     }
 
     public ToOne<TagDefinition> getInternal() {
-        if (type != Type.LIST) {
+        if (type != TagDefinitionProto.Type.LIST) {
             internal.setTarget(null);
         }
         return internal;
     }
 
     public void setInternal(TagDefinition internal) {
-        if (type != Type.LIST) return;
+        if (type != TagDefinitionProto.Type.LIST) return;
         this.internal.setTarget(internal);
     }
 
     @JsonProperty(index = 9)
-    public @NotNull Parameter getParameter() {
+    public @NotNull TagDefinitionProto.Parameter getParameter() {
         return parameter;
     }
 
-    public void setParameter(Parameter parameter) {
-        if (parameter == null) parameter = Parameter.NONE;
+    public void setParameter(TagDefinitionProto.Parameter parameter) {
+        if (parameter == null) parameter = TagDefinitionProto.Parameter.NONE;
         this.parameter = parameter;
     }
 
@@ -306,6 +308,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         return tagEnabler.getTarget();
     }
 
+    @SuppressWarnings("unused")
     public ToOne<TagEnablerDefinition> getTagEnabler() {
         return tagEnabler;
     }
@@ -337,20 +340,25 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TagDefinition that = (TagDefinition) o;
-        return Double.compare(that.getMin(),
-                getMin()) == 0 && Double.compare(that.getMax(),
-                getMax()) == 0 && isRequired() == that.isRequired() && Objects.equals(getKey(),
-                that.getKey()) && Objects.equals(resolveName(),
-                that.resolveName()) && Objects.equals(getDescription(),
-                that.getDescription()) && getType().getId() == that.getType().getId() && Objects.equals(getEnumerators(),
-                that.getEnumerators()) && Objects.equals(resolveInternal(),
-                that.resolveInternal()) && getParameter().getId() == that.getParameter().getId() && Objects.equals(resolveTagEnabler(),
-                that.resolveTagEnabler());
+        return Double.compare(that.getMin(), getMin()) == 0 &&
+                Double.compare(that.getMax(), getMax()) == 0 &&
+                isRequired() == that.isRequired() &&
+                Objects.equals(getKey(), that.getKey()) &&
+                Objects.equals(resolveName(), that.resolveName()) &&
+                Objects.equals(getDescription(), that.getDescription()) &&
+                Objects.equals(typeConverter.convertToDatabaseValue(getType()), typeConverter.convertToDatabaseValue(that.getType())) &&
+                Objects.equals(getEnumerators(), that.getEnumerators()) &&
+                Objects.equals(resolveInternal(), that.resolveInternal()) &&
+                Objects.equals(parameterConverter.convertToDatabaseValue(getParameter()), parameterConverter.convertToDatabaseValue(that.getParameter())) &&
+                Objects.equals(resolveTagEnabler(), that.resolveTagEnabler());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getKey(), resolveName(), getDescription(), getType().getId(), getMin(), getMax(), isRequired(), getEnumerators(), resolveInternal(), getParameter().getId(), resolveTagEnabler());
+        return Objects.hash(getKey(), resolveName(), getDescription(),
+                typeConverter.convertToDatabaseValue(getType()), getMin(),
+                getMax(), isRequired(), getEnumerators(), resolveInternal(),
+                parameterConverter.convertToDatabaseValue(getParameter()), resolveTagEnabler());
     }
 
     public String toString(int indent) {
@@ -377,7 +385,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         if (internal.getTarget() != null) {
             builder.append(",\n").append(generateEntity(StructureConstants.INTERNAL_KEY, "\n" + internal.getTarget().toString(indent + 2), false, indent));
         }
-        if (parameter != Parameter.NONE) {
+        if (parameter != TagDefinitionProto.Parameter.NONE) {
             builder.append(",\n").append(generateEntity(StructureConstants.PARAMETER_KEY, parameter, true, indent));
         }
         if (resolveTagEnabler() != null) {

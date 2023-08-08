@@ -19,7 +19,7 @@ package de.sg_o.app.tagy.customComponents;
 
 import de.sg_o.app.tagy.annotator.Input;
 import de.sg_o.lib.tagy.data.FileInfo;
-import de.sg_o.lib.tagy.def.Parameter;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
@@ -46,11 +46,11 @@ public class Player extends JPanel {
         Input length = null;
 
         for (Input input : inputs) {
-            if (input.getTagDefinition().getParameter() == Parameter.IN) {
+            if (input.getTagDefinition().getParameter() == TagDefinitionProto.Parameter.IN) {
                 in = input;
-            } else if (input.getTagDefinition().getParameter() == Parameter.OUT) {
+            } else if (input.getTagDefinition().getParameter() == TagDefinitionProto.Parameter.OUT) {
                 out = input;
-            } else if (input.getTagDefinition().getParameter() == Parameter.LENGTH) {
+            } else if (input.getTagDefinition().getParameter() == TagDefinitionProto.Parameter.LENGTH) {
                 length = input;
             }
         }

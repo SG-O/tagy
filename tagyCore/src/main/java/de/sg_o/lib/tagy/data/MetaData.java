@@ -49,8 +49,14 @@ import java.util.Objects;
 public class MetaData {
     @Id
     Long id;
+
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated //Usage to support upgrades from previous versions.
     private Map<String, String> tags;
     private final ToOne<Project> project = new ToOne<>(this, MetaData_.project);
+
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated//Usage to support upgrades from previous versions.
     private final ToOne<FileInfo> reference = new ToOne<>(this, MetaData_.reference);
     @Index
     private final String fileReference;

@@ -18,10 +18,10 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.bool.TagBool;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +36,8 @@ class TagBoolTest {
 
     @BeforeEach
     void setUp() {
-        TagDefinition td0 = new TagDefinition("key0", Type.BOOLEAN);
-        TagDefinition td1 = new TagDefinition("key1", Type.BOOLEAN);
+        TagDefinition td0 = new TagDefinition("key0", TagDefinitionProto.Type.BOOLEAN);
+        TagDefinition td1 = new TagDefinition("key1", TagDefinitionProto.Type.BOOLEAN);
 
         tag0 = new TagBool(td0, true);
         tag1 = new TagBool(td1, true);

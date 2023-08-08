@@ -18,10 +18,10 @@
 package de.sg_o.lib.tagy.query.properties;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.query.QueryProperty;
 import de.sg_o.lib.tagy.tag.TagContainer;
 import de.sg_o.lib.tagy.tag.TagContainer_;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +48,7 @@ public class NotEquals extends QueryProperty {
 
     public NotEquals(TagDefinition tagDefinition, @NotNull String value) {
         super(tagDefinition);
-        if (tagDefinition.getType() == Type.ENUM) {
+        if (tagDefinition.getType() == TagDefinitionProto.Type.ENUM) {
             int index = tagDefinition.getEnumerators().indexOf(value);
             if (index > -1) {
                 this.queryProperty = () -> TagContainer_.longValue.notEqual(index);

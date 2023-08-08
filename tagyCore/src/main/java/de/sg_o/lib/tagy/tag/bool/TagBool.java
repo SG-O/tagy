@@ -20,8 +20,8 @@ package de.sg_o.lib.tagy.tag.bool;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -30,13 +30,13 @@ public class TagBool extends Tag {
     private final boolean value;
     public TagBool(@NotNull TagDefinition definition, boolean value) {
         super(definition);
-        if (definition.getType() != Type.BOOLEAN) throw new IllegalArgumentException("Definition is not of type double");
+        if (definition.getType() != TagDefinitionProto.Type.BOOLEAN) throw new IllegalArgumentException("Definition is not of type double");
         this.value = value;
     }
 
     public TagBool(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
-        if (definition.getType() != Type.BOOLEAN) throw new IllegalArgumentException("Definition is not of type double");
+        if (definition.getType() != TagDefinitionProto.Type.BOOLEAN) throw new IllegalArgumentException("Definition is not of type double");
         JsonNode value = document.get("value");
         if (value == null) value = document.get(getKey());
         Boolean tmp = null;

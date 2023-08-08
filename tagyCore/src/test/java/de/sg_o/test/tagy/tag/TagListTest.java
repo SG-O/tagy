@@ -18,11 +18,11 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
 import de.sg_o.lib.tagy.tag.list.TagList;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,12 +39,12 @@ class TagListTest {
 
     @BeforeEach
     void setUp() {
-        TagDefinition td0 = new TagDefinition("key0", Type.LIST);
-        TagDefinition td1 = new TagDefinition("key1", Type.LIST);
+        TagDefinition td0 = new TagDefinition("key0", TagDefinitionProto.Type.LIST);
+        TagDefinition td1 = new TagDefinition("key1", TagDefinitionProto.Type.LIST);
 
-        tdl0 = new TagDefinition("value0", Type.LONG);
-        tdl1 = new TagDefinition("value1", Type.LONG);
-        tdl2 = new TagDefinition("value2", Type.LONG);
+        tdl0 = new TagDefinition("value0", TagDefinitionProto.Type.LONG);
+        tdl1 = new TagDefinition("value1", TagDefinitionProto.Type.LONG);
+        tdl2 = new TagDefinition("value2", TagDefinitionProto.Type.LONG);
 
         td0.setInternal(tdl0);
         td1.setInternal(tdl0);

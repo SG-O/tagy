@@ -18,10 +18,10 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.enumerator.TagEnum;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,10 +43,10 @@ class TagEnumTest {
 
     @BeforeEach
     void setUp() {
-        TagDefinition td0 = new TagDefinition("key0", Type.ENUM);
-        TagDefinition td1 = new TagDefinition("key1", Type.ENUM);
-        TagDefinition td2 = new TagDefinition("key0", Type.ENUM);
-        TagDefinition td3 = new TagDefinition("key1", Type.ENUM);
+        TagDefinition td0 = new TagDefinition("key0", TagDefinitionProto.Type.ENUM);
+        TagDefinition td1 = new TagDefinition("key1", TagDefinitionProto.Type.ENUM);
+        TagDefinition td2 = new TagDefinition("key0", TagDefinitionProto.Type.ENUM);
+        TagDefinition td3 = new TagDefinition("key1", TagDefinitionProto.Type.ENUM);
 
         enumerators0.add("Option 1");
         enumerators0.add("Option 2");

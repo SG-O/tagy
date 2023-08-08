@@ -18,10 +18,10 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,8 +37,8 @@ class TagLongTest {
 
     @BeforeEach
     void setUp() {
-        TagDefinition td0 = new TagDefinition("key0", Type.LONG);
-        TagDefinition td1 = new TagDefinition("key1", Type.LONG);
+        TagDefinition td0 = new TagDefinition("key0", TagDefinitionProto.Type.LONG);
+        TagDefinition td1 = new TagDefinition("key1", TagDefinitionProto.Type.LONG);
 
         tag0 = new TagLong(td0, 1);
         tag1 = new TagLong(td1, 1);

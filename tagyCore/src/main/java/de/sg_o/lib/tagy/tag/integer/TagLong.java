@@ -20,8 +20,8 @@ package de.sg_o.lib.tagy.tag.integer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -30,13 +30,13 @@ public class TagLong extends Tag {
     private final long value;
     public TagLong(@NotNull TagDefinition definition, long value) {
         super(definition);
-        if (definition.getType() != Type.LONG) throw new IllegalArgumentException("Definition is not of type long");
+        if (definition.getType() != TagDefinitionProto.Type.LONG) throw new IllegalArgumentException("Definition is not of type long");
         this.value = value;
     }
 
     public TagLong(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
-        if (definition.getType() != Type.LONG) throw new IllegalArgumentException("Definition is not of type long");
+        if (definition.getType() != TagDefinitionProto.Type.LONG) throw new IllegalArgumentException("Definition is not of type long");
         JsonNode value = document.get("value");
         if (value == null) value = document.get(getKey());
         Long tmp = null;

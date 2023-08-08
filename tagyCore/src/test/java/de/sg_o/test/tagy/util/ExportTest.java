@@ -25,11 +25,11 @@ import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.floating.TagDouble;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
 import de.sg_o.lib.tagy.util.Export;
 import de.sg_o.lib.tagy.values.User;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import de.sg_o.test.tagy.testDb.TestDb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,8 +56,8 @@ class ExportTest {
         DB.closeDb();
         new TestDb();
 
-        TagDefinition td0 = new TagDefinition("tag0", Type.LONG);
-        TagDefinition td1 = new TagDefinition("tag1", Type.DOUBLE);
+        TagDefinition td0 = new TagDefinition("tag0", TagDefinitionProto.Type.LONG);
+        TagDefinition td1 = new TagDefinition("tag1", TagDefinitionProto.Type.DOUBLE);
 
         tags0.add(td0);
         tags0.add(td1);

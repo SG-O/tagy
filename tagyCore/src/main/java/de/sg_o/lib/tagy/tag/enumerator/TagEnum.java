@@ -20,8 +20,8 @@ package de.sg_o.lib.tagy.tag.enumerator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -34,14 +34,14 @@ public class TagEnum extends Tag {
 
     public TagEnum(@NotNull TagDefinition definition, int value) {
         super(definition);
-        if (definition.getType() != Type.ENUM) throw new IllegalArgumentException("Definition is not of type enum");
+        if (definition.getType() != TagDefinitionProto.Type.ENUM) throw new IllegalArgumentException("Definition is not of type enum");
         if (value < 0) value = -1;
         this.value = value;
     }
 
     public TagEnum(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
-        if (definition.getType() != Type.ENUM) throw new IllegalArgumentException("Definition is not of type enum");
+        if (definition.getType() != TagDefinitionProto.Type.ENUM) throw new IllegalArgumentException("Definition is not of type enum");
         JsonNode value = document.get("value");
         if (value == null) value = document.get(getKey());
         Integer tmp = null;

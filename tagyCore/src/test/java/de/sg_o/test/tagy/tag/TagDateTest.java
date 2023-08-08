@@ -18,10 +18,10 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.date.TagDate;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,8 +39,8 @@ class TagDateTest {
 
     @BeforeEach
     void setUp() {
-        TagDefinition td0 = new TagDefinition("key0", Type.DATE);
-        TagDefinition td1 = new TagDefinition("key1", Type.DATE);
+        TagDefinition td0 = new TagDefinition("key0", TagDefinitionProto.Type.DATE);
+        TagDefinition td1 = new TagDefinition("key1", TagDefinitionProto.Type.DATE);
 
         tag0 = new TagDate(td0, new Date(1672531200000L));
         tag1 = new TagDate(td1, new Date(1672531200000L));

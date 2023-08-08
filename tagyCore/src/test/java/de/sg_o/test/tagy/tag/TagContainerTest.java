@@ -18,7 +18,6 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.TagContainer;
 import de.sg_o.lib.tagy.tag.bool.TagBool;
 import de.sg_o.lib.tagy.tag.date.TagDate;
@@ -27,6 +26,7 @@ import de.sg_o.lib.tagy.tag.floating.TagDouble;
 import de.sg_o.lib.tagy.tag.integer.TagLong;
 import de.sg_o.lib.tagy.tag.list.TagList;
 import de.sg_o.lib.tagy.tag.string.TagString;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -37,17 +37,17 @@ class TagContainerTest {
 
     @Test
     void getTag() {
-        TagDefinition td0 = new TagDefinition("td0", Type.BOOLEAN);
-        TagDefinition td1 = new TagDefinition("td1", Type.DATE);
-        TagDefinition td2 = new TagDefinition("td2", Type.ENUM);
+        TagDefinition td0 = new TagDefinition("td0", TagDefinitionProto.Type.BOOLEAN);
+        TagDefinition td1 = new TagDefinition("td1", TagDefinitionProto.Type.DATE);
+        TagDefinition td2 = new TagDefinition("td2", TagDefinitionProto.Type.ENUM);
         td2.addEnumerator("e1");
         td2.addEnumerator("e2");
-        TagDefinition td3 = new TagDefinition("td3", Type.DOUBLE);
-        TagDefinition td4 = new TagDefinition("td4", Type.LONG);
-        TagDefinition td5 = new TagDefinition("td5", Type.LIST);
-        TagDefinition td51 = new TagDefinition("td5.1", Type.STRING);
+        TagDefinition td3 = new TagDefinition("td3", TagDefinitionProto.Type.DOUBLE);
+        TagDefinition td4 = new TagDefinition("td4", TagDefinitionProto.Type.LONG);
+        TagDefinition td5 = new TagDefinition("td5", TagDefinitionProto.Type.LIST);
+        TagDefinition td51 = new TagDefinition("td5.1", TagDefinitionProto.Type.STRING);
         td5.setInternal(td51);
-        TagDefinition td6 = new TagDefinition("td6", Type.STRING);
+        TagDefinition td6 = new TagDefinition("td6", TagDefinitionProto.Type.STRING);
 
 
         TagBool tag0 = new TagBool(td0, true);

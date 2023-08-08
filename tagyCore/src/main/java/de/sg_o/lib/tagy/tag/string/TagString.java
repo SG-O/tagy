@@ -20,8 +20,8 @@ package de.sg_o.lib.tagy.tag.string;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -32,13 +32,13 @@ public class TagString extends Tag {
 
     public TagString(@NotNull TagDefinition definition, @NotNull String value) {
         super(definition);
-        if (definition.getType() != Type.STRING) throw new IllegalArgumentException("Definition is not of type string");
+        if (definition.getType() != TagDefinitionProto.Type.STRING) throw new IllegalArgumentException("Definition is not of type string");
         this.value = value;
     }
 
     public TagString(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
-        if (definition.getType() != Type.STRING) throw new IllegalArgumentException("Definition is not of type string");
+        if (definition.getType() != TagDefinitionProto.Type.STRING) throw new IllegalArgumentException("Definition is not of type string");
         JsonNode value = document.get("value");
         if (value == null) value = document.get(getKey());
         String tmp = null;

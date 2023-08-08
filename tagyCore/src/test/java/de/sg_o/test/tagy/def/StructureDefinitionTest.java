@@ -23,9 +23,9 @@ import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.StructureDefinition_;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import de.sg_o.test.tagy.testDb.TestDb;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -54,11 +54,11 @@ class StructureDefinitionTest {
         DB.closeDb();
         new TestDb();
 
-        tags0.add(new TagDefinition("tag0", Type.LONG));
-        tags0.add(new TagDefinition("tag1", Type.DOUBLE));
+        tags0.add(new TagDefinition("tag0", TagDefinitionProto.Type.LONG));
+        tags0.add(new TagDefinition("tag1", TagDefinitionProto.Type.DOUBLE));
 
-        tags1.add(new TagDefinition("tag2", Type.LONG));
-        TagDefinition td = new TagDefinition("tag3", Type.ENUM);
+        tags1.add(new TagDefinition("tag2", TagDefinitionProto.Type.LONG));
+        TagDefinition td = new TagDefinition("tag3", TagDefinitionProto.Type.ENUM);
         td.addEnumerator("Option 1");
         td.addEnumerator("Option 2");
         tags1.add(td);
@@ -198,12 +198,12 @@ class StructureDefinitionTest {
         assertEquals(0, sd.getTagDefinitions().size());
         sd.save();
 
-        TagDefinition tag4 = new TagDefinition("tag4", Type.LIST);
-        tag4.setInternal(new TagDefinition("", Type.STRING));
+        TagDefinition tag4 = new TagDefinition("tag4", TagDefinitionProto.Type.LIST);
+        tag4.setInternal(new TagDefinition("", TagDefinitionProto.Type.STRING));
 
         ArrayList<TagDefinition> tags2 = new ArrayList<>(tags1);
         tags2.add(tag4);
-        tags2.add(new TagDefinition("tag5", Type.DATE));
+        tags2.add(new TagDefinition("tag5", TagDefinitionProto.Type.DATE));
         tags2.addAll(tags0);
 
         sd = p2.resolveStructureDefinition();

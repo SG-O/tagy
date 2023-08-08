@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class TagList extends Tag {
 
     public TagList(@NotNull TagDefinition definition, int initialCapacity) {
         super(definition);
-        if (definition.getType() != Type.LIST) throw new IllegalArgumentException("Definition is not of type list");
+        if (definition.getType() != TagDefinitionProto.Type.LIST) throw new IllegalArgumentException("Definition is not of type list");
         if (definition.getInternal() == null) throw new IllegalArgumentException("Internal definition is null");
         if (initialCapacity < 0) throw new IllegalArgumentException("Initial capacity is negative");
         values = new ArrayList<>(initialCapacity);
@@ -52,7 +52,7 @@ public class TagList extends Tag {
         JsonNode array = raw;
         if (raw.isObject()) array = raw.get("values");
         if (array == null) array = raw.get(getKey());
-        if (definition.getType() != Type.LIST) throw new IllegalArgumentException("Definition is not of type list");
+        if (definition.getType() != TagDefinitionProto.Type.LIST) throw new IllegalArgumentException("Definition is not of type list");
         if (definition.getInternal() == null) throw new IllegalArgumentException("Internal definition is null");
         if (array != null) {
             this.values = new ArrayList<>(array.size());

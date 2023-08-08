@@ -1,0 +1,42 @@
+syntax = "proto3";
+import "def/tagEnablerDefinition.proto";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "TagDefinitionProto";
+
+//SpecVersion: 1
+
+message TagDefinition {
+  string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  Type type = 4;
+  double min = 5;
+  double max = 6;
+  bool required = 7;
+  repeated string enumerators = 8;
+  Parameter parameter = 9;
+  repeated TagDefinition internal = 10;
+  TagEnablerDefinition tagEnabler = 11;
+}
+
+enum Type {
+  UNKNOWN = 0;
+  LIST = 1;
+  LONG = 2;
+  DOUBLE = 3;
+  ENUM = 4;
+  STRING = 5;
+  DATE = 6;
+  BOOLEAN = 7;
+}
+
+enum Parameter {
+  //No parameter is used
+  NONE = 0;
+  //Point where the desired content starts in video or audio in milliseconds
+  IN = 1;
+  //Point where the desired content ends in video or audio in milliseconds
+  OUT = 2;
+  //Total length of the video or audio in milliseconds
+  LENGTH = 3;
+}

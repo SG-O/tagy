@@ -18,10 +18,10 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.string.TagString;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,8 +37,8 @@ class TagStringTest {
 
     @BeforeEach
     void setUp() {
-        TagDefinition td0 = new TagDefinition("key0", Type.STRING);
-        TagDefinition td1 = new TagDefinition("key1", Type.STRING);
+        TagDefinition td0 = new TagDefinition("key0", TagDefinitionProto.Type.STRING);
+        TagDefinition td1 = new TagDefinition("key1", TagDefinitionProto.Type.STRING);
 
         tag0 = new TagString(td0, "Value 1");
         tag1 = new TagString(td1, "Value 1");

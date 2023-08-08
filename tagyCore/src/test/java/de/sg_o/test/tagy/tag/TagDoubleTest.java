@@ -18,10 +18,10 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.tag.floating.TagDouble;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,8 +37,8 @@ class TagDoubleTest {
 
     @BeforeEach
     void setUp() {
-        TagDefinition td0 = new TagDefinition("key0", Type.DOUBLE);
-        TagDefinition td1 = new TagDefinition("key1", Type.DOUBLE);
+        TagDefinition td0 = new TagDefinition("key0", TagDefinitionProto.Type.DOUBLE);
+        TagDefinition td1 = new TagDefinition("key1", TagDefinitionProto.Type.DOUBLE);
 
         tag0 = new TagDouble(td0, 1.0);
         tag1 = new TagDouble(td1, 1.0);

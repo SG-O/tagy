@@ -30,6 +30,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>de.sg-o.lib</groupId>
+            <artifactId>tagyProto</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
             <groupId>io.objectbox</groupId>
             <artifactId>objectbox-java</artifactId>
             <version>${objectboxVersion}</version>

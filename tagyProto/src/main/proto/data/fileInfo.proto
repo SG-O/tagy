@@ -1,0 +1,12 @@
+syntax = "proto3";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "FileInfoProto";
+
+//SpecVersion: 1
+
+message FileInfo {
+  string absolutePath = 1;
+  bool annotated = 2;
+  int64 checkedOutUntil = 3;
+  string projectName = 4;
+}

@@ -23,7 +23,6 @@ import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.query.MetaDataQueryBuilder;
 import de.sg_o.lib.tagy.query.QueryInternal;
 import de.sg_o.lib.tagy.query.properties.*;
@@ -33,6 +32,7 @@ import de.sg_o.lib.tagy.tag.integer.TagLong;
 import de.sg_o.lib.tagy.tag.list.TagList;
 import de.sg_o.lib.tagy.tag.string.TagString;
 import de.sg_o.lib.tagy.values.User;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import de.sg_o.test.tagy.testDb.TestDb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,12 +84,12 @@ class QueryBuilderTest {
         enumerators0.add("Option 1");
         enumerators0.add("Option 2");
 
-        td0 = new TagDefinition("key0", Type.STRING);
-        td1 = new TagDefinition("key1", Type.STRING);
-        td2 = new TagDefinition("key2", Type.LIST);
-        tdl0 = new TagDefinition("value0", Type.LONG);
+        td0 = new TagDefinition("key0", TagDefinitionProto.Type.STRING);
+        td1 = new TagDefinition("key1", TagDefinitionProto.Type.STRING);
+        td2 = new TagDefinition("key2", TagDefinitionProto.Type.LIST);
+        tdl0 = new TagDefinition("value0", TagDefinitionProto.Type.LONG);
         td2.setInternal(tdl0);
-        td3 = new TagDefinition("key3", Type.ENUM);
+        td3 = new TagDefinition("key3", TagDefinitionProto.Type.ENUM);
         td3.addAllEnumerators(enumerators0);
 
         StructureDefinition structureDefinition = project0.resolveStructureDefinition();

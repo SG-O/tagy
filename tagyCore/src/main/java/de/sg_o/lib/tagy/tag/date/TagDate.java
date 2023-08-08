@@ -20,9 +20,9 @@ package de.sg_o.lib.tagy.tag.date;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.def.Type;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.util.Util;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -32,13 +32,13 @@ public class TagDate extends Tag {
     private final Date value;
     public TagDate(@NotNull TagDefinition definition, @NotNull Date value) {
         super(definition);
-        if (definition.getType() != Type.DATE) throw new IllegalArgumentException("Definition is not of type date");
+        if (definition.getType() != TagDefinitionProto.Type.DATE) throw new IllegalArgumentException("Definition is not of type date");
         this.value = value;
     }
 
     public TagDate(@NotNull TagDefinition definition, @NotNull JsonNode document) {
         super(definition);
-        if (definition.getType() != Type.DATE) throw new IllegalArgumentException("Definition is not of type date");
+        if (definition.getType() != TagDefinitionProto.Type.DATE) throw new IllegalArgumentException("Definition is not of type date");
         JsonNode value = document.get("value");
         if (value == null) value = document.get(getKey());
         Long tmp = null;

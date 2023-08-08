@@ -1,0 +1,13 @@
+syntax = "proto3";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "TagEnablerDefinitionProto";
+
+//SpecVersion: 1
+
+message TagEnablerDefinition {
+  string selectorKey = 1;
+  oneof enumValue {
+    int32 enumIndex = 2;
+    string enumString = 3;
+  }
+}
