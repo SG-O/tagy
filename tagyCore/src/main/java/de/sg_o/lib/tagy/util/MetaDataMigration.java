@@ -23,6 +23,7 @@ import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.data.MetaData_;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import de.sg_o.lib.tagy.tag.TagContainer_;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.query.Query;
@@ -77,10 +78,18 @@ public class MetaDataMigration {
         if (metaData == null) {
             return 0;
         }
-        long count;
+        long count = 0;
         try (Query<MetaData> query = metaData.query().apply(MetaData_.projectId.equal(project.getId())
                 .and(MetaData_.tags.notNull().or(MetaData_.fileReference.isNull()))).build()) {
-            count = query.count();
+            count += query.count();
+        }
+        QueryBoxSpec<MetaData> repair = qb -> {
+            qb.apply(MetaData_.projectId.equal(project.getId()));
+            qb.link(MetaData_.tagContainers).apply(TagContainer_.tagDefinitionId.equal(0));
+            return qb;
+        };
+        try (Query<MetaData> query = repair.buildQuery(metaData.query()).build()) {
+            count += query.count();
         }
         return count;
     }
@@ -89,6 +98,15 @@ public class MetaDataMigration {
         QueryBoxSpec<MetaData> qbs = qb -> {
             qb.apply(MetaData_.projectId.equal(project.getId())
                     .and(MetaData_.tags.notNull().or(MetaData_.fileReference.isNull())));
+            return qb;
+        };
+        return DB.query(MetaData.class, qbs, BATCH_SIZE, 0);
+    }
+
+    private static List<MetaData> needsRepair(Project project) {
+        QueryBoxSpec<MetaData> qbs = qb -> {
+            qb.apply(MetaData_.projectId.equal(project.getId()));
+            qb.link(MetaData_.tagContainers).apply(TagContainer_.tagDefinitionId.equal(0));
             return qb;
         };
         return DB.query(MetaData.class, qbs, BATCH_SIZE, 0);
@@ -126,9 +144,22 @@ public class MetaDataMigration {
                             });
                     needsMigration = needsMigration(project);
                 }
-                finished = true;
-                migrationFinished();
+                List<MetaData> needRepair = needsRepair(project);
+                while (!needRepair.isEmpty()) {
+                    List<MetaData> finalNeedsMigration = needRepair;
+                    db.runInTx(() -> {
+                        for (MetaData md : finalNeedsMigration) {
+                            md.repairTagContainer();
+                            md.save();
+                            done++;
+                            migrationProgressChanged((float) done / (float) total);
+                        }
+                    });
+                    needRepair = needsMigration(project);
+                }
             }
+            finished = true;
+            migrationFinished();
         }
     }
 }

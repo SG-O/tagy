@@ -207,6 +207,18 @@ public class MetaData implements Serializable {
         return tagContainers;
     }
 
+    public void repairTagContainer() {
+        System.out.println("Repairing: " + getFileReference());
+        for (int i = 0; i < tagContainers.size(); i++) {
+            TagContainer container = tagContainers.get(i);
+            if (container.getTagDefinition().getTarget() == null) {
+                StructureDefinition structureDefinition = resolveProject().resolveStructureDefinition();
+                container.getTagDefinition().setTarget(structureDefinition.getTagDefinitions().get(i));
+                container.save();
+            }
+        }
+    }
+
     public Project resolveProject() {
         return project.getTarget();
     }
