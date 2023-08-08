@@ -176,7 +176,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        de.sg_o.app.Init
+                                        de.sg_o.app.tagy.Init
                                     </mainClass>
                                 </manifest>
                             </archive>

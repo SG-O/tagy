@@ -196,6 +196,9 @@
                             <head>No Inspection</head>
                         </tag>
                     </tags>
+                    <sourceFileExcludes>
+                        <sourceFileExclude>**/target/**/tagy/**/*.java</sourceFileExclude>
+                    </sourceFileExcludes>
                 </configuration>
                 <executions>
                     <execution>
