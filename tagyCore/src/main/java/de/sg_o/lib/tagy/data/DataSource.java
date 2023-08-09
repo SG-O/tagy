@@ -23,6 +23,7 @@ import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Uid;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -39,19 +40,24 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Entity
-public class Directory {
+@Uid(2718146996373471930L)
+public class DataSource {
     @Id
+    @Uid(7262970591174364797L)
     private Long id;
     @NotNull
-    private final String rootDirectory;
+    @Uid(6831534710827527872L)
+    private final String source;
+    @Uid(4757138858399486251L)
     private boolean recursive;
     @NotNull
+    @Uid(2033058702265229064L)
     private final List<String> fileExtensions;
 
     @SuppressWarnings("unused")
-    public Directory(Long id, @NotNull String rootDirectory, boolean recursive, @NotNull List<String> fileExtensions) {
+    public DataSource(Long id, @NotNull String source, boolean recursive, @NotNull List<String> fileExtensions) {
         this.id = id;
-        this.rootDirectory = rootDirectory;
+        this.source = source;
         this.recursive = recursive;
         this.fileExtensions = fileExtensions;
     }
@@ -60,10 +66,10 @@ public class Directory {
      * @param locator       The directory containing the files of interest or a file containing a list of fies of interest
      * @param recursive     Whether to recursively search for files in subdirectories
      */
-    public Directory(@NotNull File locator, boolean recursive) {
+    public DataSource(@NotNull File locator, boolean recursive) {
         if (!locator.exists()) throw new RuntimeException("Root directory does not exist");
 
-        this.rootDirectory = locator.getAbsolutePath();
+        this.source = locator.getAbsolutePath();
         this.recursive = recursive;
         this.fileExtensions = new ArrayList<>();
     }
@@ -77,12 +83,12 @@ public class Directory {
     }
 
     public @NotNull File resolveRootDirectory() {
-        return new File(rootDirectory);
+        return new File(source);
     }
 
-    @JsonProperty(value = "rootDirectory", index = 0)
-    public @NotNull String getRootDirectory() {
-        return rootDirectory;
+    @JsonProperty(value = "source", index = 0)
+    public @NotNull String getSource() {
+        return source;
     }
 
     public void setRecursive(boolean recursive) {
@@ -141,7 +147,7 @@ public class Directory {
             regex.append(".*\\.").append(fileExtension);
             if (i < fileExtensions.size() - 1) regex.append("|");
         }
-        File locator = new File(rootDirectory);
+        File locator = new File(source);
         if (locator.isDirectory()) {
             return getFilesInDirectory(regex.toString());
         } else {
@@ -153,7 +159,7 @@ public class Directory {
         int maxDepth = recursive ? 999 : 1;
 
         try (Stream<Path> files = Files.find(
-                Paths.get(rootDirectory), maxDepth,
+                Paths.get(source), maxDepth,
                 (p, bfa) -> bfa.isRegularFile()
                         && p.getFileName().toString().matches(regex)))
         {
@@ -172,7 +178,7 @@ public class Directory {
     private @NotNull ArrayList<URL> getFilesFromList(String regex) {
         ArrayList<URL> urls = new ArrayList<>();
         try {
-            List<String> lines = Files.readAllLines(Paths.get(rootDirectory));
+            List<String> lines = Files.readAllLines(Paths.get(source));
             for (String line : lines) {
                 if (line.matches(regex)) {
                     try {
@@ -190,7 +196,7 @@ public class Directory {
     public boolean save() {
         BoxStore db = DB.getDb();
         if (db == null) return false;
-        Box<Directory> box = db.boxFor(Directory.class);
+        Box<DataSource> box = db.boxFor(DataSource.class);
         if (box == null) return false;
         this.id = box.put(this);
         return true;
@@ -200,8 +206,8 @@ public class Directory {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Directory directory = (Directory) o;
-        return isRecursive() == directory.isRecursive() && Objects.equals(resolveRootDirectory(), directory.resolveRootDirectory()) && Objects.equals(getFileExtensions(), directory.getFileExtensions());
+        DataSource dataSource = (DataSource) o;
+        return isRecursive() == dataSource.isRecursive() && Objects.equals(resolveRootDirectory(), dataSource.resolveRootDirectory()) && Objects.equals(getFileExtensions(), dataSource.getFileExtensions());
     }
 
     @Override

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import de.sg_o.lib.tagy.tag.Tag;
-import de.sg_o.lib.tagy.tag.TagContainer;
 
 import java.io.IOException;
 import java.util.List;

@@ -22,7 +22,7 @@ import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.data.MetaData_;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
-import de.sg_o.lib.tagy.tag.TagContainer;
+import de.sg_o.lib.tagy.data.TagContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

@@ -18,11 +18,16 @@
 package de.sg_o.lib.tagy.util;
 
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class MessageLoader {
 
     public static String getMessageFromBundle(String path, String key) {
-        return ResourceBundle.getBundle(path, Locale.getDefault()).getString(key);
+        try {
+            return ResourceBundle.getBundle(path, Locale.getDefault()).getString(key);
+        } catch (MissingResourceException ignore) {
+        }
+        return key;
     }
 }

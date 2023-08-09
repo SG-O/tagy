@@ -18,7 +18,7 @@
 package de.sg_o.test.tagy.tag;
 
 import de.sg_o.lib.tagy.def.TagDefinition;
-import de.sg_o.lib.tagy.tag.TagContainer;
+import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.tag.bool.TagBool;
 import de.sg_o.lib.tagy.tag.date.TagDate;
 import de.sg_o.lib.tagy.tag.enumerator.TagEnum;

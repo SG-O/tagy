@@ -51,7 +51,7 @@ public class DataManager extends AbstractTableModel {
 
     @Id
     private Long id;
-    private final ToMany<Directory> sourceDirectories = new ToMany<>(this, DataManager_.sourceDirectories);
+    private final ToMany<DataSource> sourceDirectories = new ToMany<>(this, DataManager_.sourceDirectories);
 
     private final ToOne<Project> project = new ToOne<>(this, DataManager_.project);
 
@@ -84,7 +84,7 @@ public class DataManager extends AbstractTableModel {
     }
 
     public void addDirectory(@NotNull File directory) {
-        Directory newDirectory = new Directory(directory, true);
+        DataSource newDirectory = new DataSource(directory, true);
         sourceDirectories.add(newDirectory);
         fireTableDataChanged();
     }
@@ -95,7 +95,7 @@ public class DataManager extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    public void setSourceDirectories(List<Directory> sourceDirectories) {
+    public void setSourceDirectories(List<DataSource> sourceDirectories) {
         this.sourceDirectories.clear();
         save();
         if (sourceDirectories == null) return;
@@ -104,8 +104,8 @@ public class DataManager extends AbstractTableModel {
     }
 
     @JsonProperty(value = "directoryConfigs", index = 0)
-    @JsonSerialize(using = DirectoryListSerializer.class)
-    public @NotNull List<Directory> getSourceDirectories() {
+    @JsonSerialize(using = DataSourceListSerializer.class)
+    public @NotNull List<DataSource> getSourceDirectories() {
         return this.sourceDirectories;
     }
 
@@ -122,7 +122,7 @@ public class DataManager extends AbstractTableModel {
         Project resolvedProject = resolveProject();
         if (db == null || resolvedProject == null) return false;
         db.runInTx(() -> {
-            for (Directory directory : sourceDirectories) {
+            for (DataSource directory : sourceDirectories) {
                 ArrayList<URL> urls = directory.getFiles();
                 for (URL url : urls) {
                     if (url == null) continue;
@@ -213,7 +213,7 @@ public class DataManager extends AbstractTableModel {
     {
         switch (column) {
             case 0:
-                return getMessageFromBundle("translations/text", "column.directory");
+                return getMessageFromBundle("translations/text", "column.dataSource");
             case 1:
                 return getMessageFromBundle("translations/text", "column.recursive");
             case 2:
@@ -236,7 +236,7 @@ public class DataManager extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        Directory directory = sourceDirectories.get(rowIndex);
+        DataSource directory = sourceDirectories.get(rowIndex);
         switch (columnIndex) {
             case 1:
                 directory.setRecursive((boolean) aValue);

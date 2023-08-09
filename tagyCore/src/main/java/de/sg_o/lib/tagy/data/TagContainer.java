@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package de.sg_o.lib.tagy.tag;
+package de.sg_o.lib.tagy.data;
 
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.def.TagDefinition;
+import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.bool.TagBool;
 import de.sg_o.lib.tagy.tag.date.TagDate;
 import de.sg_o.lib.tagy.tag.enumerator.TagEnum;

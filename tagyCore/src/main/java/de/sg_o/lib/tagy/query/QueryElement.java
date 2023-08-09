@@ -18,7 +18,7 @@
 package de.sg_o.lib.tagy.query;
 
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
-import de.sg_o.lib.tagy.tag.TagContainer;
+import de.sg_o.lib.tagy.data.TagContainer;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class QueryElement {

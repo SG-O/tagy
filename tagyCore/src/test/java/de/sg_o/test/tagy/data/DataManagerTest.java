@@ -19,7 +19,7 @@ package de.sg_o.test.tagy.data;
 
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.DataManager;
-import de.sg_o.lib.tagy.data.Directory;
+import de.sg_o.lib.tagy.data.DataSource;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.values.User;
@@ -40,9 +40,9 @@ class DataManagerTest {
     DataManager manager1;
     DataManager manager2;
 
-    final List<Directory> directories0 = new ArrayList<>();
-    final List<Directory> directories1 = new ArrayList<>();
-    final List<Directory> directories2 = new ArrayList<>();
+    final List<DataSource> directories0 = new ArrayList<>();
+    final List<DataSource> directories1 = new ArrayList<>();
+    final List<DataSource> directories2 = new ArrayList<>();
 
     Project project0;
     Project project1;
@@ -60,12 +60,12 @@ class DataManagerTest {
         assertNotNull(sampleUrlList);
         File sampleUrlListFile = new File(sampleUrlList.toURI());
 
-        Directory dir = new Directory(sampleMediaFile, true);
+        DataSource dir = new DataSource(sampleMediaFile, true);
         dir.setFileExtensions(".jpg, png, .mp4, wmv, .m4a, .mp3");
 
         directories0.add(dir);
-        directories1.add(new Directory(sampleMixedFile, false));
-        directories2.add(new Directory(sampleUrlListFile, false));
+        directories1.add(new DataSource(sampleMixedFile, false));
+        directories2.add(new DataSource(sampleUrlListFile, false));
 
         DB.closeDb();
         new TestDb();

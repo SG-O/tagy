@@ -17,7 +17,7 @@
 
 package de.sg_o.test.tagy.data;
 
-import de.sg_o.lib.tagy.data.Directory;
+import de.sg_o.lib.tagy.data.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,11 +29,11 @@ import java.util.LinkedList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DirectoryTest {
-    Directory dir0;
-    Directory dir1;
-    Directory dir2;
-    Directory dir3;
-    Directory dir4;
+    DataSource dir0;
+    DataSource dir1;
+    DataSource dir2;
+    DataSource dir3;
+    DataSource dir4;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
@@ -58,13 +58,13 @@ class DirectoryTest {
         extensions.add("txt");
         extensions.add(".m4a");
 
-        dir0 = new Directory(sampleMediaFile, true);
+        dir0 = new DataSource(sampleMediaFile, true);
         dir0.setFileExtensions(".jpg, png, .mp4, wmv, .m4a, .mp3");
-        dir1 = new Directory(sampleMixedFile, false);
+        dir1 = new DataSource(sampleMixedFile, false);
         dir1.setFileExtensions(extensions);
-        dir2 = new Directory(sampleTextFile, true);
-        dir3 = new Directory(sampleTextFile, false);
-        dir4 = new Directory(sampleMediaFile, true);
+        dir2 = new DataSource(sampleTextFile, true);
+        dir3 = new DataSource(sampleTextFile, false);
+        dir4 = new DataSource(sampleMediaFile, true);
         dir4.setFileExtensions(".jpg, png, .mp4, wmv, .m4a, .mp3");
     }
 

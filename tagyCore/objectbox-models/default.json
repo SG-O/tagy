@@ -34,7 +34,7 @@
     {
       "id": "2:2718146996373471930",
       "lastPropertyId": "4:2033058702265229064",
-      "name": "Directory",
+      "name": "DataSource",
       "properties": [
         {
           "id": "1:7262970591174364797",
@@ -44,7 +44,7 @@
         },
         {
           "id": "2:6831534710827527872",
-          "name": "rootDirectory",
+          "name": "source",
           "type": 9
         },
         {

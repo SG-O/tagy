@@ -17,10 +17,10 @@
 
 package de.sg_o.lib.tagy.query.properties;
 
+import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
-import de.sg_o.lib.tagy.tag.TagContainer;
-import de.sg_o.lib.tagy.tag.TagContainer_;
+import de.sg_o.lib.tagy.data.TagContainer;
 
 public class NotNull extends QueryProperty {
     private final @org.jetbrains.annotations.NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> queryProperty;

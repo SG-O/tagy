@@ -25,7 +25,6 @@ import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
-import de.sg_o.lib.tagy.tag.TagContainer;
 import de.sg_o.lib.tagy.tag.TagMigration;
 import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;

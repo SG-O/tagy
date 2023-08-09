@@ -24,13 +24,13 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.List;
 
-public class DirectoryListSerializer  extends JsonSerializer<List<Directory>> {
+public class DataSourceListSerializer extends JsonSerializer<List<DataSource>> {
 
     @Override
-    public void serialize(List<Directory> value, JsonGenerator jgen,
+    public void serialize(List<DataSource> value, JsonGenerator jgen,
                           SerializerProvider provider) throws IOException {
         jgen.writeStartArray();
-        for (Directory td : value) {
+        for (DataSource td : value) {
             jgen.writeObject(td);
         }
         jgen.writeEndArray();

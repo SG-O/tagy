@@ -19,7 +19,7 @@ package de.sg_o.test.tagy.util;
 
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.DataManager;
-import de.sg_o.lib.tagy.data.Directory;
+import de.sg_o.lib.tagy.data.DataSource;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.db.DB;
@@ -73,9 +73,9 @@ class ExportTest {
         assertNotNull(sampleMediaFolder);
         File sampleMediaFile = new File(sampleMediaFolder.toURI());
 
-        Directory dir = new Directory(sampleMediaFile, true);
+        DataSource dir = new DataSource(sampleMediaFile, true);
         dir.setFileExtensions(".jpg, png, .mp4, wmv, .m4a, .mp3");
-        List<Directory> directories0 = new ArrayList<>();
+        List<DataSource> directories0 = new ArrayList<>();
         directories0.add(dir);
 
         manager0 = p0.resolveDataManager();

@@ -26,7 +26,7 @@ import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagEnablerDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
 import de.sg_o.lib.tagy.tag.Tag;
-import de.sg_o.lib.tagy.tag.TagContainer;
+import de.sg_o.lib.tagy.data.TagContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
