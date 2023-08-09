@@ -12,5 +12,7 @@ message User {
 enum UserType {
   INVALID = 0;
   LOCAL = 1;
-  NETWORKED = 2;
+  NET_ANNOTATOR = 2;
+  NET_EDITOR = 3;
+  NET_ADMIN = 4;
 }
