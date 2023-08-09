@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "def/structureDefinition.proto";
+import "data/dataManager.proto";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "ProjectProto";
+
+//SpecVersion: 1
+
+message Project {
+  string projectName = 1;
+  StructureDefinition structureDefinition = 2;
+  optional DataManager dataManager = 3;
+}

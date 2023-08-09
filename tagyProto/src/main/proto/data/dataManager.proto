@@ -1,0 +1,10 @@
+syntax = "proto3";
+import "data/dataSource.proto";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "DataManagerProto";
+
+//SpecVersion: 1
+
+message DataManager {
+  repeated DataSource dataSource = 1;
+}

@@ -19,6 +19,7 @@ package de.sg_o.lib.tagy.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.db.DB;
+import de.sg_o.proto.tagy.DataSourceProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.Entity;
@@ -72,6 +73,13 @@ public class DataSource {
         this.source = locator.getAbsolutePath();
         this.recursive = recursive;
         this.fileExtensions = new ArrayList<>();
+    }
+
+    public DataSource(@NotNull DataSourceProto.DataSource proto) {
+        this.source = proto.getSource();
+        this.recursive = proto.getRecursive();
+        this.fileExtensions = new ArrayList<>();
+        this.fileExtensions.addAll(proto.getFileExtensionList());
     }
 
     public Long getId() {
@@ -200,6 +208,16 @@ public class DataSource {
         if (box == null) return false;
         this.id = box.put(this);
         return true;
+    }
+
+    public @NotNull DataSourceProto.DataSource getAsProto() {
+        DataSourceProto.DataSource.Builder builder = DataSourceProto.DataSource.newBuilder();
+        builder.setSource(this.source);
+        builder.setRecursive(this.recursive);
+        for (String fileExtension : this.fileExtensions) {
+            builder.addFileExtension(fileExtension);
+        }
+        return builder.build();
     }
 
     @Override

@@ -1,0 +1,10 @@
+syntax = "proto3";
+import "def/tagDefinition.proto";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "StructureDefinitionProto";
+
+//SpecVersion: 1
+
+message StructureDefinition {
+  repeated TagDefinition tagDefinition = 1;
+}

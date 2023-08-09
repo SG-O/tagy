@@ -26,6 +26,8 @@ import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.util.Util;
+import de.sg_o.proto.tagy.StructureDefinitionProto;
+import de.sg_o.proto.tagy.TagDefinitionProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.Entity;
@@ -85,6 +87,13 @@ public class StructureDefinition implements Serializable {
             if (tagDefinition == null) continue;
             tagDefinition.setId(null);
             this.tagDefinitions.add(tagDefinition);
+        }
+    }
+
+    public void setTagDefinitions(@NotNull StructureDefinitionProto.StructureDefinition proto) {
+        clearTagDefinitions();
+        for (TagDefinitionProto.TagDefinition tagDefinition : proto.getTagDefinitionList()) {
+            this.tagDefinitions.add(new TagDefinition(tagDefinition));
         }
     }
 
@@ -164,6 +173,14 @@ public class StructureDefinition implements Serializable {
         if (box == null) return false;
         this.id = box.put(this);
         return true;
+    }
+
+    public @NotNull StructureDefinitionProto.StructureDefinition getAsProto() {
+        StructureDefinitionProto.StructureDefinition.Builder builder = StructureDefinitionProto.StructureDefinition.newBuilder();
+        for(TagDefinition tagDefinition : tagDefinitions) {
+            builder.addTagDefinition(tagDefinition.getAsProto());
+        }
+        return builder.build();
     }
 
     @Override

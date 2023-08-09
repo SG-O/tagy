@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "de.sg_o.proto.tagy";
+option java_outer_classname = "DataSourceProto";
+
+//SpecVersion: 1
+
+message DataSource {
+  string source = 1;
+  bool recursive = 2;
+  repeated string fileExtension = 3;
+}

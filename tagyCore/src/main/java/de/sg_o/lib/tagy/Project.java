@@ -26,7 +26,9 @@ import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.StructureDefinition_;
 import de.sg_o.lib.tagy.util.MetaDataIterator;
+import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
+import de.sg_o.proto.tagy.ProjectProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.Entity;
@@ -62,11 +64,28 @@ public class Project {
 
 
     public Project(@NotNull String projectName, @NotNull User user) {
-        if (projectName.trim().isEmpty()) {
+        projectName = Util.sanitize(projectName, new char[]{'_', '-'}, false, true, 250);
+        if (projectName.isEmpty()) {
             throw new IllegalArgumentException("projectName");
         }
         this.projectName = projectName.trim();
         this.user.setTarget(user);
+    }
+
+    public Project(@NotNull ProjectProto.Project proto, @NotNull User user) {
+        String projectName = proto.getProjectName();
+        projectName = Util.sanitize(projectName, new char[]{'_', '-'}, false, true, 250);
+        if (projectName.isEmpty()) {
+            throw new IllegalArgumentException("projectName");
+        }
+        this.projectName = projectName;
+        this.user.setTarget(user);
+        StructureDefinition structureDefinition = this.resolveStructureDefinition();
+        structureDefinition.setTagDefinitions(proto.getStructureDefinition());
+        if (proto.hasDataManager()) {
+            DataManager dataManager = this.resolveDataManager();
+            dataManager.setDataSources(proto.getDataManager());
+        }
     }
 
     public static List<Project> query() {
@@ -118,6 +137,7 @@ public class Project {
         StructureDefinition structureDefinition = StructureDefinition.queryFirst(qbs);
         if (structureDefinition == null) {
             structureDefinition = new StructureDefinition(this);
+            structureDefinition.save();
         }
         return structureDefinition;
     }
@@ -131,6 +151,7 @@ public class Project {
         DataManager dataManager = DataManager.queryFirst(qbs);
         if (dataManager == null) {
             dataManager = new DataManager(this);
+            dataManager.save();
         }
         return dataManager;
     }
@@ -151,6 +172,16 @@ public class Project {
         if (box == null) return false;
         this.id = box.put(this);
         return true;
+    }
+
+    public @NotNull ProjectProto.Project getAsProto(boolean includeDataManager) {
+        ProjectProto.Project.Builder builder = ProjectProto.Project.newBuilder();
+        builder.setProjectName(this.projectName);
+        builder.setStructureDefinition(this.resolveStructureDefinition().getAsProto());
+        if (includeDataManager) {
+            builder.setDataManager(this.resolveDataManager().getAsProto());
+        }
+        return builder.build();
     }
 
     @SuppressWarnings("UnusedReturnValue")

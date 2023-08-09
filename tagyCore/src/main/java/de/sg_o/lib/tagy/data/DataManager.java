@@ -24,6 +24,8 @@ import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.util.FileInfoIterator;
+import de.sg_o.proto.tagy.DataManagerProto;
+import de.sg_o.proto.tagy.DataSourceProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.annotation.Entity;
@@ -104,6 +106,16 @@ public class DataManager extends AbstractTableModel {
         save();
         if (dataSources == null) return;
         this.dataSources.addAll(dataSources);
+        fireTableDataChanged();
+    }
+
+    public void setDataSources(@NotNull DataManagerProto.DataManager proto) {
+        this.dataSources.clear();
+        save();
+        for (DataSourceProto.DataSource dataSource : proto.getDataSourceList()) {
+            DataSource ds = new DataSource(dataSource);
+            this.dataSources.add(ds);
+        }
         fireTableDataChanged();
     }
 
@@ -197,6 +209,14 @@ public class DataManager extends AbstractTableModel {
         if (box == null) return false;
         this.id = box.put(this);
         return true;
+    }
+
+    public @NotNull DataManagerProto.DataManager getAsProto() {
+        DataManagerProto.DataManager.Builder builder = DataManagerProto.DataManager.newBuilder();
+        for (DataSource dataSource : dataSources) {
+            builder.addDataSource(dataSource.getAsProto());
+        }
+        return builder.build();
     }
 
     @Override

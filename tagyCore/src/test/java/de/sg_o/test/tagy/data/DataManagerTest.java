@@ -82,9 +82,9 @@ class DataManagerTest {
         manager1 = project1.resolveDataManager();
         manager2 = project2.resolveDataManager();
 
-        manager0.setDataSources(null);
-        manager1.setDataSources(null);
-        manager2.setDataSources(null);
+        manager0.setDataSources((List<DataSource>) null);
+        manager1.setDataSources((List<DataSource>) null);
+        manager2.setDataSources((List<DataSource>) null);
     }
 
     @Test
@@ -248,5 +248,56 @@ class DataManagerTest {
         assertEquals(0, checked0.size());
         assertEquals(0, checked1.size());
         assertEquals(0, checked2.size());
+    }
+
+    @Test
+    void proto() {
+        assertTrue(manager0.clear());
+        assertTrue(manager1.clear());
+        assertTrue(manager2.clear());
+
+        assertEquals(0, manager0.getFiles(false, 100, 0).size());
+        assertEquals(0, manager1.getFiles(false, 100, 0).size());
+        assertEquals(0, manager2.getFiles(false, 100, 0).size());
+
+        manager0.setDataSources(directories0);
+        manager1.setDataSources(directories1);
+        manager2.setDataSources(directories2);
+
+        DataManager manager3 = project0.resolveDataManager();
+        DataManager manager4 = project1.resolveDataManager();
+        DataManager manager5 = project2.resolveDataManager();
+
+        manager3.setDataSources(manager0.getAsProto());
+        manager4.setDataSources(manager1.getAsProto());
+        manager5.setDataSources(manager2.getAsProto());
+
+        assertEquals(directories0, manager3.getDataSources());
+        assertEquals(directories1, manager4.getDataSources());
+        assertEquals(directories2, manager5.getDataSources());
+
+        assertTrue(manager3.ingest());
+        assertTrue(manager4.ingest());
+        assertTrue(manager5.ingest());
+
+        assertEquals(8, manager3.getFiles(false, 100, 0).size());
+        assertEquals(10, manager4.getFiles(false, 100, 0).size());
+        assertEquals(3, manager5.getFiles(false, 100, 0).size());
+
+        assertTrue(manager0.clear());
+        assertTrue(manager1.clear());
+        assertTrue(manager2.clear());
+
+        assertEquals(0, manager0.getFiles(false, 100, 0).size());
+        assertEquals(0, manager1.getFiles(false, 100, 0).size());
+        assertEquals(0, manager2.getFiles(false, 100, 0).size());
+
+        assertTrue(manager0.ingest());
+        assertTrue(manager1.ingest());
+        assertTrue(manager2.ingest());
+
+        assertEquals(8, manager0.getFiles(false, 100, 0).size());
+        assertEquals(10, manager1.getFiles(false, 100, 0).size());
+        assertEquals(3, manager2.getFiles(false, 100, 0).size());
     }
 }
