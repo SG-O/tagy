@@ -33,10 +33,7 @@ import de.sg_o.proto.tagy.TagContainerProto;
 import de.sg_o.proto.tagy.UserProto;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
-import io.objectbox.annotation.Entity;
-import io.objectbox.annotation.Id;
-import io.objectbox.annotation.Index;
-import io.objectbox.annotation.Transient;
+import io.objectbox.annotation.*;
 import io.objectbox.query.QueryBuilder;
 import io.objectbox.relation.ToMany;
 import io.objectbox.relation.ToOne;
@@ -49,24 +46,32 @@ import java.util.Map;
 import java.util.Objects;
 
 @Entity
+@Uid(131994956946247807L)
 public class MetaData implements Serializable {
     @Id
+    @Uid(5272684610711569869L)
     Long id;
 
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated //Usage to support upgrades from previous versions.
-    private Map<String, String> tags;
+    @Uid(6707238692496575331L)
     private final ToOne<Project> project = new ToOne<>(this, MetaData_.project);
-
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated//Usage to support upgrades from previous versions.
-    private final ToOne<FileInfo> reference = new ToOne<>(this, MetaData_.reference);
     @Index
+    @Uid(4669829739444121892L)
     private final String fileReference;
     @NotNull
+    @Uid(1095464932469421925L)
     private final ToMany<User> editHistory = new ToMany<>(this, MetaData_.editHistory);
     @NotNull
+    @Uid(3870338667975086962L)
     private final ToMany<TagContainer> tagContainers = new ToMany<>(this, MetaData_.tagContainers);
+
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Uid(6433602340359118350L)
+    @Deprecated //Usage to support upgrades from previous versions.
+    private Map<String, String> tags;
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Uid(2449724609247634831L)
+    @Deprecated//Usage to support upgrades from previous versions.
+    private final ToOne<FileInfo> reference = new ToOne<>(this, MetaData_.reference);
 
     @Transient
     transient BoxStore __boxStore = null;
@@ -75,8 +80,7 @@ public class MetaData implements Serializable {
     @Transient
     private transient FileInfo resolvedFileReference = null;
 
-    @SuppressWarnings("unused")
-    public MetaData(Long id, Map<String, String> tags, String fileReference, long projectId, long referenceId) {
+    public MetaData(Long id, String fileReference, Map<String, String> tags, long projectId, long referenceId) {
         this.id = id;
         this.tags = tags;
         this.fileReference = fileReference;
