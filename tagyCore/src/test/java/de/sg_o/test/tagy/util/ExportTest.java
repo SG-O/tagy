@@ -79,7 +79,7 @@ class ExportTest {
         directories0.add(dir);
 
         manager0 = p0.resolveDataManager();
-        manager0.setSourceDirectories(directories0);
+        manager0.setDataSources(directories0);
         manager0.save();
         assertTrue(manager0.clear());
 

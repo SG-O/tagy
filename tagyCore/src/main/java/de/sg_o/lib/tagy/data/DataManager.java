@@ -29,6 +29,7 @@ import io.objectbox.BoxStore;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
 import io.objectbox.annotation.Transient;
+import io.objectbox.annotation.Uid;
 import io.objectbox.relation.ToMany;
 import io.objectbox.relation.ToOne;
 import org.jetbrains.annotations.NotNull;
@@ -46,13 +47,16 @@ import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 @Entity
 @JsonIgnoreProperties({ "listenerList", "project"})
+@Uid(937091544225069295L)
 public class DataManager extends AbstractTableModel {
     private static final HashMap<Long, Long> locks = new HashMap<>();
 
     @Id
+    @Uid(1977117253415533500L)
     private Long id;
-    private final ToMany<DataSource> sourceDirectories = new ToMany<>(this, DataManager_.sourceDirectories);
-
+    @Uid(4546151216607454017L)
+    private final ToMany<DataSource> dataSources = new ToMany<>(this, DataManager_.dataSources);
+    @Uid(804797712125925741L)
     private final ToOne<Project> project = new ToOne<>(this, DataManager_.project);
 
     @Transient
@@ -83,30 +87,30 @@ public class DataManager extends AbstractTableModel {
         this.id = id;
     }
 
-    public void addDirectory(@NotNull File directory) {
+    public void addDataSource(@NotNull File directory) {
         DataSource newDirectory = new DataSource(directory, true);
-        sourceDirectories.add(newDirectory);
+        dataSources.add(newDirectory);
         fireTableDataChanged();
     }
 
-    public void removeDirectory(int index) {
-        if (index < 0 || index >= sourceDirectories.size()) return;
-        this.sourceDirectories.remove(index);
+    public void removeDataSource(int index) {
+        if (index < 0 || index >= dataSources.size()) return;
+        this.dataSources.remove(index);
         fireTableDataChanged();
     }
 
-    public void setSourceDirectories(List<DataSource> sourceDirectories) {
-        this.sourceDirectories.clear();
+    public void setDataSources(List<DataSource> dataSources) {
+        this.dataSources.clear();
         save();
-        if (sourceDirectories == null) return;
-        this.sourceDirectories.addAll(sourceDirectories);
+        if (dataSources == null) return;
+        this.dataSources.addAll(dataSources);
         fireTableDataChanged();
     }
 
-    @JsonProperty(value = "directoryConfigs", index = 0)
+    @JsonProperty(value = "dataSources", index = 0)
     @JsonSerialize(using = DataSourceListSerializer.class)
-    public @NotNull List<DataSource> getSourceDirectories() {
-        return this.sourceDirectories;
+    public @NotNull List<DataSource> getDataSources() {
+        return this.dataSources;
     }
 
     public Project resolveProject() {
@@ -122,7 +126,7 @@ public class DataManager extends AbstractTableModel {
         Project resolvedProject = resolveProject();
         if (db == null || resolvedProject == null) return false;
         db.runInTx(() -> {
-            for (DataSource directory : sourceDirectories) {
+            for (DataSource directory : dataSources) {
                 ArrayList<URL> urls = directory.getFiles();
                 for (URL url : urls) {
                     if (url == null) continue;
@@ -197,7 +201,7 @@ public class DataManager extends AbstractTableModel {
 
     @Override
     public String toString() {
-        return "{\"directories\":" + sourceDirectories
+        return "{\"dataSources\":" + dataSources
                 + "}";
     }
 
@@ -236,7 +240,7 @@ public class DataManager extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        DataSource directory = sourceDirectories.get(rowIndex);
+        DataSource directory = dataSources.get(rowIndex);
         switch (columnIndex) {
             case 1:
                 directory.setRecursive((boolean) aValue);
@@ -253,7 +257,7 @@ public class DataManager extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return sourceDirectories.size();
+        return dataSources.size();
     }
 
     @Override
@@ -265,11 +269,11 @@ public class DataManager extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return sourceDirectories.get(rowIndex).resolveRootDirectory().getName();
+                return dataSources.get(rowIndex).resolveSource().getName();
             case 1:
-                return sourceDirectories.get(rowIndex).isRecursive();
+                return dataSources.get(rowIndex).isRecursive();
             case 2:
-                return sourceDirectories.get(rowIndex).getFileExtensionsAsString();
+                return dataSources.get(rowIndex).getFileExtensionsAsString();
             default:
                 return null;
         }

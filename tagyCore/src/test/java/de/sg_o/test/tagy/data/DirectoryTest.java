@@ -70,11 +70,11 @@ class DirectoryTest {
 
     @Test
     void getRootDirectory() {
-        assertTrue(dir0.resolveRootDirectory().getPath().endsWith("sampleFiles/media"));
-        assertTrue(dir1.resolveRootDirectory().getPath().endsWith("sampleFiles/mixed"));
-        assertTrue(dir2.resolveRootDirectory().getPath().endsWith("sampleFiles/text"));
-        assertTrue(dir3.resolveRootDirectory().getPath().endsWith("sampleFiles/text"));
-        assertTrue(dir4.resolveRootDirectory().getPath().endsWith("sampleFiles/media"));
+        assertTrue(dir0.resolveSource().getPath().endsWith("sampleFiles/media"));
+        assertTrue(dir1.resolveSource().getPath().endsWith("sampleFiles/mixed"));
+        assertTrue(dir2.resolveSource().getPath().endsWith("sampleFiles/text"));
+        assertTrue(dir3.resolveSource().getPath().endsWith("sampleFiles/text"));
+        assertTrue(dir4.resolveSource().getPath().endsWith("sampleFiles/media"));
     }
 
     @Test
@@ -126,13 +126,13 @@ class DirectoryTest {
 
     @Test
     void testToString() {
-        assertEquals("{\"rootDirectory\": \"media\", \"recursive\": true, \"fileExtensions\":[jpg, png, mp4, wmv, m4a, mp3]}",
+        assertEquals("{\"source\": \"media\", \"recursive\": true, \"fileExtensions\":[jpg, png, mp4, wmv, m4a, mp3]}",
                 dir0.toString());
-        assertEquals("{\"rootDirectory\": \"mixed\", \"recursive\": false, \"fileExtensions\":[jpg, txt, m4a]}",
+        assertEquals("{\"source\": \"mixed\", \"recursive\": false, \"fileExtensions\":[jpg, txt, m4a]}",
                 dir1.toString());
-        assertEquals("{\"rootDirectory\": \"text\", \"recursive\": true, \"fileExtensions\":[]}",
+        assertEquals("{\"source\": \"text\", \"recursive\": true, \"fileExtensions\":[]}",
                 dir2.toString());
-        assertEquals("{\"rootDirectory\": \"text\", \"recursive\": false, \"fileExtensions\":[]}",
+        assertEquals("{\"source\": \"text\", \"recursive\": false, \"fileExtensions\":[]}",
                 dir3.toString());
     }
 }

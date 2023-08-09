@@ -82,24 +82,24 @@ class DataManagerTest {
         manager1 = project1.resolveDataManager();
         manager2 = project2.resolveDataManager();
 
-        manager0.setSourceDirectories(null);
-        manager1.setSourceDirectories(null);
-        manager2.setSourceDirectories(null);
+        manager0.setDataSources(null);
+        manager1.setDataSources(null);
+        manager2.setDataSources(null);
     }
 
     @Test
     void getDirectories() {
-        assertEquals(0, manager0.getSourceDirectories().size());
-        assertEquals(0, manager1.getSourceDirectories().size());
-        assertEquals(0, manager2.getSourceDirectories().size());
+        assertEquals(0, manager0.getDataSources().size());
+        assertEquals(0, manager1.getDataSources().size());
+        assertEquals(0, manager2.getDataSources().size());
 
-        manager0.setSourceDirectories(directories0);
-        manager1.setSourceDirectories(directories1);
-        manager2.setSourceDirectories(directories2);
+        manager0.setDataSources(directories0);
+        manager1.setDataSources(directories1);
+        manager2.setDataSources(directories2);
 
-        assertEquals(1, manager0.getSourceDirectories().size());
-        assertEquals(1, manager1.getSourceDirectories().size());
-        assertEquals(1, manager2.getSourceDirectories().size());
+        assertEquals(1, manager0.getDataSources().size());
+        assertEquals(1, manager1.getDataSources().size());
+        assertEquals(1, manager2.getDataSources().size());
     }
 
     @Test
@@ -112,9 +112,9 @@ class DataManagerTest {
         assertNull(manager1.getNextFile());
         assertNull(manager2.getNextFile());
 
-        manager0.setSourceDirectories(directories0);
-        manager1.setSourceDirectories(directories1);
-        manager2.setSourceDirectories(directories2);
+        manager0.setDataSources(directories0);
+        manager1.setDataSources(directories1);
+        manager2.setDataSources(directories2);
 
         assertTrue(manager0.ingest());
         assertTrue(manager1.ingest());
@@ -141,9 +141,9 @@ class DataManagerTest {
         assertEquals(0, manager1.getFiles(false, 100, 0).size());
         assertEquals(0, manager2.getFiles(false, 100, 0).size());
 
-        manager0.setSourceDirectories(directories0);
-        manager1.setSourceDirectories(directories1);
-        manager2.setSourceDirectories(directories2);
+        manager0.setDataSources(directories0);
+        manager1.setDataSources(directories1);
+        manager2.setDataSources(directories2);
 
         assertTrue(manager0.ingest());
         assertTrue(manager1.ingest());
@@ -164,9 +164,9 @@ class DataManagerTest {
         assertEquals(0, manager1.getFiles(false, 100, 0).size());
         assertEquals(0, manager2.getFiles(false, 100, 0).size());
 
-        manager0.setSourceDirectories(directories0);
-        manager1.setSourceDirectories(directories1);
-        manager2.setSourceDirectories(directories2);
+        manager0.setDataSources(directories0);
+        manager1.setDataSources(directories1);
+        manager2.setDataSources(directories2);
 
         assertTrue(manager0.save());
         assertTrue(manager1.save());
@@ -212,9 +212,9 @@ class DataManagerTest {
         assertEquals(0, manager1.getFiles(false, 100, 0).size());
         assertEquals(0, manager2.getFiles(false, 100, 0).size());
 
-        manager0.setSourceDirectories(directories0);
-        manager1.setSourceDirectories(directories1);
-        manager2.setSourceDirectories(directories2);
+        manager0.setDataSources(directories0);
+        manager1.setDataSources(directories1);
+        manager2.setDataSources(directories2);
 
         assertTrue(manager0.save());
         assertTrue(manager1.save());

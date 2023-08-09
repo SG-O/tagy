@@ -74,7 +74,7 @@ public class IngestUI extends JDialog {
         addButton.addActionListener(e -> addDirectory());
         addButton.setMnemonic(KeyEvent.VK_PLUS);
 
-        removeButton.addActionListener(e -> dataManager.removeDirectory(directories.getSelectedRow()));
+        removeButton.addActionListener(e -> dataManager.removeDataSource(directories.getSelectedRow()));
         removeButton.setMnemonic(KeyEvent.VK_MINUS);
 
         saveButton.addActionListener(e -> save());
@@ -134,7 +134,7 @@ public class IngestUI extends JDialog {
                 return;
             }
             prefs.put("lastOpenedDirectory", selectedFile.getAbsolutePath());
-            dataManager.addDirectory(selectedFile);
+            dataManager.addDataSource(selectedFile);
         }
     }
 

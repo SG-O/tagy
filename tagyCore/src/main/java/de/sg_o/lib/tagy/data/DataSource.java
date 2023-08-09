@@ -82,7 +82,7 @@ public class DataSource {
         this.id = id;
     }
 
-    public @NotNull File resolveRootDirectory() {
+    public @NotNull File resolveSource() {
         return new File(source);
     }
 
@@ -207,18 +207,18 @@ public class DataSource {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DataSource dataSource = (DataSource) o;
-        return isRecursive() == dataSource.isRecursive() && Objects.equals(resolveRootDirectory(), dataSource.resolveRootDirectory()) && Objects.equals(getFileExtensions(), dataSource.getFileExtensions());
+        return isRecursive() == dataSource.isRecursive() && Objects.equals(resolveSource(), dataSource.resolveSource()) && Objects.equals(getFileExtensions(), dataSource.getFileExtensions());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resolveRootDirectory(), isRecursive(), getFileExtensions());
+        return Objects.hash(resolveSource(), isRecursive(), getFileExtensions());
     }
 
     @Override
     public String toString() {
         return "{"
-                + "\"rootDirectory\": \"" + resolveRootDirectory().getName() + "\""
+                + "\"source\": \"" + resolveSource().getName() + "\""
                 + ", \"recursive\": " + recursive
                 + ", \"fileExtensions\":" + fileExtensions
                 + "}";

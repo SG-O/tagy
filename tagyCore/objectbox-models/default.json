@@ -26,7 +26,7 @@
       "relations": [
         {
           "id": "1:4546151216607454017",
-          "name": "sourceDirectories",
+          "name": "dataSources",
           "targetId": "2:2718146996373471930"
         }
       ]
