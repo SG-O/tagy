@@ -130,7 +130,12 @@ public class MetaData implements Serializable {
         QueryBoxSpec<MetaData> qbs = qb -> qb.apply(MetaData_.fileReference
                 .equal(reference.getUrlAsString(), QueryBuilder.StringOrder.CASE_SENSITIVE)
                 .and(MetaData_.projectId.equal(project.getId())));
-        return queryFirst(qbs);
+        MetaData found = queryFirst(qbs);
+        if (found == null) return null;
+        if(found.getTagContainers().isEmpty() && found.getEditHistory().isEmpty()) {
+            return null;
+        }
+        return found;
     }
 
     public static MetaData openOrCreate(FileInfo reference, Project project) {
@@ -263,6 +268,9 @@ public class MetaData implements Serializable {
         if (this.tags != null) migrateTags();
         for (TagContainer container : tagContainers) {
             if (!container.save()) return false;
+        }
+        if(tagContainers.isEmpty() && editHistory.isEmpty()) {
+            return false;
         }
         BoxStore db = DB.getDb();
         if (db == null) return false;
