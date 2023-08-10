@@ -32,7 +32,7 @@
         <dependency>
             <groupId>de.sg-o.lib</groupId>
             <artifactId>tagyProto</artifactId>
-            <version>${revision}</version>
+            <version>${protoRevision}</version>
         </dependency>
         <dependency>
             <groupId>io.objectbox</groupId>
@@ -63,11 +63,6 @@
             <groupId>io.objectbox</groupId>
             <artifactId>objectbox-linux-armv7</artifactId>
             <version>${objectboxVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.lgooddatepicker</groupId>
-            <artifactId>LGoodDatePicker</artifactId>
-            <version>11.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>

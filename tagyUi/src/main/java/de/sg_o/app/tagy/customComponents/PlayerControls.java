@@ -21,17 +21,16 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import de.sg_o.app.tagy.annotator.Input;
+import org.freedesktop.gstreamer.Format;
+import org.freedesktop.gstreamer.elements.PlayBin;
+import org.freedesktop.gstreamer.event.SeekFlags;
 import org.jetbrains.annotations.NotNull;
-import uk.co.caprica.vlcj.media.VideoTrackInfo;
-import uk.co.caprica.vlcj.player.base.MediaPlayer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,13 +51,11 @@ public class PlayerControls {
     private JLabel position;
     private JLabel total;
 
-    private boolean progressClicked = false;
-
-    private final MediaPlayer mediaPlayerComponent;
+    private final PlayBin playBin;
     private final Input in;
     private final Input out;
 
-    public PlayerControls(@NotNull MediaPlayer mediaPlayerComponent, Input in, Input out) {
+    public PlayerControls(@NotNull PlayBin playBin, Input in, Input out) {
         inButton.setIcon(Icons.START_20);
         rewindButton.setIcon(Icons.FAST_REWIND_20);
         rewind10Button.setIcon(Icons.REPLAY_10_20);
@@ -76,56 +73,47 @@ public class PlayerControls {
         fixButtonKeypress(outButton);
 
 
-        this.mediaPlayerComponent = mediaPlayerComponent;
+        this.playBin = playBin;
         this.in = in;
         this.out = out;
 
-        rewindButton.addActionListener(e -> mediaPlayerComponent.controls().setPosition(0.0f));
-        rewind10Button.addActionListener(e -> mediaPlayerComponent.controls().skipTime(-10000));
+        rewindButton.addActionListener(e -> playBin.seek(0));
+        rewind10Button.addActionListener(e -> skipTime(-10000));
         playPauseButton.addActionListener(e -> playPause());
         nextFrameButton.addActionListener(e -> {
-            List<VideoTrackInfo> videoTracks = mediaPlayerComponent.media().info().videoTracks();
-            int track = mediaPlayerComponent.video().track();
-            if (videoTracks.size() > track && track >= 0) {
-                int frameRate = videoTracks.get(track).frameRate();
-                if (frameRate == 0) frameRate = 30;
-                float msPerFrame = 1000.0f / frameRate;
-                long delta = Math.round(msPerFrame);
-                mediaPlayerComponent.controls().skipTime(delta);
-            }
         });
-        skip10Button.addActionListener(e -> mediaPlayerComponent.controls().skipTime(10000));
+        skip10Button.addActionListener(e -> skipTime(10000));
         inButton.addActionListener(e -> in());
         outButton.addActionListener(e -> out());
-        progress.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                progressClicked = true;
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
+        progress.addChangeListener(e -> {
+            if (progress.getValueIsAdjusting()) {
                 float pro = (float) progress.getValue() / 10000.0f;
-                mediaPlayerComponent.controls().setPosition(pro);
-                progressClicked = false;
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
+                long length = playBin.queryDuration(Format.TIME);
+                if (length > 0) {
+                    playBin.seekSimple(Format.TIME, EnumSet.of(SeekFlags.FLUSH), (long) (pro * length));
+                }
             }
         });
-        executorService.scheduleAtFixedRate(new UpdateRunnable(mediaPlayerComponent), 0L, 100L, TimeUnit.MILLISECONDS);
+
+        executorService.scheduleAtFixedRate(new UpdateRunnable(playBin), 0L, 100L, TimeUnit.MILLISECONDS);
+    }
+
+    public long getPositionInMs() {
+        return playBin.queryPosition(Format.TIME) / 1000000;
+    }
+
+    public long getTotalInMs() {
+        return playBin.queryDuration(Format.TIME) / 1000000;
+    }
+
+    public void skipTime(long delta) {
+        long newTime = getPositionInMs() + delta;
+        if (newTime < 0) newTime = 0;
+        if (newTime > getTotalInMs()) newTime = getTotalInMs();
+        boolean playing = playBin.isPlaying();
+        playBin.pause();
+        playBin.seekSimple(Format.TIME, EnumSet.of(SeekFlags.FLUSH), newTime * 1000000);
+        if (playing) playBin.play();
     }
 
     private void fixButtonKeypress(JButton button) {
@@ -137,19 +125,19 @@ public class PlayerControls {
 
     public void in() {
         if (in == null) return;
-        in.setValue(mediaPlayerComponent.status().time());
+        in.setValue(getPositionInMs());
     }
 
     public void out() {
         if (out == null) return;
-        out.setValue(mediaPlayerComponent.status().time());
+        out.setValue(getPositionInMs());
     }
 
     public void playPause() {
-        if (mediaPlayerComponent.status().isPlaying()) {
-            mediaPlayerComponent.controls().pause();
+        if (playBin.isPlaying()) {
+            playBin.pause();
         } else {
-            mediaPlayerComponent.controls().play();
+            playBin.play();
         }
     }
 
@@ -255,19 +243,24 @@ public class PlayerControls {
 
     private final class UpdateRunnable implements Runnable {
 
-        private final MediaPlayer mediaPlayer;
+        private final PlayBin playBin;
 
-        private UpdateRunnable(MediaPlayer mediaPlayer) {
-            this.mediaPlayer = mediaPlayer;
+        private UpdateRunnable(PlayBin playBin) {
+            this.playBin = playBin;
         }
 
         @Override
         public void run() {
-            mediaPlayer.status().rate();
-            final long time = mediaPlayer.status().time();
-            final long length = mediaPlayer.status().length();
-            final int timePosition = (int) (mediaPlayer.status().position() * 10000.0f);
-            final boolean isPlaying = mediaPlayer.status().isPlaying();
+            final long time = getPositionInMs();
+            final long length = getTotalInMs();
+
+            int timePosition;
+            if (length > 0) {
+                timePosition = (int) ((time * 10000.0f) / length);
+            } else {
+                timePosition = 0;
+            }
+            final boolean isPlaying = playBin.isPlaying();
 
             SwingUtilities.invokeLater(() -> {
                 updateTime(time, position);
@@ -284,7 +277,7 @@ public class PlayerControls {
     }
 
     private void updatePosition(int value) {
-        if (progressClicked) return;
+        if (progress.getValueIsAdjusting()) return;
         progress.setValue(value);
     }
 

@@ -24,6 +24,8 @@ import javax.swing.*;
 public class Icons {
     private static final IconLoader iconLoader = IconLoader.get(Icons.class);
 
+    public static final Icon TAGY_LOGO_128 = iconLoader.getIcon("/tagy.svg", 128, 128, true);
+
     public static final Icon ADD_24 = iconLoader.getIcon("/icons/svg/add_FILL1_wght400_GRAD0_opsz48.svg", 24, 24, true);
     public static final Icon ADD_20 = iconLoader.getIcon("/icons/svg/add_FILL1_wght400_GRAD0_opsz48.svg", 20, 20, true);
     public static final Icon EDIT_24 = iconLoader.getIcon("/icons/svg/edit_FILL1_wght400_GRAD0_opsz48.svg", 24, 24, true);
@@ -44,5 +46,6 @@ public class Icons {
     public static final Icon SCAN_24 = iconLoader.getIcon("/icons/svg/scan_FILL1_wght400_GRAD0_opsz48.svg", 24, 24, true);
     public static final Icon SETTINGS_24 = iconLoader.getIcon("/icons/svg/settings_FILL1_wght400_GRAD0_opsz48.svg", 24, 24, true);
     public static final Icon START_20 = iconLoader.getIcon("/icons/svg/start_FILL1_wght400_GRAD0_opsz48.svg", 20, 20, true);
+    public static final Icon ARROW_BACK_24 = iconLoader.getIcon("/icons/svg/arrow_back_FILL1_wght400_GRAD0_opsz48.svg", 24, 24, true);
 
 }

@@ -53,6 +53,11 @@
             <version>3.3.4</version>
         </dependency>
         <dependency>
+            <groupId>com.github.lgooddatepicker</groupId>
+            <artifactId>LGoodDatePicker</artifactId>
+            <version>11.2.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.weisj</groupId>
             <artifactId>darklaf-core</artifactId>
             <version>3.0.2</version>
@@ -63,9 +68,14 @@
             <version>0.4.1</version>
         </dependency>
         <dependency>
-            <groupId>uk.co.caprica</groupId>
-            <artifactId>vlcj</artifactId>
-            <version>4.7.3</version>
+            <groupId>org.freedesktop.gstreamer</groupId>
+            <artifactId>gst1-java-core</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.freedesktop.gstreamer</groupId>
+            <artifactId>gst1-java-swing</artifactId>
+            <version>0.9.0</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
@@ -161,6 +171,38 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.internetitem</groupId>
+                <artifactId>write-properties-file-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>write-properties-file</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>write-properties-file</goal>
+                        </goals>
+                        <configuration>
+                            <filename>app.properties</filename>
+                            <outputDirectory>${project.build.outputDirectory}/</outputDirectory>
+                            <properties>
+                                <property>
+                                    <name>tagyProto.version</name>
+                                    <value>${protoRevision}</value>
+                                </property>
+                                <property>
+                                    <name>tagyCore.version</name>
+                                    <value>${revision}</value>
+                                </property>
+                                <property>
+                                    <name>tagyUi.version</name>
+                                    <value>${revision}</value>
+                                </property>
+                            </properties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>

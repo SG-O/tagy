@@ -12,17 +12,19 @@ All details have been [documented here](https://github.com/SG-O/tagy/blob/master
 
 ## Supported OS & Dependencies
 
-- VLC 3.0.0+
-
 Windows:
 
 - Microsoft Visual C++ Redistributable package (X64)
+- GStreamer 1.8.x+
 
 Linux (x64, arm64, armv7):
 
--  GLIBC 2.28+
+- GLIBC 2.28+
+- GStreamer 1.8.x+
 
 Mac OS
+
+- GStreamer 1.8.x+
 
 ## License
 

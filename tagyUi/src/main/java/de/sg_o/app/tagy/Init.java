@@ -23,6 +23,8 @@ import com.github.weisj.darklaf.settings.ThemeSettings;
 import de.sg_o.app.tagy.ui.ProjectsUI;
 import de.sg_o.lib.tagy.db.DB;
 import io.objectbox.exception.DbSchemaException;
+import org.freedesktop.gstreamer.Gst;
+import org.freedesktop.gstreamer.Version;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
@@ -69,6 +71,7 @@ public class Init {
                 System.out.println(e.getMessage());
             }
         }
+        Gst.init(Version.BASELINE, "SwingPlayer", args);
 
         ProjectsUI projectsUI = new ProjectsUI();
         SwingUtilities.invokeLater(() -> projectsUI.setVisible(true));

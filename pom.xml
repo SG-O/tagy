@@ -34,7 +34,7 @@
 
     <properties>
         <revision>0.4.0-RC10</revision>
-        <spec>1</spec>
+        <protoRevision>1.0.0-alpha</protoRevision>
 
         <maven-compiler-plugin-version>3.11.0</maven-compiler-plugin-version>
         <maven-javadoc-plugin-version>3.5.0</maven-javadoc-plugin-version>

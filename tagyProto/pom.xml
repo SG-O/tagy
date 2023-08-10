@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>tagyProto</artifactId>
+    <version>${protoRevision}</version>
     <packaging>jar</packaging>
 
     <build>

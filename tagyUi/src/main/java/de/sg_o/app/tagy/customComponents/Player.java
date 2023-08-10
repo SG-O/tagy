@@ -20,9 +20,9 @@ package de.sg_o.app.tagy.customComponents;
 import de.sg_o.app.tagy.annotator.Input;
 import de.sg_o.lib.tagy.data.FileInfo;
 import de.sg_o.proto.tagy.TagDefinitionProto;
-import uk.co.caprica.vlcj.player.base.MediaPlayer;
-import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
-import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
+import org.freedesktop.gstreamer.Bus;
+import org.freedesktop.gstreamer.elements.PlayBin;
+import org.freedesktop.gstreamer.swing.GstVideoComponent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,14 +30,20 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class Player extends JPanel {
-    private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
+    private static PlayBin playbin;
     private final PlayerControls playerControls;
 
     private final KeyboardFocusManager manager;
     private final KeyEventPostProcessor keyEventPostProcessor;
 
     public Player(List<Input> inputs) {
-        mediaPlayerComponent = new EmbeddedMediaPlayerComponent("-vv");
+        if (playbin == null) {
+            playbin = new PlayBin("playbin");
+        }
+
+        GstVideoComponent vc = new GstVideoComponent();
+        playbin.setVideoSink(vc.getElement());
+
         setLayout(new BorderLayout());
         Player player = this;
 
@@ -54,7 +60,7 @@ public class Player extends JPanel {
                 length = input;
             }
         }
-        playerControls = new PlayerControls(mediaPlayerComponent.mediaPlayer(), in, out);
+        playerControls = new PlayerControls(playbin, in, out);
 
         manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         keyEventPostProcessor = e -> {
@@ -68,11 +74,11 @@ public class Player extends JPanel {
                 return true;
             }
             if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                mediaPlayerComponent.mediaPlayer().controls().skipTime(-2000);
+                playerControls.skipTime(-2000);
                 return true;
             }
             if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                mediaPlayerComponent.mediaPlayer().controls().skipTime(2000);
+                playerControls.skipTime(2000);
                 return true;
             }
             if (e.getKeyCode() == KeyEvent.VK_UP) {
@@ -84,17 +90,16 @@ public class Player extends JPanel {
             return false;
         };
         manager.addKeyEventPostProcessor(keyEventPostProcessor);
-        add(mediaPlayerComponent, BorderLayout.CENTER);
+        add(vc, BorderLayout.CENTER);
 
         Input finalLength = length;
-        mediaPlayerComponent.mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-            @Override
-            public void playing(MediaPlayer mediaPlayer) {
-                if (finalLength != null) {
-                    finalLength.setValue(mediaPlayer.status().length());
-                }
+        playbin.getBus().connect((Bus.DURATION_CHANGED) source -> {
+            // handle on Swing thread!
+            if (finalLength != null) {
+                finalLength.setValue(playerControls.getTotalInMs());
             }
         });
+
 
         add(playerControls.getControlsPane(), BorderLayout.SOUTH);
         revalidate();
@@ -102,23 +107,24 @@ public class Player extends JPanel {
     }
 
     public void display(FileInfo fileInfo) {
-        String url = fileInfo.getUrlAsString();
-        if (url.startsWith("file:")) {
-            url = url.substring(5);
-            url = "file://" + url;
+        try {
+            playbin.stop();
+            playbin.setURI(fileInfo.getAbsolutePath().toURI());
+            playbin.play();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-        mediaPlayerComponent.mediaPlayer().media().play(url);
     }
 
     public void stop() {
-        mediaPlayerComponent.mediaPlayer().controls().stop();
+        playbin.play();
     }
 
     public void close() {
         if (playerControls != null) {
             playerControls.close();
         }
-        mediaPlayerComponent.mediaPlayer().release();
+        playbin.stop();
         manager.removeKeyEventPostProcessor(keyEventPostProcessor);
     }
 }
