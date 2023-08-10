@@ -132,6 +132,12 @@ class MetaDataTest {
         List<MetaData> metaDataList = MetaData.queryAll(project0, 0, 0);
         assertEquals(0, metaDataList.size());
 
+        assertFalse(md0.save());
+        assertFalse(md1.save());
+
+        md0.setTags(tags0);
+        md1.setTags(tags1);
+
         assertTrue(md0.save());
         assertTrue(md1.save());
 
