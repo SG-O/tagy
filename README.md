@@ -1,6 +1,8 @@
 # Tagy
 
-![Logo](https://raw.githubusercontent.com/SG-O/tagy/3d13fbaeea58627aa1f291a99f05f6db6e6d463e/doc/tagy.svg)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/SG-O/tagy/3d13fbaeea58627aa1f291a99f05f6db6e6d463e/doc/tagy.svg" height="196" />
+</p>
 
 Tagy is your friendly neighbourhood data annotation tool that allows you to easily create custom annotators.
 When all data is entered, you can export it as XML, JSON or YAML.
