@@ -9,10 +9,21 @@
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs id="colors">
     <linearGradient id="menuIconEnabled" fallback="Label.foreground">
-      <stop offset="0" stop-color="#000000"/>
-      <stop offset="1" stop-color="#000000"/>
+      <stop offset="0" stop-color="#303030"/>
+      <stop offset="1" stop-color="#303030"/>
     </linearGradient>
   </defs>
+  <style>
+    stop {
+      stop-color: #202020;
+    }
+    @media (prefers-color-scheme: dark) {
+      stop { stop-color: #D0D0D0; }
+    }
+    body.dark-theme stop {
+      stop-color: #D0D0D0;
+    }
+  </style>
   <g
      id="layer1">
     <g
