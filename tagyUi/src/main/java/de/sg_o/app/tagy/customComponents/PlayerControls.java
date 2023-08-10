@@ -81,6 +81,8 @@ public class PlayerControls {
         rewind10Button.addActionListener(e -> skipTime(-10000));
         playPauseButton.addActionListener(e -> playPause());
         nextFrameButton.addActionListener(e -> {
+            playBin.pause();
+            skipTime(30);
         });
         skip10Button.addActionListener(e -> skipTime(10000));
         inButton.addActionListener(e -> in());
