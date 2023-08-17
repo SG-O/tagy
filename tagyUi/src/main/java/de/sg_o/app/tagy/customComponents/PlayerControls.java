@@ -69,13 +69,13 @@ public class PlayerControls {
         skip10Button.setIcon(Icons.FORWARD_10_20);
         outButton.setIcon(Icons.LAST_PAGE_20);
 
-        fixButtonKeypress(inButton);
-        fixButtonKeypress(rewindButton);
-        fixButtonKeypress(rewind10Button);
-        fixButtonKeypress(playPauseButton);
-        fixButtonKeypress(nextFrameButton);
-        fixButtonKeypress(skip10Button);
-        fixButtonKeypress(outButton);
+        fixButtonKeyPress(inButton);
+        fixButtonKeyPress(rewindButton);
+        fixButtonKeyPress(rewind10Button);
+        fixButtonKeyPress(playPauseButton);
+        fixButtonKeyPress(nextFrameButton);
+        fixButtonKeyPress(skip10Button);
+        fixButtonKeyPress(outButton);
 
         sectionedSliderUI = new SectionedSliderUI(progress);
         progress.setUI(sectionedSliderUI);
@@ -139,7 +139,7 @@ public class PlayerControls {
         if (playing) playBin.play();
     }
 
-    private void fixButtonKeypress(JButton button) {
+    private void fixButtonKeyPress(JButton button) {
         button.getInputMap(JComponent.WHEN_FOCUSED)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "none");
         button.getInputMap(JComponent.WHEN_FOCUSED)
