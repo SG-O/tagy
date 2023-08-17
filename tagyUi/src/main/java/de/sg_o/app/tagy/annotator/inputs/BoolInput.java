@@ -74,7 +74,9 @@ public class BoolInput extends Input {
 
     @SuppressWarnings("unused")
     public @Nullable Tag getTag() {
-        return new TagBool(super.getTagDefinition(), getValue());
+        Boolean value = getValue();
+        if (value == null) return null;
+        return new TagBool(super.getTagDefinition(), value);
     }
 
     public @Nullable Boolean getValue() {

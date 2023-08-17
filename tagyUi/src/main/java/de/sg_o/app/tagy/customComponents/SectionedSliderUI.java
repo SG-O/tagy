@@ -23,6 +23,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
+@SuppressWarnings("unused")
 public class SectionedSliderUI extends DarkSliderUI {
     private float start = 0.0f;
     private float end = 1.0f;
