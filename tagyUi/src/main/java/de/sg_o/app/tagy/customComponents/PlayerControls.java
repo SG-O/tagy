@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.lang.reflect.Method;
 import java.util.EnumSet;
 import java.util.ResourceBundle;
@@ -97,6 +99,20 @@ public class PlayerControls {
                 float pro = (float) progress.getValue() / 10000.0f;
                 long length = playBin.queryDuration(Format.TIME);
                 if (length > 0) {
+                    playBin.seekSimple(Format.TIME, EnumSet.of(SeekFlags.FLUSH), (long) (pro * length));
+                }
+            }
+        });
+        progress.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                JSlider sourceSlider = (JSlider) e.getSource();
+                SectionedSliderUI ui = (SectionedSliderUI) sourceSlider.getUI();
+                int value = ui.valueForXPosition(e.getX());
+                progress.setValue(value);
+                long length = playBin.queryDuration(Format.TIME);
+                if (length > 0) {
+                    float pro = value / 10000.0f;
                     playBin.seekSimple(Format.TIME, EnumSet.of(SeekFlags.FLUSH), (long) (pro * length));
                 }
             }
