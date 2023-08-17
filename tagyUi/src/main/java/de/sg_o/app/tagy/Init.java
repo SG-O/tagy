@@ -25,6 +25,8 @@ import de.sg_o.lib.tagy.db.DB;
 import io.objectbox.exception.DbSchemaException;
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.Version;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
@@ -77,7 +79,7 @@ public class Init {
         SwingUtilities.invokeLater(() -> projectsUI.setVisible(true));
     }
 
-    public static List<ResourceBundle> getResourceBundles(String baseName) {
+    public static @NotNull @UnmodifiableView List<ResourceBundle> getResourceBundles(String baseName) {
         HashSet<ResourceBundle> resourceBundles = new HashSet<>();
 
         for (Locale locale : Locale.getAvailableLocales()) {
