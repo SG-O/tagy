@@ -102,10 +102,17 @@ public class EnumInput extends Input {
 
     @SuppressWarnings("unused")
     public @Nullable Tag getTag() throws InputException {
+        Integer value = getValue();
+        if (value == null) return null;
+        return new TagEnum(super.getTagDefinition(), value);
+    }
+
+    public @Nullable Integer getValue() throws InputException {
         if (component.getSelectedIndex() == component.getItemCount() - 1) {
-            if (super.getTagDefinition().isRequired()) throw new InputException(InputException.Rule.EMPTY_MANDATORY_FIELD, super.getTagDefinition().getName());
+            if (super.getTagDefinition().isRequired())
+                throw new InputException(InputException.Rule.EMPTY_MANDATORY_FIELD, super.getTagDefinition().getName());
             return null;
         }
-        return new TagEnum(super.getTagDefinition(), component.getSelectedIndex());
+        return component.getSelectedIndex();
     }
 }

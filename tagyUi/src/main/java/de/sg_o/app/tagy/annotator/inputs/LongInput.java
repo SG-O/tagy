@@ -133,6 +133,12 @@ public class LongInput extends Input {
 
     @SuppressWarnings("unused")
     public @Nullable Tag getTag() throws InputException {
+        Long value = getValue();
+        if (value == null) return null;
+        return new TagLong(super.getTagDefinition(), value);
+    }
+
+    public @Nullable Long getValue() throws InputException {
         long value = 0;
         if (component instanceof JSlider) {
             value = ((JSlider) component).getValue();
@@ -160,7 +166,7 @@ public class LongInput extends Input {
                         super.getTagDefinition().getMax());
             }
         }
-        return new TagLong(super.getTagDefinition(), value);
+        return value;
     }
 
     static class SliderPopupListener extends MouseAdapter {

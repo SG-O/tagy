@@ -74,7 +74,10 @@ public class BoolInput extends Input {
 
     @SuppressWarnings("unused")
     public @Nullable Tag getTag() {
-        boolean selected = component.isSelected();
-        return new TagBool(super.getTagDefinition(), selected);
+        return new TagBool(super.getTagDefinition(), getValue());
+    }
+
+    public @Nullable Boolean getValue() {
+        return component.isSelected();
     }
 }

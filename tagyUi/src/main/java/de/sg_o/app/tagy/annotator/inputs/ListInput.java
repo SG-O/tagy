@@ -134,21 +134,28 @@ public class ListInput extends Input {
 
     @SuppressWarnings("unused")
     public @Nullable Tag getTag() throws InputException {
-        if (children.size() < super.getTagDefinition().getMin()) {
-            throw new InputException(InputException.Rule.LIST_NOT_ENOUGH_VALUES,
-                    super.getTagDefinition().getName(),
-                    super.getTagDefinition().getMin());
-        }
-        if (children.size() > super.getTagDefinition().getMax()) {
-            throw new InputException(InputException.Rule.LIST_TOO_MANY_VALUES,
-                    super.getTagDefinition().getName(),
-                    super.getTagDefinition().getMax());
-        }
-        TagList tagList = new TagList(super.getTagDefinition(), children.size());
+        Integer value = getValue();
+        if (value == null) return null;
+        TagList tagList = new TagList(super.getTagDefinition(), value);
         for (ChildListEntry child : children) {
             tagList.addValue(child.getChild().getTag());
         }
         return tagList;
+    }
+
+    public @Nullable Integer getValue() throws InputException {
+        int size = children.size();
+        if (size < super.getTagDefinition().getMin()) {
+            throw new InputException(InputException.Rule.LIST_NOT_ENOUGH_VALUES,
+                    super.getTagDefinition().getName(),
+                    super.getTagDefinition().getMin());
+        }
+        if (size > super.getTagDefinition().getMax()) {
+            throw new InputException(InputException.Rule.LIST_TOO_MANY_VALUES,
+                    super.getTagDefinition().getName(),
+                    super.getTagDefinition().getMax());
+        }
+        return size;
     }
 
     private class ChildListEntry extends JPanel {

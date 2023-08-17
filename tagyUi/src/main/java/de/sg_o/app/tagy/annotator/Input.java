@@ -56,6 +56,8 @@ public abstract class Input {
 
     public abstract @Nullable Tag getTag() throws InputException;
 
+    public abstract @Nullable Object getValue() throws InputException;
+
     public void addViewer(Input viewer) {
         viewers.add(viewer);
         getModule().setVisible(!viewers.isEmpty());

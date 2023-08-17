@@ -134,6 +134,12 @@ public class DoubleInput extends Input {
 
     @SuppressWarnings("unused")
     public @Nullable Tag getTag() throws InputException {
+        Double value = getValue();
+        if (value == null) return null;
+        return new TagDouble(super.getTagDefinition(), value);
+    }
+
+    public @Nullable Double getValue() throws InputException {
         double value = 0;
         if (component instanceof JSlider) {
             value = ((JSlider) component).getValue() / 100.0;
@@ -161,7 +167,7 @@ public class DoubleInput extends Input {
                         super.getTagDefinition().getMax());
             }
         }
-        return new TagDouble(super.getTagDefinition(), value);
+        return value;
     }
 
     static class SliderPopupListener extends MouseAdapter {

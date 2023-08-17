@@ -76,6 +76,12 @@ public class StringInput extends Input {
 
     @SuppressWarnings("unused")
     public @Nullable Tag getTag() throws InputException {
+        String value = getValue();
+        if (value == null) return null;
+        return new TagString(super.getTagDefinition(), value);
+    }
+
+    public @Nullable String getValue() throws InputException {
         String text = component.getText();
         if (text.isEmpty() && super.getTagDefinition().isRequired()) {
             throw new InputException(InputException.Rule.EMPTY_MANDATORY_FIELD, super.getTagDefinition().getName());
@@ -90,6 +96,6 @@ public class StringInput extends Input {
                     super.getTagDefinition().getName(),
                     super.getTagDefinition().getMax());
         }
-        return new TagString(super.getTagDefinition(), text);
+        return text;
     }
 }

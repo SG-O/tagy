@@ -21,6 +21,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import de.sg_o.app.tagy.annotator.Input;
+import de.sg_o.lib.tagy.exceptions.InputException;
 import org.freedesktop.gstreamer.Format;
 import org.freedesktop.gstreamer.elements.PlayBin;
 import org.freedesktop.gstreamer.event.SeekFlags;
@@ -55,6 +56,8 @@ public class PlayerControls {
     private final Input in;
     private final Input out;
 
+    private final SectionedSliderUI sectionedSliderUI;
+
     public PlayerControls(@NotNull PlayBin playBin, Input in, Input out) {
         inButton.setIcon(Icons.START_20);
         rewindButton.setIcon(Icons.FAST_REWIND_20);
@@ -72,6 +75,8 @@ public class PlayerControls {
         fixButtonKeypress(skip10Button);
         fixButtonKeypress(outButton);
 
+        sectionedSliderUI = new SectionedSliderUI(progress);
+        progress.setUI(sectionedSliderUI);
 
         this.playBin = playBin;
         this.in = in;
@@ -127,12 +132,22 @@ public class PlayerControls {
 
     public void in() {
         if (in == null) return;
-        in.setValue(getPositionInMs());
+        long total = getTotalInMs();
+        long pos = getPositionInMs();
+        in.setValue(pos);
+        if (total == 0) return;
+        float relative = (float) pos / total;
+        sectionedSliderUI.setStart(relative);
     }
 
     public void out() {
         if (out == null) return;
-        out.setValue(getPositionInMs());
+        long total = getTotalInMs();
+        long pos = getPositionInMs();
+        out.setValue(pos);
+        if (total == 0) return;
+        float relative = (float) pos / total;
+        sectionedSliderUI.setEnd(relative);
     }
 
     public void playPause() {
@@ -259,6 +274,24 @@ public class PlayerControls {
             int timePosition;
             if (length > 0) {
                 timePosition = (int) ((time * 10000.0f) / length);
+                if (in != null) {
+                    try {
+                        Object value = in.getValue();
+                        if (value instanceof Number) {
+                            sectionedSliderUI.setStart(((Number) value).floatValue() / length);
+                        }
+                    } catch (InputException ignored) {
+                    }
+                }
+                if (out != null) {
+                    try {
+                        Object value = out.getValue();
+                        if (value instanceof Number) {
+                            sectionedSliderUI.setEnd(((Number) value).floatValue() / length);
+                        }
+                    } catch (InputException ignored) {
+                    }
+                }
             } else {
                 timePosition = 0;
             }

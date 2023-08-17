@@ -96,6 +96,12 @@ public class DateInput extends Input {
     @SuppressWarnings("unused")
     @Override
     public @Nullable Tag getTag() throws InputException {
+        Date value = getValue();
+        if (value == null) return null;
+        return new TagDate(super.getTagDefinition(), value);
+    }
+
+    public @Nullable Date getValue() throws InputException {
         LocalDate ld = component.getDate();
         if (ld == null) {
             if (super.getTagDefinition().isRequired()) {
@@ -108,7 +114,6 @@ public class DateInput extends Input {
             time = LocalTime.MIN;
         }
         LocalDateTime ldt = ld.atTime(time);
-        Date out = Date.from(ldt.atZone(ZoneId.of("UTC")).toInstant());
-        return new TagDate(super.getTagDefinition(), out);
+        return Date.from(ldt.atZone(ZoneId.of("UTC")).toInstant());
     }
 }
