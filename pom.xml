@@ -33,7 +33,7 @@
     </modules>
 
     <properties>
-        <revision>0.4.0-RC12</revision>
+        <revision>0.4.0-RC13</revision>
         <protoRevision>1.1.0-alpha</protoRevision>
 
         <maven-compiler-plugin-version>3.11.0</maven-compiler-plugin-version>
