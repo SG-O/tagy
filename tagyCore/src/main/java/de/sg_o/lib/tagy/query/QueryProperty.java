@@ -30,14 +30,6 @@ public abstract class QueryProperty extends QueryElement {
         super(tagDefinition);
     }
 
-    public TagDefinition getTagDefinition() {
-        return tagDefinition;
-    }
-
-    public String getKey() {
-        return tagDefinition.getKey();
-    }
-
     protected abstract @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec();
 
     public @NotNull QueryBoxSpec<TagContainer> genrateQuerySpec() {
