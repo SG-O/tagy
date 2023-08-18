@@ -177,8 +177,10 @@ public class MetaData implements Serializable {
         BoxStore db = DB.getDb();
         Box<TagContainer> box = null;
         if (db != null) box = db.boxFor(TagContainer.class);
+
         for (int i = 0; i < this.tagContainers.size(); i++) {
             TagContainer tagContainer = this.tagContainers.remove(i);
+            if (this.id == null || this.id == 0L) continue;
             this.tagContainers.applyChangesToDb();
             if (tagContainer == null) continue;
             if (box == null) continue;
