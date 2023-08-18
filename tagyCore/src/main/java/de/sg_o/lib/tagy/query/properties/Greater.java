@@ -17,10 +17,10 @@
 
 package de.sg_o.lib.tagy.query.properties;
 
+import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
-import de.sg_o.lib.tagy.data.TagContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -29,24 +29,39 @@ import java.util.Date;
 public class Greater extends QueryProperty {
     private final @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> queryProperty;
 
+    private Long longValue = null;
+    private Double doubleValue = null;
+
     public Greater(TagDefinition tagDefinition, long value) {
         super(tagDefinition);
         this.queryProperty = () -> TagContainer_.longValue.greater(value);
+        longValue = value;
     }
 
     public Greater(TagDefinition tagDefinition, Date value) {
         super(tagDefinition);
         this.queryProperty = () -> TagContainer_.longValue.greater(value.getTime());
+        longValue = value.getTime();
     }
 
     public Greater(TagDefinition tagDefinition, double value) {
         super(tagDefinition);
         this.queryProperty = () -> TagContainer_.doubleValue.greater(value);
+        doubleValue = value;
     }
-
 
     @Override
     protected @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec() {
         return queryProperty;
+    }
+
+    @Override
+    protected boolean matches(TagContainer tc) {
+        if (tc == null) return false;
+        if (longValue != null && tc.getLongValue() != null)
+            return (tc.getLongValue() >= longValue);
+        if (doubleValue != null && tc.getLongValue() != null)
+            return (tc.getDoubleValue() >= doubleValue);
+        return false;
     }
 }

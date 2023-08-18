@@ -17,10 +17,10 @@
 
 package de.sg_o.lib.tagy.query.properties;
 
+import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
-import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.proto.tagy.TagDefinitionProto;
 import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -31,24 +31,35 @@ import java.util.Date;
 public class Equals extends QueryProperty {
     private final @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> queryProperty;
 
+    private Long longValue = null;
+    private Double doubleValue = null;
+    private Double doubleTolerance = null;
+    private Boolean boolValue = null;
+    private String stringValue = null;
+
     public Equals(TagDefinition tagDefinition, long value) {
         super(tagDefinition);
         this.queryProperty = () -> TagContainer_.longValue.equal(value);
+        longValue = value;
     }
 
     public Equals(TagDefinition tagDefinition, Date value) {
         super(tagDefinition);
         this.queryProperty = () -> TagContainer_.longValue.equal(value.getTime());
+        longValue = value.getTime();
     }
 
     public Equals(TagDefinition tagDefinition, double value, double tolerance) {
         super(tagDefinition);
         this.queryProperty = () -> TagContainer_.doubleValue.equal(value, tolerance);
+        doubleValue = value;
+        doubleTolerance = tolerance;
     }
 
     public Equals(TagDefinition tagDefinition, boolean value) {
         super(tagDefinition);
         this.queryProperty = () -> TagContainer_.booleanValue.equal(value);
+        boolValue = value;
     }
 
     public Equals(TagDefinition tagDefinition, @NotNull String value) {
@@ -57,15 +68,28 @@ public class Equals extends QueryProperty {
             int index = tagDefinition.getEnumerators().indexOf(value);
             if (index > -1) {
                 this.queryProperty = () -> TagContainer_.longValue.equal(index);
+                longValue = (long) index;
                 return;
             }
         }
         this.queryProperty = () -> TagContainer_.stringValue.equal(value, QueryBuilder.StringOrder.CASE_SENSITIVE);
+        stringValue = value;
     }
-
 
     @Override
     protected @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec() {
         return queryProperty;
+    }
+
+    @Override
+    protected boolean matches(TagContainer tc) {
+        if (tc == null) return false;
+        if (longValue != null) return longValue.equals(tc.getLongValue());
+        if (doubleValue != null && doubleTolerance != null && tc.getDoubleValue() != null) {
+            return (tc.getDoubleValue() >= (doubleValue - doubleTolerance) && tc.getDoubleValue() <= (doubleValue + doubleTolerance));
+        }
+        if (boolValue != null) return boolValue.equals(tc.getBooleanValue());
+        if (stringValue != null) return stringValue.equals(tc.getStringValue());
+        return false;
     }
 }

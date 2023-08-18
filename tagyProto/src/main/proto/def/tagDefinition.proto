@@ -28,6 +28,9 @@ enum Type {
   STRING = 5;
   DATE = 6;
   BOOLEAN = 7;
+  TUPLE_2 = 8;
+  TUPLE_3 = 9;
+  TUPLE_4 = 10;
 }
 
 enum Parameter {
@@ -39,4 +42,7 @@ enum Parameter {
   OUT = 2;
   //Total length of the video or audio in milliseconds
   LENGTH = 3;
+  LINE = 4;
+  RECTANGLE = 5;
+  CIRCLE = 6;
 }

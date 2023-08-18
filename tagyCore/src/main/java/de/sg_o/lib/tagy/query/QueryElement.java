@@ -17,10 +17,28 @@
 
 package de.sg_o.lib.tagy.query;
 
-import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.data.TagContainer;
+import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import de.sg_o.lib.tagy.def.TagDefinition;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class QueryElement {
+
+    public final TagDefinition tagDefinition;
+
+    public QueryElement(TagDefinition tagDefinition) {
+        this.tagDefinition = tagDefinition;
+    }
+
+    public TagDefinition getTagDefinition() {
+        return tagDefinition;
+    }
+
+    public String getKey() {
+        return tagDefinition.getKey();
+    }
+
     public abstract @NotNull QueryBoxSpec<TagContainer> genrateQuerySpec();
+
+    protected abstract boolean matches(TagContainer tc);
 }

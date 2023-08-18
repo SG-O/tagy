@@ -17,25 +17,29 @@
 
 package de.sg_o.lib.tagy.query;
 
+import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition_;
-import de.sg_o.lib.tagy.data.TagContainer;
 import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 
-public class QueryInternal extends QueryElement{
-    private final @NotNull QueryProperty queryProperty;
-    public final TagDefinition tagDefinition;
+import java.util.List;
 
-    public QueryInternal(@NotNull TagDefinition tagDefinition, @NotNull QueryProperty queryProperty) {
-        this.tagDefinition = tagDefinition;
-        this.queryProperty = queryProperty;
+public class QueryInternal extends QueryElement{
+    public enum MatchCondition {
+        MATCH_ONE,
+        MATCH_ALL
     }
 
-    public String getKey() {
-        return tagDefinition.getKey();
+    private final @NotNull QueryProperty queryProperty;
+    private final MatchCondition matchCondition;
+
+    public QueryInternal(@NotNull TagDefinition tagDefinition, @NotNull QueryProperty queryProperty, MatchCondition matchCondition) {
+        super(tagDefinition);
+        this.queryProperty = queryProperty;
+        this.matchCondition = matchCondition;
     }
 
     @Override
@@ -47,5 +51,22 @@ public class QueryInternal extends QueryElement{
             queryProperty.genrateQuerySpec().buildQuery(internal);
             return qb;
         };
+    }
+
+    @Override
+    protected boolean matches(TagContainer tc) {
+        if (tc == null) return false;
+        List<TagContainer> entries = tc.getListValues();
+        if (matchCondition == MatchCondition.MATCH_ONE) {
+            for (TagContainer entry : entries) {
+                if (queryProperty.matches(entry)) return true;
+            }
+        } else if (matchCondition == MatchCondition.MATCH_ALL) {
+            for (TagContainer entry : entries) {
+                if (!queryProperty.matches(entry)) return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

@@ -17,10 +17,10 @@
 
 package de.sg_o.lib.tagy.query.properties;
 
+import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
-import de.sg_o.lib.tagy.data.TagContainer;
 
 public class NotNull extends QueryProperty {
     private final @org.jetbrains.annotations.NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> queryProperty;
@@ -36,5 +36,11 @@ public class NotNull extends QueryProperty {
     @Override
     protected @org.jetbrains.annotations.NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec() {
         return queryProperty;
+    }
+
+    @Override
+    protected boolean matches(TagContainer tc) {
+        if (tc == null) return false;
+        return (tc.getLongValue() != null || tc.getDoubleValue() != null || tc.getBooleanValue() != null || tc.getStringValue() != null);
     }
 }

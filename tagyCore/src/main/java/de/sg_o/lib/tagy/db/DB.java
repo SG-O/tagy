@@ -70,7 +70,11 @@ public class DB {
             if (length > 0 && offset > -1) {
                 results = query.find(offset, length);
             } else {
-                results = query.findLazyCached();
+                try {
+                    results = query.findLazyCached();
+                } catch (UnsupportedOperationException e) {
+                    results = query.find();
+                }
             }
         }
         db.closeThreadResources();

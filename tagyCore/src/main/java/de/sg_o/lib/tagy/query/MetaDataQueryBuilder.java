@@ -20,9 +20,9 @@ package de.sg_o.lib.tagy.query;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.data.MetaData_;
+import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
-import de.sg_o.lib.tagy.data.TagContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -47,6 +47,17 @@ public class MetaDataQueryBuilder {
                 io.objectbox.query.QueryBuilder<TagContainer> tcQb = qb.link(MetaData_.tagContainers);
                 queryElement.genrateQuerySpec().buildQuery(tcQb);
             }
+            qb.filter((candidate) -> {
+                for (QueryElement queryElement : queryProperties) {
+                    List<TagContainer> containers = candidate.getTagContainers();
+                    for (TagContainer container : containers) {
+                        if (container.resolveTagDefinition().getKey().equals(queryElement.getKey())) {
+                            if (!queryElement.matches(container)) return false;
+                        }
+                    }
+                }
+                return true;
+            });
             return qb;
         };
         return DB.query(MetaData.class, qbs, length, offset);

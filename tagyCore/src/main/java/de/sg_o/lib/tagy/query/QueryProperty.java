@@ -17,18 +17,17 @@
 
 package de.sg_o.lib.tagy.query;
 
+import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition_;
-import de.sg_o.lib.tagy.data.TagContainer;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class QueryProperty extends QueryElement {
-    public final TagDefinition tagDefinition;
 
     public QueryProperty(TagDefinition tagDefinition) {
-        this.tagDefinition = tagDefinition;
+        super(tagDefinition);
     }
 
     public TagDefinition getTagDefinition() {

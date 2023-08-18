@@ -161,10 +161,21 @@ class QueryBuilderTest {
         assertEquals(0, result.size());
 
         qb = new MetaDataQueryBuilder(project0);
-        qb.addQueryElement(new QueryInternal(td2, new Equals(tdl0, 5)));
+        qb.addQueryElement(new QueryInternal(td2, new Equals(tdl0, 5), QueryInternal.MatchCondition.MATCH_ONE));
         result = qb.query(0,0);
         assertEquals(1, result.size());
         assertEquals(md1, result.get(0));
+
+        qb = new MetaDataQueryBuilder(project0);
+        qb.addQueryElement(new QueryInternal(td2, new NotEquals(tdl0, 10), QueryInternal.MatchCondition.MATCH_ONE));
+        result = qb.query(0, 0);
+        assertEquals(1, result.size());
+        assertEquals(md1, result.get(0));
+
+        qb = new MetaDataQueryBuilder(project0);
+        qb.addQueryElement(new QueryInternal(td2, new NotEquals(tdl0, 5), QueryInternal.MatchCondition.MATCH_ALL));
+        result = qb.query(0, 0);
+        assertEquals(0, result.size());
 
         qb = new MetaDataQueryBuilder(project0);
         qb.addQueryElement(new Between(td3, -1, 1));
