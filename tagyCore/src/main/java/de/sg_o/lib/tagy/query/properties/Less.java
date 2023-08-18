@@ -60,7 +60,7 @@ public class Less extends QueryProperty {
         if (tc == null) return false;
         if (longValue != null && tc.getLongValue() != null)
             return (tc.getLongValue() <= longValue);
-        if (doubleValue != null && tc.getLongValue() != null)
+        if (doubleValue != null && tc.getDoubleValue() != null)
             return (tc.getDoubleValue() <= doubleValue);
         return false;
     }

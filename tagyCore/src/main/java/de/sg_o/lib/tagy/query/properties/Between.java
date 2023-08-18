@@ -64,7 +64,7 @@ public class Between extends QueryProperty {
         if (tc == null) return false;
         if (longLowerBounds != null && longUpperBounds != null && tc.getLongValue() != null)
             return (tc.getLongValue() >= longLowerBounds) && (tc.getLongValue() <= longUpperBounds);
-        if (doubleLowerBounds != null && doubleUpperBounds != null && tc.getLongValue() != null)
+        if (doubleLowerBounds != null && doubleUpperBounds != null && tc.getDoubleValue() != null)
             return (tc.getDoubleValue() >= doubleLowerBounds) && (tc.getDoubleValue() <= doubleUpperBounds);
         return false;
     }
