@@ -84,7 +84,10 @@ public class PlayerControls {
         this.in = in;
         this.out = out;
 
-        rewindButton.addActionListener(e -> playBin.seek(0));
+        rewindButton.addActionListener(e -> {
+            playBin.stop();
+            playBin.seek(0);
+        });
         rewind10Button.addActionListener(e -> skipTime(-10000));
         playPauseButton.addActionListener(e -> playPause());
         nextFrameButton.addActionListener(e -> {
@@ -295,8 +298,11 @@ public class PlayerControls {
                         Object value = in.getValue();
                         if (value instanceof Number) {
                             sectionedSliderUI.setStart(((Number) value).floatValue() / length);
+                        } else {
+                            sectionedSliderUI.setStart(0.0f);
                         }
                     } catch (InputException ignored) {
+                        sectionedSliderUI.setStart(0.0f);
                     }
                 }
                 if (out != null) {
@@ -304,8 +310,11 @@ public class PlayerControls {
                         Object value = out.getValue();
                         if (value instanceof Number) {
                             sectionedSliderUI.setEnd(((Number) value).floatValue() / length);
+                        } else {
+                            sectionedSliderUI.setEnd(1.0f);
                         }
                     } catch (InputException ignored) {
+                        sectionedSliderUI.setEnd(1.0f);
                     }
                 }
             } else {
