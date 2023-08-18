@@ -28,9 +28,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ProjectManager extends AbstractListModel<String>  {
-    private final ArrayList<String> projects;
+    private ArrayList<String> projects;
 
     public ProjectManager() {
+        projects = listProjects();
+    }
+
+    public void reload() {
         projects = listProjects();
     }
 

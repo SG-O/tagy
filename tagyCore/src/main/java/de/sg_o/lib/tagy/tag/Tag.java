@@ -27,6 +27,7 @@ import de.sg_o.lib.tagy.tag.integer.TagLong;
 import de.sg_o.lib.tagy.tag.list.TagList;
 import de.sg_o.lib.tagy.tag.string.TagString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 
@@ -37,22 +38,22 @@ public abstract class Tag implements Serializable {
         this.definition = definition;
     }
 
-    public static Tag create(@NotNull TagDefinition definition, @NotNull JsonNode dictionary) {
+    public static Tag create(@NotNull TagDefinition definition, @Nullable JsonNode jsonNode) {
         switch (definition.getType()) {
             case LIST:
-                return new TagList(definition, dictionary);
+                return new TagList(definition, jsonNode);
             case LONG:
-                return new TagLong(definition, dictionary);
+                return new TagLong(definition, jsonNode);
             case DOUBLE:
-                return new TagDouble(definition, dictionary);
+                return new TagDouble(definition, jsonNode);
             case ENUM:
-                return new TagEnum(definition, dictionary);
+                return new TagEnum(definition, jsonNode);
             case STRING:
-                return new TagString(definition, dictionary);
+                return new TagString(definition, jsonNode);
             case DATE:
-                return new TagDate(definition, dictionary);
+                return new TagDate(definition, jsonNode);
             case BOOLEAN:
-                return new TagBool(definition, dictionary);
+                return new TagBool(definition, jsonNode);
             default:
                 return null;
         }

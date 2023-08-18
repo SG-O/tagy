@@ -21,12 +21,12 @@ import de.sg_o.app.tagy.annotator.inputs.EnumInput;
 import de.sg_o.app.tagy.annotator.inputs.ListInput;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.data.MetaData;
+import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagEnablerDefinition;
 import de.sg_o.lib.tagy.exceptions.InputException;
 import de.sg_o.lib.tagy.tag.Tag;
-import de.sg_o.lib.tagy.data.TagContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -93,6 +93,7 @@ public class InputHolder {
         if (loaded == null) {
             return null;
         }
+        loaded.clearTags();
         for (Input input : inputs) {
             Tag tag = input.getTag();
             if (tag == null) continue;

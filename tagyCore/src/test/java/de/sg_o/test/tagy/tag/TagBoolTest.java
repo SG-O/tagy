@@ -113,10 +113,10 @@ class TagBoolTest {
         assertNotEquals(tag0, tag2);
         assertNotEquals(tag0, tag3);
 
-        assertEquals(-1935085694, tag0.hashCode());
-        assertEquals(692012962, tag1.hashCode());
-        assertEquals(-1935085688, tag2.hashCode());
-        assertEquals(692012968, tag3.hashCode());
+        assertEquals(141790079, tag0.hashCode());
+        assertEquals(-22530209, tag1.hashCode());
+        assertEquals(141790085, tag2.hashCode());
+        assertEquals(-22530203, tag3.hashCode());
         assertEquals(tag0.hashCode(), tag4.hashCode());
     }
 

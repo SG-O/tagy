@@ -23,6 +23,7 @@ import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,16 +40,20 @@ public class TagEnum extends Tag {
         this.value = value;
     }
 
-    public TagEnum(@NotNull TagDefinition definition, @NotNull JsonNode document) {
+    public TagEnum(@NotNull TagDefinition definition, @Nullable JsonNode jsonNode) {
         super(definition);
         if (definition.getType() != TagDefinitionProto.Type.ENUM) throw new IllegalArgumentException("Definition is not of type enum");
-        JsonNode value = document.get("value");
-        if (value == null) value = document.get(getKey());
+        if (jsonNode == null) {
+            value = -1;
+            return;
+        }
+        JsonNode value = jsonNode.get("value");
+        if (value == null) value = jsonNode.get(getKey());
         Integer tmp = null;
         if (value != null) {
             tmp = value.asInt();
-        } else if (document.isValueNode()){
-            tmp = document.asInt();
+        } else if (jsonNode.isValueNode()) {
+            tmp = jsonNode.asInt();
         }
         if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
         this.value = tmp;

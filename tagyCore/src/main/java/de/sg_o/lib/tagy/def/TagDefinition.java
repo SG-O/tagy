@@ -53,6 +53,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     private final List<String> enumerators;
     @Convert(converter = ParameterConverter.class, dbType = Integer.class)
     private TagDefinitionProto.Parameter parameter = TagDefinitionProto.Parameter.NONE;
+    private Integer fixedSize = -1;
     private final ToOne<TagDefinition> internal = new ToOne<>(this, TagDefinition_.internal);
     private final ToOne<TagEnablerDefinition> tagEnabler = new ToOne<>(this, TagDefinition_.tagEnabler);
 
@@ -66,7 +67,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     @SuppressWarnings("NullableProblems")
     public TagDefinition(Long id, @NotNull String key, String name, String description,
                          TagDefinitionProto.Type type, double min, double max, boolean required, List<String> enumerators,
-                         TagDefinitionProto.Parameter parameter, long internalId, long tagEnablerId) {
+                         TagDefinitionProto.Parameter parameter, Integer fixedSize, long internalId, long tagEnablerId) {
         this.id = id;
         this.key = key;
         this.name = name;
@@ -79,6 +80,8 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         this.enumerators = enumerators;
         this.parameter = parameter;
         this.internal.setTargetId(internalId);
+        if (fixedSize == null) fixedSize = -1;
+        this.fixedSize = fixedSize;
         this.tagEnabler.setTargetId(tagEnablerId);
     }
 
@@ -171,6 +174,10 @@ public class TagDefinition extends JsonPrintable implements Serializable {
             } else {
                 throw new IllegalArgumentException("Invalid encoded TagDefinition");
             }
+            JsonNode fixedSizeNode = encoded.get(StructureConstants.FIXED_LIST_SIZE_KEY);
+            if (fixedSizeNode != null) {
+                this.fixedSize = fixedSizeNode.intValue();
+            }
         }
 
         JsonNode tagEnablerNode = encoded.get(StructureConstants.TAG_ENABLER_KEY);
@@ -202,6 +209,9 @@ public class TagDefinition extends JsonPrintable implements Serializable {
                 this.internal.setTarget(new TagDefinition(proto.getInternal()));
             } else {
                 throw new IllegalArgumentException("Invalid encoded TagDefinition");
+            }
+            if (proto.hasFixedSize()) {
+                setFixedSize(proto.getFixedSize());
             }
         }
         if (proto.hasTagEnabler()) this.tagEnabler.setTarget(new TagEnablerDefinition(proto.getTagEnabler()));
@@ -318,6 +328,17 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         return internal.getTarget();
     }
 
+    public int getFixedSize() {
+        if (type != TagDefinitionProto.Type.LIST) return -1;
+        return fixedSize;
+    }
+
+    public void setFixedSize(int fixedSize) {
+        if (type != TagDefinitionProto.Type.LIST) fixedSize = -1;
+        if (fixedSize < -1) fixedSize = -1;
+        this.fixedSize = fixedSize;
+    }
+
     public ToOne<TagDefinition> getInternal() {
         if (type != TagDefinitionProto.Type.LIST) {
             internal.setTarget(null);
@@ -383,6 +404,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         builder.setRequired(this.required);
         builder.addAllEnumerators(this.enumerators);
         if (resolveInternal() != null) builder.setInternal(resolveInternal().getAsProto());
+        if (getFixedSize() > -1) builder.setFixedSize(getFixedSize());
         if (this.parameter != TagDefinitionProto.Parameter.NONE) builder.setParameter(this.parameter);
         if (resolveTagEnabler() != null) builder.setTagEnabler(resolveTagEnabler().getAsProto());
         return builder.build();
@@ -402,6 +424,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
                 Objects.equals(typeConverter.convertToDatabaseValue(getType()), typeConverter.convertToDatabaseValue(that.getType())) &&
                 Objects.equals(getEnumerators(), that.getEnumerators()) &&
                 Objects.equals(resolveInternal(), that.resolveInternal()) &&
+                Objects.equals(getFixedSize(), that.getFixedSize()) &&
                 Objects.equals(parameterConverter.convertToDatabaseValue(getParameter()), parameterConverter.convertToDatabaseValue(that.getParameter())) &&
                 Objects.equals(resolveTagEnabler(), that.resolveTagEnabler());
     }
@@ -410,7 +433,7 @@ public class TagDefinition extends JsonPrintable implements Serializable {
     public int hashCode() {
         return Objects.hash(getKey(), resolveName(), getDescription(),
                 typeConverter.convertToDatabaseValue(getType()), getMin(),
-                getMax(), isRequired(), getEnumerators(), resolveInternal(),
+                getMax(), isRequired(), getEnumerators(), resolveInternal(), getFixedSize(),
                 parameterConverter.convertToDatabaseValue(getParameter()), resolveTagEnabler());
     }
 
@@ -437,6 +460,9 @@ public class TagDefinition extends JsonPrintable implements Serializable {
         builder.append(",\n").append(generateEntity(StructureConstants.ENUMERATORS_KEY, enumeratorsString, false, indent));
         if (resolveInternal() != null) {
             builder.append(",\n").append(generateEntity(StructureConstants.INTERNAL_KEY, "\n" + resolveInternal().toString(indent + 2), false, indent));
+        }
+        if (getFixedSize() > -1) {
+            builder.append(",\n").append(generateEntity(StructureConstants.FIXED_LIST_SIZE_KEY, getFixedSize(), false, indent));
         }
         if (parameter != TagDefinitionProto.Parameter.NONE) {
             builder.append(",\n").append(generateEntity(StructureConstants.PARAMETER_KEY, parameter, true, indent));

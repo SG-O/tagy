@@ -23,6 +23,7 @@ import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -36,16 +37,20 @@ public class TagString extends Tag {
         this.value = value;
     }
 
-    public TagString(@NotNull TagDefinition definition, @NotNull JsonNode document) {
+    public TagString(@NotNull TagDefinition definition, @Nullable JsonNode jsonNode) {
         super(definition);
         if (definition.getType() != TagDefinitionProto.Type.STRING) throw new IllegalArgumentException("Definition is not of type string");
-        JsonNode value = document.get("value");
-        if (value == null) value = document.get(getKey());
+        if (jsonNode == null) {
+            value = "";
+            return;
+        }
+        JsonNode value = jsonNode.get("value");
+        if (value == null) value = jsonNode.get(getKey());
         String tmp = null;
         if (value != null) {
             tmp = value.asText();
-        } else if (document.isValueNode()){
-            tmp = document.asText();
+        } else if (jsonNode.isValueNode()) {
+            tmp = jsonNode.asText();
         }
         if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
         this.value = tmp;

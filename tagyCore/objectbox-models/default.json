@@ -211,7 +211,7 @@
     },
     {
       "id": "7:2263346785548643076",
-      "lastPropertyId": "12:9086341235806726940",
+      "lastPropertyId": "13:6641430539954778978",
       "name": "TagDefinition",
       "properties": [
         {
@@ -280,6 +280,11 @@
           "type": 11,
           "flags": 520,
           "relationTarget": "TagEnablerDefinition"
+        },
+        {
+          "id": "13:6641430539954778978",
+          "name": "fixedSize",
+          "type": 5
         }
       ],
       "relations": []

@@ -114,10 +114,10 @@ class TagLongTest {
         assertNotEquals(tag0, tag2);
         assertNotEquals(tag0, tag3);
 
-        assertEquals(-1487749201, tag0.hashCode());
-        assertEquals(1139349455, tag1.hashCode());
-        assertEquals(-1487749200, tag2.hashCode());
-        assertEquals(1139349456, tag3.hashCode());
+        assertEquals(1124356374, tag0.hashCode());
+        assertEquals(960036086, tag1.hashCode());
+        assertEquals(1124356375, tag2.hashCode());
+        assertEquals(960036087, tag3.hashCode());
         assertEquals(tag0.hashCode(), tag4.hashCode());
     }
 

@@ -28,6 +28,7 @@ public class StructureConstants {
     public static final String REQUIRED_KEY = "required";
     public static final String ENUMERATORS_KEY = "enumerators";
     public static final String INTERNAL_KEY = "internal";
+    public static final String FIXED_LIST_SIZE_KEY = "fixedListSize";
     public static final String PARAMETER_KEY = "parameter";
     public static final String TAG_ENABLER_KEY = "tagEnabler";
 

@@ -16,7 +16,8 @@ message TagDefinition {
   repeated string enumerators = 8;
   optional Parameter parameter = 9;
   optional TagDefinition internal = 10;
-  optional TagEnablerDefinition tagEnabler = 11;
+  optional int32 fixedSize = 11;
+  optional TagEnablerDefinition tagEnabler = 12;
 }
 
 enum Type {
@@ -28,9 +29,6 @@ enum Type {
   STRING = 5;
   DATE = 6;
   BOOLEAN = 7;
-  TUPLE_2 = 8;
-  TUPLE_3 = 9;
-  TUPLE_4 = 10;
 }
 
 enum Parameter {
@@ -42,7 +40,9 @@ enum Parameter {
   OUT = 2;
   //Total length of the video or audio in milliseconds
   LENGTH = 3;
-  LINE = 4;
-  RECTANGLE = 5;
-  CIRCLE = 6;
+  POINT_2D = 4; //Indicates that the fixed size list with at least 2 values should be interpreted as a 2d point
+  POINT_3D = 5; //Indicates that the fixed size list with at least 3 values should be interpreted as a 3d point
+  LINE = 6; //Indicates that a fixed size list with at least 4 values should be interpreted as a line segment between two points.
+  RECTANGLE = 7; //Indicates that the fixed size list with at least 4 values should be interpreted as a rectangle with a start point and width and height.
+  CIRCLE = 8; //Indicates that the fixed size list with at least 3 values should be interpreted as a circle with a center point and radius.
 }

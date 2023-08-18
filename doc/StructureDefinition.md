@@ -155,6 +155,7 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
                 "description": "Tag Description",
                 "required": true
             },
+        "fixedListSize": 3,
         "tagEnabler":
             {
                 "selectorKey": "enabler",
@@ -163,6 +164,24 @@ Must be one of "LONG", "DOUBLE", "ENUM", "STRING", "DATE" or "LIST".
     }
 
 "internal":     REQUIRED - The tag definition of the values contained in the list.
+
+"fixedListSize":    OPTIONAL - This list should have this many values. The list is initialized with default values.
+
+## Default Values
+
+Long:           0
+
+Double:         NaN
+
+Boolean:        false
+
+Enum:           -1 / UNRECOGNIZED
+
+String:         "" (Empty String)
+
+Date:           Thu Jan 01 1970 00:00:00 GMT+0000 (Unix Epoch)
+
+List:           Empty list / List with default values (if fixed sized)
 
 ## Parameter
 
@@ -179,6 +198,7 @@ The parameter can give values a special meaning with special features:
 Allows the input to only be shown when a specific Enum entry is selected.
 
 "selectorKey":  The key of the enum to act as the selector. Must reference an Enum or a List of Enums.
+
 "enumEntry":    The Enum entry that should make the input visible.
 
 ## Example

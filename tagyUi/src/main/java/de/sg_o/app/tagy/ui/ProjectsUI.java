@@ -161,6 +161,7 @@ public class ProjectsUI extends JFrame {
             inspectButton.setEnabled(false);
             create.setEnabled(false);
         }
+        projectManager.reload();
         if (projectManager.getSize() > 0) {
             projectList.setSelectedIndex(0);
             MetaDataMigration metaDataMigration = new MetaDataMigration(projectManager);

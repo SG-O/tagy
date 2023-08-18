@@ -143,8 +143,10 @@ public class TagContainer {
         switch (td.getType()) {
             case LIST:
                 out = new TagList(td);
-                for (TagContainer tc : this.listValues) {
-                    ((TagList) out).addValue(tc.getTag());
+                ToMany<TagContainer> values = this.listValues;
+                for (int i = 0; i < values.size(); i++) {
+                    TagContainer tc = values.get(i);
+                    ((TagList) out).setValue(tc.getTag(), i);
                 }
                 break;
             case LONG:

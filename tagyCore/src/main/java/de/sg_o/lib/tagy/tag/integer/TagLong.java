@@ -23,6 +23,7 @@ import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -34,16 +35,20 @@ public class TagLong extends Tag {
         this.value = value;
     }
 
-    public TagLong(@NotNull TagDefinition definition, @NotNull JsonNode document) {
+    public TagLong(@NotNull TagDefinition definition, @Nullable JsonNode jsonNode) {
         super(definition);
         if (definition.getType() != TagDefinitionProto.Type.LONG) throw new IllegalArgumentException("Definition is not of type long");
-        JsonNode value = document.get("value");
-        if (value == null) value = document.get(getKey());
+        if (jsonNode == null) {
+            value = 0L;
+            return;
+        }
+        JsonNode value = jsonNode.get("value");
+        if (value == null) value = jsonNode.get(getKey());
         Long tmp = null;
         if (value != null) {
             tmp = value.longValue();
-        } else if (document.canConvertToLong()){
-            tmp = document.longValue();
+        } else if (jsonNode.canConvertToLong()) {
+            tmp = jsonNode.longValue();
         }
         if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
         this.value = tmp;

@@ -24,6 +24,7 @@ import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 import java.util.Objects;
@@ -36,16 +37,20 @@ public class TagDate extends Tag {
         this.value = value;
     }
 
-    public TagDate(@NotNull TagDefinition definition, @NotNull JsonNode document) {
+    public TagDate(@NotNull TagDefinition definition, @Nullable JsonNode jsonNode) {
         super(definition);
         if (definition.getType() != TagDefinitionProto.Type.DATE) throw new IllegalArgumentException("Definition is not of type date");
-        JsonNode value = document.get("value");
-        if (value == null) value = document.get(getKey());
+        if (jsonNode == null) {
+            value = new Date(0L);
+            return;
+        }
+        JsonNode value = jsonNode.get("value");
+        if (value == null) value = jsonNode.get(getKey());
         Long tmp = null;
         if (value != null) {
             tmp = value.longValue();
-        } else if (document.canConvertToLong()){
-            tmp = document.longValue();
+        } else if (jsonNode.canConvertToLong()) {
+            tmp = jsonNode.longValue();
         }
         if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
         this.value = new Date(tmp);

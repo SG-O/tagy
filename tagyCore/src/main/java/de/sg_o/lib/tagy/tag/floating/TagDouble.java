@@ -23,6 +23,7 @@ import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.proto.tagy.TagDefinitionProto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -34,16 +35,20 @@ public class TagDouble extends Tag {
         this.value = value;
     }
 
-    public TagDouble(@NotNull TagDefinition definition, @NotNull JsonNode document) {
+    public TagDouble(@NotNull TagDefinition definition, @Nullable JsonNode jsonNode) {
         super(definition);
         if (definition.getType() != TagDefinitionProto.Type.DOUBLE) throw new IllegalArgumentException("Definition is not of type double");
-        JsonNode value = document.get("value");
-        if (value == null) value = document.get(getKey());
+        if (jsonNode == null) {
+            value = Double.NaN;
+            return;
+        }
+        JsonNode value = jsonNode.get("value");
+        if (value == null) value = jsonNode.get(getKey());
         Double tmp = null;
         if (value != null) {
             tmp = value.asDouble();
-        } else if (document.isValueNode()){
-            tmp = document.asDouble();
+        } else if (jsonNode.isValueNode()) {
+            tmp = jsonNode.asDouble();
         }
         if (tmp == null) throw new IllegalArgumentException("Document does not contain key");
         this.value = tmp;

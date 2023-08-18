@@ -172,6 +172,30 @@ class TagDefinitionTest {
     }
 
     @Test
+    void getFixedSize() {
+        assertEquals(-1, td0.getFixedSize());
+        assertEquals(-1, td1.getFixedSize());
+        assertEquals(-1, td2.getFixedSize());
+        assertEquals(-1, td3.getFixedSize());
+        assertEquals(-1, td4.getFixedSize());
+        assertEquals(-1, td5.getFixedSize());
+
+        td0.setFixedSize(2);
+        td1.setFixedSize(2);
+        td2.setFixedSize(2);
+        td3.setFixedSize(2);
+        td4.setFixedSize(2);
+        td5.setFixedSize(2);
+
+        assertEquals(2, td0.getFixedSize());
+        assertEquals(-1, td1.getFixedSize());
+        assertEquals(-1, td2.getFixedSize());
+        assertEquals(-1, td3.getFixedSize());
+        assertEquals(-1, td4.getFixedSize());
+        assertEquals(-1, td5.getFixedSize());
+    }
+
+    @Test
     void getInternal() {
         assertNull(td0.resolveInternal());
         assertNull(td1.resolveInternal());
@@ -205,12 +229,12 @@ class TagDefinitionTest {
         assertNotEquals(td0, td5);
         assertEquals(td0, td6);
 
-        assertEquals(441889780, td0.hashCode());
-        assertEquals(191235251, td1.hashCode());
-        assertEquals(-59419278, td2.hashCode());
-        assertEquals(-310044016, td3.hashCode());
-        assertEquals(-560728336, td4.hashCode());
-        assertEquals(-811382865, td5.hashCode());
+        assertEquals(813680331, td0.hashCode());
+        assertEquals(1633324524, td1.hashCode());
+        assertEquals(-1841998579, td2.hashCode());
+        assertEquals(-1021430865, td3.hashCode());
+        assertEquals(-202710193, td4.hashCode());
+        assertEquals(616934000, td5.hashCode());
         assertEquals(td0.hashCode(), td6.hashCode());
 
         td0.setMin(1);
@@ -238,6 +262,7 @@ class TagDefinitionTest {
         assertTrue(td3.addEnumerator("TEST1"));
 
         td0.setInternal(new TagDefinition("Key", TagDefinitionProto.Type.LONG));
+        td0.setFixedSize(4);
 
         td0.setTagEnabler(new TagEnablerDefinition("test3", 0));
         td1.setTagEnabler(new TagEnablerDefinition("test3", "TEST"));
@@ -414,6 +439,7 @@ class TagDefinitionTest {
         assertTrue(td3.addEnumerator("TEST1"));
 
         td0.setInternal(new TagDefinition("Key", TagDefinitionProto.Type.LONG));
+        td0.setFixedSize(4);
 
         td0.setTagEnabler(new TagEnablerDefinition("test3", 0));
         td1.setTagEnabler(new TagEnablerDefinition("test3", "TEST"));
@@ -437,6 +463,7 @@ class TagDefinitionTest {
                         "\t\t\t\"required\": false,\n" +
                         "\t\t\t\"enumerators\": []\n" +
                         "\t\t},\n" +
+                        "\t\"fixedListSize\": 4,\n" +
                         "\t\"parameter\": \"IN\",\n" +
                         "\t\"tagEnabler\": \n" +
                         "\t\t{\n" +
@@ -613,6 +640,7 @@ class TagDefinitionTest {
     @Test
     void proto() {
         td0.setInternal(new TagDefinition("Key", TagDefinitionProto.Type.LONG));
+        td0.setFixedSize(4);
 
         TagDefinition td7 = new TagDefinition(td0.getAsProto());
         TagDefinition td8 = new TagDefinition(td1.getAsProto());

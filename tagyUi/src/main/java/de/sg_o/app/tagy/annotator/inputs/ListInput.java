@@ -46,11 +46,15 @@ public class ListInput extends Input {
         JScrollPane scrollList = new JScrollPane(list);
         scrollList.setBorder(BorderFactory.createEmptyBorder(0,0,5,0));
         component.add(scrollList);
-        JButton addButton = new JButton("Add");
-        addButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        component.add(addButton);
+        if (tagDefinition.getFixedSize() < 0) {
+            JButton addButton = new JButton("Add");
+            addButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+            component.add(addButton);
+            addButton.addActionListener(e -> addChild(null));
+        } else {
+            reset(null);
+        }
         component.setToolTipText(getTagDefinition().getKey());
-        addButton.addActionListener(e -> addChild(null));
     }
 
     public ListInput(Tag tag) {
@@ -85,7 +89,7 @@ public class ListInput extends Input {
             }
         }
 
-        children.add(new ChildListEntry(child));
+        children.add(new ChildListEntry(child, super.getTagDefinition()));
         refreshList();
     }
 
@@ -118,7 +122,12 @@ public class ListInput extends Input {
         }
         children.clear();
         refreshList();
-        if (tag == null) return;
+        if (tag == null) {
+            if (super.getTagDefinition().getFixedSize() < 0) {
+                return;
+            }
+            tag = new TagList(super.getTagDefinition());
+        }
         if (tag instanceof TagList) {
             TagList tagList = (TagList) tag;
             for (Tag child : tagList.getValue()) {
@@ -137,8 +146,9 @@ public class ListInput extends Input {
         Integer value = getValue();
         if (value == null) return null;
         TagList tagList = new TagList(super.getTagDefinition(), value);
-        for (ChildListEntry child : children) {
-            tagList.addValue(child.getChild().getTag());
+        for (int i = 0; i < children.size(); i++) {
+            ChildListEntry child = children.get(i);
+            tagList.setValue(child.getChild().getTag(), i);
         }
         return tagList;
     }
@@ -161,17 +171,19 @@ public class ListInput extends Input {
     private class ChildListEntry extends JPanel {
         private final Input child;
 
-        public ChildListEntry(Input child) {
+        public ChildListEntry(Input child, TagDefinition tagDefinition) {
             setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
             add(child.getComponent());
-            JButton removeButton = new JButton("x");
-            removeButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-            removeButton.addActionListener(e -> {
-                children.remove(this);
-                child.reset(null);
-                refreshList();
-            });
-            add(removeButton);
+            if (tagDefinition.getFixedSize() < 0) {
+                JButton removeButton = new JButton("x");
+                removeButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                removeButton.addActionListener(e -> {
+                    children.remove(this);
+                    child.reset(null);
+                    refreshList();
+                });
+                add(removeButton);
+            }
             this.child = child;
         }
 

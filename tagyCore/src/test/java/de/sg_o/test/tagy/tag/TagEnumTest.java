@@ -157,11 +157,11 @@ class TagEnumTest {
         assertNotEquals(tag0, tag3);
         assertNotEquals(tag0, tag4);
 
-        assertEquals(-2019525326, tag0.hashCode());
-        assertEquals(607573330, tag1.hashCode());
-        assertEquals(-1960419982, tag2.hashCode());
-        assertEquals(666678675, tag3.hashCode());
-        assertEquals(-2019525322, tag4.hashCode());
+        assertEquals(1819165713, tag0.hashCode());
+        assertEquals(1654845425, tag1.hashCode());
+        assertEquals(-643535919, tag2.hashCode());
+        assertEquals(-807856206, tag3.hashCode());
+        assertEquals(1819165717, tag4.hashCode());
         assertEquals(tag0.hashCode(), tag5.hashCode());
     }
 
