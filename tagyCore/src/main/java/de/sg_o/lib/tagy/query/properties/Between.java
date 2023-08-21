@@ -21,6 +21,7 @@ import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
+import de.sg_o.proto.tagy.query.BetweenProto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -53,6 +54,21 @@ public class Between extends QueryProperty {
         doubleUpperBounds = upperBounds;
     }
 
+    public Between(@NotNull BetweenProto.Between proto) {
+        super(proto.getQueryElement());
+        if (proto.hasLongLowerBounds() && proto.hasLongUpperBounds()) {
+            this.queryProperty = () -> TagContainer_.longValue.between(proto.getLongLowerBounds(), proto.getLongUpperBounds());
+            longLowerBounds = proto.getLongLowerBounds();
+            longUpperBounds = proto.getLongUpperBounds();
+        } else if (proto.hasDoubleLowerBounds() && proto.hasDoubleUpperBounds()) {
+            this.queryProperty = () -> TagContainer_.doubleValue.between(proto.getDoubleLowerBounds(), proto.getDoubleUpperBounds());
+            doubleLowerBounds = proto.getDoubleLowerBounds();
+            doubleUpperBounds = proto.getDoubleUpperBounds();
+        } else {
+            throw new IllegalArgumentException("Missing Values");
+        }
+    }
+
 
     @Override
     protected @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec() {
@@ -60,12 +76,25 @@ public class Between extends QueryProperty {
     }
 
     @Override
-    protected boolean matches(TagContainer tc) {
+    public boolean matches(TagContainer tc) {
         if (tc == null) return false;
         if (longLowerBounds != null && longUpperBounds != null && tc.getLongValue() != null)
             return (tc.getLongValue() >= longLowerBounds) && (tc.getLongValue() <= longUpperBounds);
         if (doubleLowerBounds != null && doubleUpperBounds != null && tc.getDoubleValue() != null)
             return (tc.getDoubleValue() >= doubleLowerBounds) && (tc.getDoubleValue() <= doubleUpperBounds);
         return false;
+    }
+
+    public @NotNull BetweenProto.Between getAsProto() {
+        BetweenProto.Between.Builder builder = BetweenProto.Between.newBuilder();
+        builder.setQueryElement(getSuperProto());
+        if (longLowerBounds != null && longUpperBounds != null) {
+            builder.setLongLowerBounds(longLowerBounds);
+            builder.setLongUpperBounds(longUpperBounds);
+        } else if (doubleLowerBounds != null && doubleUpperBounds != null) {
+            builder.setDoubleLowerBounds(doubleLowerBounds);
+            builder.setDoubleUpperBounds(doubleUpperBounds);
+        }
+        return builder.build();
     }
 }

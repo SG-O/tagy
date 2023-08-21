@@ -1,0 +1,15 @@
+syntax = "proto3";
+import "query/queryElement.proto";
+option java_package = "de.sg_o.proto.tagy.query";
+option java_outer_classname = "NotEqualsProto";
+
+//SpecVersion: 1
+
+message NotEquals {
+  QueryElement queryElement = 1;
+  oneof lowerBounds {
+    int64 longValue = 2;
+    bool boolValue = 4;
+    string stringValue = 5;
+  }
+}

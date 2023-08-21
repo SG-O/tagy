@@ -1,0 +1,11 @@
+syntax = "proto3";
+import "query/queryElement.proto";
+option java_package = "de.sg_o.proto.tagy.query";
+option java_outer_classname = "ContainsProto";
+
+//SpecVersion: 1
+
+message Contains {
+  QueryElement queryElement = 1;
+  string stringValue = 2;
+}

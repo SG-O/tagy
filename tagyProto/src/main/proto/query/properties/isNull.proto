@@ -1,0 +1,10 @@
+syntax = "proto3";
+import "query/queryElement.proto";
+option java_package = "de.sg_o.proto.tagy.query";
+option java_outer_classname = "IsNullProto";
+
+//SpecVersion: 1
+
+message IsNull {
+  QueryElement queryElement = 1;
+}

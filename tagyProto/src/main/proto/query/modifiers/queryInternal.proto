@@ -1,0 +1,18 @@
+syntax = "proto3";
+import "query/queryElement.proto";
+import "google/protobuf/any.proto";
+option java_package = "de.sg_o.proto.tagy.query";
+option java_outer_classname = "QueryInternalProto";
+
+//SpecVersion: 1
+
+message QueryInternal {
+  QueryElement queryElement = 1;
+  google.protobuf.Any queryElementChild = 2;
+  MatchCondition matchCondition = 3;
+}
+
+enum MatchCondition {
+  MATCH_ONE = 0;
+  MATCH_ALL = 1;
+}

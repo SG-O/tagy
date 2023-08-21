@@ -21,6 +21,7 @@ import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
+import de.sg_o.proto.tagy.query.NotNullProto;
 
 public class NotNull extends QueryProperty {
     private final @org.jetbrains.annotations.NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> queryProperty;
@@ -33,14 +34,29 @@ public class NotNull extends QueryProperty {
                 .or(TagContainer_.stringValue.notNull());
     }
 
+    public NotNull(@org.jetbrains.annotations.NotNull NotNullProto.NotNull proto) {
+        super(proto.getQueryElement());
+        this.queryProperty = () -> TagContainer_.longValue.notNull()
+                .or(TagContainer_.doubleValue.notNull())
+                .or(TagContainer_.booleanValue.notNull())
+                .or(TagContainer_.stringValue.notNull());
+    }
+
     @Override
     protected @org.jetbrains.annotations.NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec() {
         return queryProperty;
     }
 
     @Override
-    protected boolean matches(TagContainer tc) {
+    public boolean matches(TagContainer tc) {
         if (tc == null) return false;
         return (tc.getLongValue() != null || tc.getDoubleValue() != null || tc.getBooleanValue() != null || tc.getStringValue() != null);
+    }
+
+    @Override
+    public @org.jetbrains.annotations.NotNull NotNullProto.NotNull getAsProto() {
+        NotNullProto.NotNull.Builder builder = NotNullProto.NotNull.newBuilder();
+        builder.setQueryElement(getSuperProto());
+        return builder.build();
     }
 }

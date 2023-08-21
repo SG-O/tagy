@@ -21,6 +21,7 @@ import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
+import de.sg_o.proto.tagy.query.StartsWithProto;
 import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,15 +36,29 @@ public class StartsWith extends QueryProperty {
         stringValue = value;
     }
 
+    public StartsWith(@NotNull StartsWithProto.StartsWith proto) {
+        super(proto.getQueryElement());
+        this.stringValue = proto.getStringValue();
+        this.queryProperty = () -> TagContainer_.stringValue.startsWith(this.stringValue, QueryBuilder.StringOrder.CASE_SENSITIVE);
+    }
+
     @Override
     protected @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec() {
         return queryProperty;
     }
 
     @Override
-    protected boolean matches(TagContainer tc) {
+    public boolean matches(TagContainer tc) {
         if (tc == null) return false;
         if (tc.getStringValue() != null) return tc.getStringValue().startsWith(stringValue);
         return false;
+    }
+
+    @Override
+    public @NotNull StartsWithProto.StartsWith getAsProto() {
+        StartsWithProto.StartsWith.Builder builder = StartsWithProto.StartsWith.newBuilder();
+        builder.setQueryElement(getSuperProto());
+        builder.setStringValue(this.stringValue);
+        return builder.build();
     }
 }

@@ -22,6 +22,7 @@ import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition_;
+import de.sg_o.proto.tagy.query.QueryElementProto;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class QueryProperty extends QueryElement {
@@ -30,9 +31,13 @@ public abstract class QueryProperty extends QueryElement {
         super(tagDefinition);
     }
 
+    public QueryProperty(QueryElementProto.QueryElement proto) {
+        super(proto);
+    }
+
     protected abstract @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec();
 
-    public @NotNull QueryBoxSpec<TagContainer> genrateQuerySpec() {
+    public @NotNull QueryBoxSpec<TagContainer> generateQuerySpec() {
         return qb -> {
             qb.link(TagContainer_.tagDefinition)
                     .apply(TagDefinition_.key.equal(getKey(), io.objectbox.query.QueryBuilder.StringOrder.CASE_SENSITIVE));

@@ -21,6 +21,7 @@ import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
+import de.sg_o.proto.tagy.query.LessProto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -50,18 +51,43 @@ public class Less extends QueryProperty {
         doubleValue = value;
     }
 
+    public Less(@NotNull LessProto.Less proto) {
+        super(proto.getQueryElement());
+        if (proto.hasLongValue()) {
+            this.longValue = proto.getLongValue();
+            this.queryProperty = () -> TagContainer_.longValue.less(this.longValue);
+        } else if (proto.hasDoubleValue()) {
+            this.doubleValue = proto.getDoubleValue();
+            this.queryProperty = () -> TagContainer_.doubleValue.less(this.doubleValue);
+        } else {
+            throw new IllegalArgumentException("Missing Values");
+        }
+    }
+
     @Override
     protected @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec() {
         return queryProperty;
     }
 
     @Override
-    protected boolean matches(TagContainer tc) {
+    public boolean matches(TagContainer tc) {
         if (tc == null) return false;
         if (longValue != null && tc.getLongValue() != null)
             return (tc.getLongValue() <= longValue);
         if (doubleValue != null && tc.getDoubleValue() != null)
             return (tc.getDoubleValue() <= doubleValue);
         return false;
+    }
+
+    @Override
+    public @NotNull LessProto.Less getAsProto() {
+        LessProto.Less.Builder builder = LessProto.Less.newBuilder();
+        builder.setQueryElement(getSuperProto());
+        if (longValue != null) {
+            builder.setLongValue(this.longValue);
+        } else if (doubleValue != null) {
+            builder.setDoubleValue(this.doubleValue);
+        }
+        return builder.build();
     }
 }

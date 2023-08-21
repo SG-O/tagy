@@ -21,18 +21,25 @@ import de.sg_o.lib.tagy.data.TagContainer;
 import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
+import de.sg_o.proto.tagy.query.ContainsProto;
 import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 
 public class Contains extends QueryProperty {
     private final @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> queryProperty;
 
-    private final String stringValue;
+    private final @NotNull String stringValue;
 
     public Contains(TagDefinition tagDefinition, @NotNull String value) {
         super(tagDefinition);
         this.queryProperty = () -> TagContainer_.stringValue.contains(value, QueryBuilder.StringOrder.CASE_SENSITIVE);
         stringValue = value;
+    }
+
+    public Contains(@NotNull ContainsProto.Contains proto) {
+        super(proto.getQueryElement());
+        this.stringValue = proto.getStringValue();
+        this.queryProperty = () -> TagContainer_.stringValue.contains(this.stringValue, QueryBuilder.StringOrder.CASE_SENSITIVE);
     }
 
 
@@ -42,9 +49,17 @@ public class Contains extends QueryProperty {
     }
 
     @Override
-    protected boolean matches(TagContainer tc) {
+    public boolean matches(TagContainer tc) {
         if (tc == null) return false;
         if (tc.getStringValue() != null) return tc.getStringValue().contains(stringValue);
         return false;
+    }
+
+    @Override
+    public @NotNull ContainsProto.Contains getAsProto() {
+        ContainsProto.Contains.Builder builder = ContainsProto.Contains.newBuilder();
+        builder.setQueryElement(getSuperProto());
+        builder.setStringValue(this.stringValue);
+        return builder.build();
     }
 }

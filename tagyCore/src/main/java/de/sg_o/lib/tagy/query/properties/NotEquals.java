@@ -22,6 +22,7 @@ import de.sg_o.lib.tagy.data.TagContainer_;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.query.QueryProperty;
 import de.sg_o.proto.tagy.TagDefinitionProto;
+import de.sg_o.proto.tagy.query.NotEqualsProto;
 import io.objectbox.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,6 +67,22 @@ public class NotEquals extends QueryProperty {
         stringValue = value;
     }
 
+    public NotEquals(@NotNull NotEqualsProto.NotEquals proto) {
+        super(proto.getQueryElement());
+        if (proto.hasLongValue()) {
+            this.longValue = proto.getLongValue();
+            this.queryProperty = () -> TagContainer_.longValue.notEqual(this.longValue);
+        } else if (proto.hasBoolValue()) {
+            this.boolValue = proto.getBoolValue();
+            this.queryProperty = () -> TagContainer_.booleanValue.notEqual(this.boolValue);
+        } else if (proto.hasStringValue()) {
+            this.stringValue = proto.getStringValue();
+            this.queryProperty = () -> TagContainer_.stringValue.notEqual(this.stringValue, QueryBuilder.StringOrder.CASE_SENSITIVE);
+        } else {
+            throw new IllegalArgumentException("Missing Values");
+        }
+    }
+
 
     @Override
     protected @NotNull de.sg_o.lib.tagy.db.QueryProperty<TagContainer> getTagContainerQuerySpec() {
@@ -73,11 +90,25 @@ public class NotEquals extends QueryProperty {
     }
 
     @Override
-    protected boolean matches(TagContainer tc) {
+    public boolean matches(TagContainer tc) {
         if (tc == null) return false;
         if (longValue != null) return !longValue.equals(tc.getLongValue());
         if (boolValue != null) return !boolValue.equals(tc.getBooleanValue());
         if (stringValue != null) return !stringValue.equals(tc.getStringValue());
         return false;
+    }
+
+    @Override
+    public @NotNull NotEqualsProto.NotEquals getAsProto() {
+        NotEqualsProto.NotEquals.Builder builder = NotEqualsProto.NotEquals.newBuilder();
+        builder.setQueryElement(getSuperProto());
+        if (longValue != null) {
+            builder.setLongValue(this.longValue);
+        } else if (boolValue != null) {
+            builder.setBoolValue(this.boolValue);
+        } else if (stringValue != null) {
+            builder.setStringValue(this.stringValue);
+        }
+        return builder.build();
     }
 }

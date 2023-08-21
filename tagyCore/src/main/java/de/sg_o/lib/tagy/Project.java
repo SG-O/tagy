@@ -101,12 +101,20 @@ public class Project {
         return DB.queryFirst(Project.class, queryBoxSpec);
     }
 
-    public static Project openOrCreate(String name, User user) {
+    public static Project open(String name) {
+        if (name == null) return null;
+        name = Util.sanitize(name, new char[]{'_', '-'}, false, true, 250);
+        if (name.isEmpty()) return null;
+        String finalName = name;
         QueryBoxSpec<Project> qbs = qb -> {
-            qb = qb.equal(Project_.projectName, name, io.objectbox.query.QueryBuilder.StringOrder.CASE_SENSITIVE);
+            qb = qb.equal(Project_.projectName, finalName, io.objectbox.query.QueryBuilder.StringOrder.CASE_SENSITIVE);
             return qb;
         };
-        Project found = queryFirst(qbs);
+        return queryFirst(qbs);
+    }
+
+    public static Project openOrCreate(@NotNull String name, User user) {
+        Project found = open(name);
         if (found == null) {
             found = new Project(name, user);
             found.save();
