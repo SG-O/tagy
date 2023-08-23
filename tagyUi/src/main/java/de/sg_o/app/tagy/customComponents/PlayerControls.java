@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("SameParameterValue")
 public class PlayerControls {
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
@@ -59,6 +60,7 @@ public class PlayerControls {
     private final Input out;
 
     private final SectionedSliderUI sectionedSliderUI;
+    private boolean wasPlaying;
 
     public PlayerControls(@NotNull PlayBin playBin, Input in, Input out) {
         inButton.setIcon(Icons.START_20);
@@ -76,6 +78,7 @@ public class PlayerControls {
         fixButtonKeyPress(nextFrameButton);
         fixButtonKeyPress(skip10Button);
         fixButtonKeyPress(outButton);
+        fixButtonKeyPress(progress);
 
         sectionedSliderUI = new SectionedSliderUI(progress);
         progress.setUI(sectionedSliderUI);
@@ -87,6 +90,7 @@ public class PlayerControls {
         rewindButton.addActionListener(e -> {
             playBin.stop();
             playBin.seek(0);
+            playBin.pause();
         });
         rewind10Button.addActionListener(e -> skipTime(-10000));
         playPauseButton.addActionListener(e -> playPause());
@@ -109,6 +113,8 @@ public class PlayerControls {
         progress.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                wasPlaying = playBin.isPlaying();
+                playBin.pause();
                 JSlider sourceSlider = (JSlider) e.getSource();
                 SectionedSliderUI ui = (SectionedSliderUI) sourceSlider.getUI();
                 int value = ui.valueForXPosition(e.getX());
@@ -118,6 +124,11 @@ public class PlayerControls {
                     float pro = value / 10000.0f;
                     playBin.seekSimple(Format.TIME, EnumSet.of(SeekFlags.FLUSH), (long) (pro * length));
                 }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (wasPlaying) playBin.play();
             }
         });
 
@@ -142,11 +153,15 @@ public class PlayerControls {
         if (playing) playBin.play();
     }
 
-    private void fixButtonKeyPress(JButton button) {
-        button.getInputMap(JComponent.WHEN_FOCUSED)
+    private void fixButtonKeyPress(JComponent component) {
+        component.getInputMap(JComponent.WHEN_FOCUSED)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "none");
-        button.getInputMap(JComponent.WHEN_FOCUSED)
+        component.getInputMap(JComponent.WHEN_FOCUSED)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), "none");
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "none");
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), "none");
     }
 
     public void in() {
