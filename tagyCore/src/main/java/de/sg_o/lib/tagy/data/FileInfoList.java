@@ -17,41 +17,38 @@
 
 package de.sg_o.lib.tagy.data;
 
+import de.sg_o.lib.tagy.util.PagedList;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
 import java.util.List;
 
 import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
 
 public class FileInfoList extends AbstractTableModel {
     @NotNull
-    private final DataManager dataManager;
-    @NotNull
-    private List<FileInfo> files;
+    private final PagedList<FileInfo> files;
     private final int pageSize;
 
     private int currentPage = 0;
 
     public FileInfoList(@NotNull DataManager dataManager, int pageSize) {
-        this.dataManager = dataManager;
-        files = dataManager.getFiles(false, pageSize, 0);
+        files = dataManager.getFiles(false, pageSize);
         this.pageSize = pageSize;
     }
 
-    public ArrayList<FileInfo> getFiles() {
-        return new ArrayList<>(files);
+    public List<FileInfo> getFiles() {
+        return files.subList(currentPage * pageSize, (currentPage + 1) * pageSize);
     }
 
     public int getCurrentPage() {
         return currentPage;
     }
 
-    public void setCurrentPage(int currentPage) {
-        if (currentPage < 0) currentPage = 0;
-        files = dataManager.getFiles(false, pageSize, currentPage * pageSize);
-        this.currentPage = currentPage;
+    public void setCurrentPage(int page) {
+        if (page < 0) page = 0;
+        files.preparePages(page * pageSize);
+        this.currentPage = page;
         fireTableDataChanged();
     }
 

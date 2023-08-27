@@ -81,6 +81,19 @@ public class DB {
         return results;
     }
 
+    public static <T> long count(Class<T> entityClass, QueryBoxSpec<T> queryBoxSpec) {
+        BoxStore db = getDb();
+        if (db == null) return 0;
+        Box<T> box = db.boxFor(entityClass);
+        if (box == null) return 0;
+        long count;
+        try (Query<T> query = queryBoxSpec.buildQuery(box.query()).build()) {
+            count = query.count();
+        }
+        db.closeThreadResources();
+        return count;
+    }
+
     public static <T> T queryFirst(Class<T> entityClass,  QueryBoxSpec<T> queryBoxSpec) {
         BoxStore db = getDb();
         if (db == null) return null;

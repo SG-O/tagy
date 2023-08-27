@@ -147,7 +147,7 @@ class FileInfoTest {
 
         assertEquals(3L, box.count());
 
-        List<FileInfo> fileInfos = FileInfo.query(p0, false, 0,0);
+        List<FileInfo> fileInfos = FileInfo.query(p0, false, 10);
         assertEquals(3, fileInfos.size());
 
         FileInfo qr0 = FileInfo.queryFirst(p0, qb -> qb

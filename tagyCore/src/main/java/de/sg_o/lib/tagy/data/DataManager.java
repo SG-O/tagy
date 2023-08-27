@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
-import de.sg_o.lib.tagy.util.FileInfoIterator;
+import de.sg_o.lib.tagy.util.PagedList;
 import de.sg_o.proto.tagy.DataManagerProto;
 import de.sg_o.proto.tagy.DataSourceProto;
 import io.objectbox.Box;
@@ -39,10 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.AbstractTableModel;
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static de.sg_o.lib.tagy.util.MessageLoader.getMessageFromBundle;
@@ -163,12 +160,12 @@ public class DataManager extends AbstractTableModel {
 
     @SuppressWarnings("unused")
     @JsonProperty(value = "data", index = 1)
-    public FileInfoIterator getFileInfoIterator() {
-        return new FileInfoIterator(resolveProject());
+    public ListIterator<FileInfo> getFileInfoIterator() {
+        return FileInfo.query(resolveProject(), false, 100).listIterator();
     }
 
-    public @NotNull List<FileInfo> getFiles(boolean nonAnnotatedOnly, int length, int offset) {
-        return FileInfo.query(resolveProject(), nonAnnotatedOnly, length, offset);
+    public @NotNull PagedList<FileInfo> getFiles(boolean nonAnnotatedOnly, int pageLength) {
+        return FileInfo.query(resolveProject(), nonAnnotatedOnly, pageLength);
     }
 
     public FileInfo getNextFile() {
@@ -189,10 +186,11 @@ public class DataManager extends AbstractTableModel {
         synchronized (lock) {
             Date endDate = new Date(new Date().getTime() + checkoutFor);
             db.runInTx(() -> {
-                fileInfos.set(FileInfo.query(project.getTarget(), qbs, count, 0));
-                for (FileInfo fileInfo : fileInfos.get()) {
-                    if (!fileInfo.checkOut(endDate)) {
-                        fileInfos.get().remove(fileInfo);
+                PagedList<FileInfo> foundFileInfos = FileInfo.query(project.getTarget(), qbs, count);
+                for (FileInfo fileInfo : foundFileInfos) {
+                    if (fileInfo.checkOut(endDate)) {
+                        fileInfos.get().add(fileInfo);
+                    } else {
                         continue;
                     }
                     fileInfo.save();

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
+import de.sg_o.lib.tagy.util.ChunkGetter;
+import de.sg_o.lib.tagy.util.PagedList;
 import de.sg_o.lib.tagy.util.UrlConverter;
 import de.sg_o.proto.tagy.FileInfoProto;
 import io.objectbox.Box;
@@ -95,20 +97,31 @@ public class FileInfo {
         return found;
     }
 
-    public static List<FileInfo> query(@NotNull Project project, @NotNull QueryBoxSpec<FileInfo> queryBoxSpec, int count, int offset) {
+    public static PagedList<FileInfo> query(@NotNull Project project, @NotNull QueryBoxSpec<FileInfo> queryBoxSpec, int pageLength) {
         QueryBoxSpec<FileInfo> qbs = qb -> queryBoxSpec.buildQuery(qb)
                 .apply(FileInfo_.projectId.equal(project.getId()));
-        return DB.query(FileInfo.class, qbs, count, offset);
+        ChunkGetter<FileInfo> chunkGetter = new ChunkGetter<FileInfo>() {
+            @Override
+            public List<FileInfo> getChunk(int length, int offset) {
+                return DB.query(FileInfo.class, qbs, length, offset);
+            }
+
+            @Override
+            public int getTotal() {
+                return (int) DB.count(FileInfo.class, qbs);
+            }
+        };
+        return new PagedList<>(chunkGetter, pageLength);
     }
 
-    public static List<FileInfo> query(@NotNull Project project, boolean nonAnnotatedOnly, int count, int offset) {
+    public static PagedList<FileInfo> query(@NotNull Project project, boolean nonAnnotatedOnly, int pageLength) {
         QueryBoxSpec<FileInfo> qbs = qb -> {
             if (nonAnnotatedOnly) {
                 qb = qb.apply(FileInfo_.annotated.equal(false));
             }
             return qb;
         };
-        return query(project, qbs, count, offset);
+        return query(project, qbs, pageLength);
     }
 
     public static FileInfo queryFirst(@NotNull Project project, @NotNull QueryBoxSpec<FileInfo> queryBoxSpec) {
