@@ -370,18 +370,18 @@ public class PagedListTest {
         assertNotEquals(pagedList0, pagedList1);
         assertEquals(pagedList7, pagedList8);
 
-        assertEquals(1640710054L, pagedList0.hashCode());
-        assertEquals(1640709868L, pagedList1.hashCode());
-        assertEquals(1640709868L, pagedList2.hashCode());
-        assertEquals(1640710829L, pagedList3.hashCode());
-        assertEquals(1640710829L, pagedList4.hashCode());
-        assertEquals(1640710829L, pagedList5.hashCode());
-        assertEquals(1640711790L, pagedList6.hashCode());
-        assertEquals(1640708907L, pagedList7.hashCode());
-        assertEquals(1640708907L, pagedList8.hashCode());
-        assertEquals(1640708907L, pagedList9.hashCode());
-        assertEquals(1640708907L, pagedList10.hashCode());
-        assertEquals(1640709868L, pagedList11.hashCode());
+        assertEquals(2260L, pagedList0.hashCode());
+        assertEquals(2254L, pagedList1.hashCode());
+        assertEquals(2254L, pagedList2.hashCode());
+        assertEquals(2285L, pagedList3.hashCode());
+        assertEquals(2285L, pagedList4.hashCode());
+        assertEquals(2285L, pagedList5.hashCode());
+        assertEquals(2316L, pagedList6.hashCode());
+        assertEquals(2223L, pagedList7.hashCode());
+        assertEquals(2223L, pagedList8.hashCode());
+        assertEquals(2223L, pagedList9.hashCode());
+        assertEquals(2223L, pagedList10.hashCode());
+        assertEquals(2254L, pagedList11.hashCode());
 
         assertNotEquals(pagedList0.hashCode(), pagedList1.hashCode());
         assertEquals(pagedList7.hashCode(), pagedList8.hashCode());

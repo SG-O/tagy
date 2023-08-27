@@ -533,6 +533,6 @@ public class PagedList<T> implements List<T> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(thirdPage, allowAutomaticLoading, chunkGetter);
+        return Objects.hash(thirdPage, allowAutomaticLoading);
     }
 }
