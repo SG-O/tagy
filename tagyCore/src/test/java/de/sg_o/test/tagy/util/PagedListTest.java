@@ -186,6 +186,51 @@ public class PagedListTest {
         testGetAutomatic(pagedList9);
         testGetAutomatic(pagedList10);
         testGetAutomatic(pagedList11);
+
+        assertEquals(5, pagedList1.getPageLength());
+        pagedList1.setPageLength(2);
+        assertEquals(2, pagedList1.getPageLength());
+        testGetAutomatic(pagedList1);
+        assertEquals(6, pagedList2.getPageLength());
+        pagedList2.setPageLength(2);
+        assertEquals(2, pagedList2.getPageLength());
+        testGetAutomatic(pagedList2);
+        assertEquals(7, pagedList3.getPageLength());
+        pagedList3.setPageLength(2);
+        assertEquals(2, pagedList3.getPageLength());
+        testGetAutomatic(pagedList3);
+        assertEquals(8, pagedList4.getPageLength());
+        pagedList4.setPageLength(2);
+        assertEquals(2, pagedList4.getPageLength());
+        testGetAutomatic(pagedList4);
+        assertEquals(9, pagedList5.getPageLength());
+        pagedList5.setPageLength(2);
+        assertEquals(2, pagedList5.getPageLength());
+        testGetAutomatic(pagedList5);
+        assertEquals(10, pagedList6.getPageLength());
+        pagedList6.setPageLength(2);
+        assertEquals(2, pagedList6.getPageLength());
+        testGetAutomatic(pagedList6);
+        assertEquals(1, pagedList7.getPageLength());
+        pagedList7.setPageLength(20);
+        assertEquals(20, pagedList7.getPageLength());
+        testGetAutomatic(pagedList7);
+        assertEquals(1, pagedList8.getPageLength());
+        pagedList8.setPageLength(20);
+        assertEquals(20, pagedList8.getPageLength());
+        testGetAutomatic(pagedList8);
+        assertEquals(2, pagedList9.getPageLength());
+        pagedList9.setPageLength(20);
+        assertEquals(20, pagedList9.getPageLength());
+        testGetAutomatic(pagedList9);
+        assertEquals(3, pagedList10.getPageLength());
+        pagedList10.setPageLength(20);
+        assertEquals(20, pagedList10.getPageLength());
+        testGetAutomatic(pagedList10);
+        assertEquals(4, pagedList11.getPageLength());
+        pagedList11.setPageLength(20);
+        assertEquals(20, pagedList11.getPageLength());
+        testGetAutomatic(pagedList11);
     }
 
 
@@ -258,6 +303,12 @@ public class PagedListTest {
 
         List<String> sublist = pagedList.subList(5, 45);
         assertEquals(testData.subList(5, 45), sublist);
+
+        assertEquals(testData.get(0), pagedList.get(0));
+        assertEquals(testData.get(1), pagedList.get(1));
+        assertEquals(testData.get(2), pagedList.get(2));
+        assertEquals(testData.get(3), pagedList.get(3));
+        assertEquals(testData.get(4), pagedList.get(4));
     }
 
     @Test

@@ -41,7 +41,8 @@ public class PagedList<T> implements List<T> {
     private List<T> page3 = new ArrayList<>(); //centerPage + 1
     private List<T> page4 = new ArrayList<>(); //centerPage + 2
 
-    private final int thirdPage;
+    private int pageLength;
+    private int thirdPage;
     private final boolean allowAutomaticLoading;
 
     private int centerPage = -3;
@@ -78,6 +79,7 @@ public class PagedList<T> implements List<T> {
      */
     public PagedList(@NotNull ChunkGetter<T> chunkGetter, int pageLength, boolean allowAutomaticLoading) {
         if (pageLength < 1) pageLength = 1;
+        this.pageLength = pageLength;
         this.chunkGetter = chunkGetter;
         this.thirdPage = (pageLength + 2) / 3;
         this.allowAutomaticLoading = allowAutomaticLoading;
@@ -183,6 +185,65 @@ public class PagedList<T> implements List<T> {
         } else {
             this.centerPage = newCenterPage;
             getAll();
+        }
+    }
+
+    /**
+     * Returns the current page length.
+     *
+     * @return The current page length.
+     */
+    public int getPageLength() {
+        return pageLength;
+    }
+
+    /**
+     * Sets the page length. Loaded Data will be realigned. Missing data will be fetched.
+     * Blocking if an update of the list data was in progress while calling.
+     *
+     * @param pageLength The new page length.
+     */
+    public void setPageLength(int pageLength) {
+        if (pageLength < 0) pageLength = 1;
+        int firstIndex = (centerPage - 2) * this.thirdPage;
+        if (firstIndex < 0) firstIndex = 0;
+        ArrayList<T> temp = new ArrayList<>(5 * this.thirdPage);
+        for (int i = -2; i <= 2; i++) {
+            List<T> list = getListForPage(i);
+            if (list == null) {
+                continue;
+            }
+            temp.addAll(list);
+        }
+
+        this.pageLength = pageLength;
+        this.thirdPage = (pageLength + 2) / 3;
+        this.centerPage = calculateCenterPage(firstIndex, false);
+
+        int indexInPage = calculateIndexInPage(firstIndex);
+        int offset = 0;
+        if (indexInPage > 0) offset = this.thirdPage - indexInPage;
+        int firstFullPage = calculatePage(firstIndex + offset);
+        int start = Math.min(firstFullPage, centerPage - 2);
+        for (int i = start; i <= centerPage + 2; i++) {
+            int page = i - (centerPage - 2);
+            if (i < firstFullPage && i >= (centerPage - 2)) {
+                getChunk(i, i - (centerPage - 2));
+                continue;
+            }
+            if (i < (centerPage - 2)) {
+                offset += this.thirdPage;
+                continue;
+            }
+            if ((offset + this.thirdPage) > temp.size()) {
+                getChunk(i, page);
+                continue;
+            }
+            awaitUpdate(page);
+            synchronized (updating[page]) {
+                setPage(temp.subList(offset, offset + this.thirdPage), page);
+                offset += this.thirdPage;
+            }
         }
     }
 
