@@ -202,6 +202,7 @@ public class Project {
         return DB.delete(Project.class, qbs);
     }
 
+    @SuppressWarnings("unused")
     @JsonProperty(value = "annotated", index = 4)
     private List<MetaData> getMetaDataList() {
         return MetaData.queryAll(this, 100);
