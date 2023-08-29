@@ -103,7 +103,7 @@ class ExportTest {
         String exported = Export.asString(p0, Export.Format.JSON);
         assertEquals(75, exported.split("\r\n|\r|\n").length);
         exported = Export.asString(p0, Export.Format.XML);
-        assertEquals(97, exported.split("\r\n|\r|\n").length);
+        assertEquals(99, exported.split("\r\n|\r|\n").length);
         exported = Export.asString(p0, Export.Format.YAML);
         assertEquals(63, exported.split("\r\n|\r|\n").length);
     }

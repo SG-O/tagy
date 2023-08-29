@@ -129,7 +129,7 @@ class MetaDataTest {
     @Test
     void save() {
         MetaData.deleteAll(project0);
-        List<MetaData> metaDataList = MetaData.queryAll(project0, 0, 0);
+        List<MetaData> metaDataList = MetaData.queryAll(project0, 10);
         assertEquals(0, metaDataList.size());
 
         assertFalse(md0.save());
@@ -141,7 +141,7 @@ class MetaDataTest {
         assertTrue(md0.save());
         assertTrue(md1.save());
 
-        metaDataList = MetaData.queryAll(project0, 0, 0);
+        metaDataList = MetaData.queryAll(project0, 10);
         assertEquals(2, metaDataList.size());
 
         MetaData md2 = MetaData.queryFirst(fi0, project0);

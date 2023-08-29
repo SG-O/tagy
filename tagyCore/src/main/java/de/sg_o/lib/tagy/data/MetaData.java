@@ -26,6 +26,7 @@ import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.TagDefinition;
 import de.sg_o.lib.tagy.tag.Tag;
 import de.sg_o.lib.tagy.tag.TagMigration;
+import de.sg_o.lib.tagy.util.PagedList;
 import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
 import de.sg_o.proto.tagy.MetaDataProto;
@@ -108,16 +109,16 @@ public class MetaData implements Serializable {
         this.tags = null;
     }
 
-    public static List<MetaData> query(QueryBoxSpec<MetaData> queryBoxSpec, int length, int offset) {
-        return DB.query(MetaData.class, queryBoxSpec, length, offset);
+    public static PagedList<MetaData> query(QueryBoxSpec<MetaData> queryBoxSpec, int pageLength) {
+        return DB.queryPaged(MetaData.class, queryBoxSpec, pageLength);
     }
 
-    public static List<MetaData> queryAll(Project project, int length, int offset) {
+    public static PagedList<MetaData> queryAll(Project project, int pageLength) {
         QueryBoxSpec<MetaData> qbs = qb -> {
             qb = qb.equal(MetaData_.projectId, project.getId());
             return qb;
         };
-        return query(qbs, length, offset);
+        return query(qbs, pageLength);
     }
 
     public static MetaData queryFirst(QueryBoxSpec<MetaData> queryBoxSpec) {
@@ -222,7 +223,7 @@ public class MetaData implements Serializable {
         tags = null;
     }
 
-    @JsonProperty(index = 1)
+    @JsonProperty(value = "tags", index = 1)
     @JsonSerialize(using = TagContainerListSerializer.class)
     public ToMany<TagContainer> getTagContainers() {
         if (this.tags != null) migrateTags();

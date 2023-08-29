@@ -38,7 +38,11 @@ public class FileInfoList extends AbstractTableModel {
     }
 
     public List<FileInfo> getFiles() {
-        return files.subList(currentPage * pageSize, (currentPage + 1) * pageSize);
+        int toIndex = (currentPage + 1) * pageSize;
+        if (toIndex > files.size()) {
+            toIndex = files.size();
+        }
+        return files.subList(currentPage * pageSize, toIndex);
     }
 
     public int getCurrentPage() {
@@ -47,6 +51,10 @@ public class FileInfoList extends AbstractTableModel {
 
     public void setCurrentPage(int page) {
         if (page < 0) page = 0;
+        int firsIndex = page * pageSize;
+        if (firsIndex >= files.size()) {
+            return;
+        }
         files.preparePages(page * pageSize);
         this.currentPage = page;
         fireTableDataChanged();
@@ -54,7 +62,11 @@ public class FileInfoList extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return files.size();
+        int toIndex = (currentPage + 1) * pageSize;
+        if (toIndex > files.size()) {
+            return files.size() % pageSize;
+        }
+        return pageSize;
     }
 
     @Override
@@ -74,13 +86,16 @@ public class FileInfoList extends AbstractTableModel {
         }
     }
 
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        int index = rowIndex + (currentPage * pageSize);
+        if (index < 0 || index >= files.size()) return null;
         switch (columnIndex) {
             case 0:
-                return files.get(rowIndex).getAbsolutePath();
+                return files.get(rowIndex + (currentPage * pageSize)).getAbsolutePath();
             case 1:
-                return files.get(rowIndex).isAnnotated();
+                return files.get(rowIndex + (currentPage * pageSize)).isAnnotated();
             default:
                 return null;
         }

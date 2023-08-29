@@ -18,6 +18,8 @@
 package de.sg_o.lib.tagy.db;
 
 import de.sg_o.lib.tagy.MyObjectBox;
+import de.sg_o.lib.tagy.util.ChunkGetter;
+import de.sg_o.lib.tagy.util.PagedList;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.BoxStoreBuilder;
@@ -92,6 +94,21 @@ public class DB {
         }
         db.closeThreadResources();
         return count;
+    }
+
+    public static <T> PagedList<T> queryPaged(Class<T> entityClass, QueryBoxSpec<T> queryBoxSpec, int pageLength) {
+        ChunkGetter<T> chunkGetter = new ChunkGetter<T>() {
+            @Override
+            public List<T> getChunk(int length, int offset) {
+                return DB.query(entityClass, queryBoxSpec, length, offset);
+            }
+
+            @Override
+            public int getTotal() {
+                return (int) DB.count(entityClass, queryBoxSpec);
+            }
+        };
+        return new PagedList<>(chunkGetter, pageLength);
     }
 
     public static <T> T queryFirst(Class<T> entityClass,  QueryBoxSpec<T> queryBoxSpec) {

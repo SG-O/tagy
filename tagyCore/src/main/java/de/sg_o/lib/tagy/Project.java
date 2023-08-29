@@ -21,11 +21,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.data.DataManager;
 import de.sg_o.lib.tagy.data.DataManager_;
+import de.sg_o.lib.tagy.data.MetaData;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
 import de.sg_o.lib.tagy.def.StructureDefinition;
 import de.sg_o.lib.tagy.def.StructureDefinition_;
-import de.sg_o.lib.tagy.util.MetaDataIterator;
 import de.sg_o.lib.tagy.util.Util;
 import de.sg_o.lib.tagy.values.User;
 import de.sg_o.proto.tagy.ProjectProto;
@@ -202,10 +202,9 @@ public class Project {
         return DB.delete(Project.class, qbs);
     }
 
-    @SuppressWarnings("unused")
     @JsonProperty(value = "annotated", index = 4)
-    private MetaDataIterator getMetaDataIterator() {
-        return new MetaDataIterator(this);
+    private List<MetaData> getMetaDataList() {
+        return MetaData.queryAll(this, 100);
     }
 
     @Override

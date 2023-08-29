@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.sg_o.lib.tagy.Project;
 import de.sg_o.lib.tagy.db.DB;
 import de.sg_o.lib.tagy.db.QueryBoxSpec;
-import de.sg_o.lib.tagy.util.ChunkGetter;
 import de.sg_o.lib.tagy.util.PagedList;
 import de.sg_o.lib.tagy.util.UrlConverter;
 import de.sg_o.proto.tagy.FileInfoProto;
@@ -37,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties({"checkedOut"})
@@ -100,18 +98,7 @@ public class FileInfo {
     public static PagedList<FileInfo> query(@NotNull Project project, @NotNull QueryBoxSpec<FileInfo> queryBoxSpec, int pageLength) {
         QueryBoxSpec<FileInfo> qbs = qb -> queryBoxSpec.buildQuery(qb)
                 .apply(FileInfo_.projectId.equal(project.getId()));
-        ChunkGetter<FileInfo> chunkGetter = new ChunkGetter<FileInfo>() {
-            @Override
-            public List<FileInfo> getChunk(int length, int offset) {
-                return DB.query(FileInfo.class, qbs, length, offset);
-            }
-
-            @Override
-            public int getTotal() {
-                return (int) DB.count(FileInfo.class, qbs);
-            }
-        };
-        return new PagedList<>(chunkGetter, pageLength);
+        return DB.queryPaged(FileInfo.class, qbs, pageLength);
     }
 
     public static PagedList<FileInfo> query(@NotNull Project project, boolean nonAnnotatedOnly, int pageLength) {
