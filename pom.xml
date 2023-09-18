@@ -40,7 +40,7 @@
         <maven-javadoc-plugin-version>3.5.0</maven-javadoc-plugin-version>
 
         <objectboxVersion>3.6.0</objectboxVersion>
-        <intellij.version>232.8660.211</intellij.version>
+        <intellij.version>232.9921.53</intellij.version>
         <twelvemonkeys.version>3.9.4</twelvemonkeys.version>
         <protobuf.version>3.24.0</protobuf.version>
         <protobuf-plugin.version>0.7.1</protobuf-plugin.version>
